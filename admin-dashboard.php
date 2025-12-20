@@ -2654,14 +2654,18 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Icon (Bootstrap Icons)</label>
-                                        <div class="input-group">
+                                        <div class="input-group mb-2">
                                             <span class="input-group-text" id="valueIconPreview">
                                                 <i class="bi-square"></i>
                                             </span>
-                                            <input type="text" id="valueIcon" class="form-control" placeholder="Click button to select icon" readonly />
-                                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#iconPickerModal">
-                                                <i class="bi bi-search"></i> Pick Icon
-                                            </button>
+                                            <input type="text" id="valueIcon" class="form-control" placeholder="Selected icon class" readonly />
+                                        </div>
+                                        <input type="text" id="valueIconSearch" class="form-control" placeholder="Search icons (e.g. heart, star, settings)..." />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label d-block">Available Icons</label>
+                                        <div id="valueIconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;">
+                                            <!-- Icons will be loaded here -->
                                         </div>
                                     </div>
                                     <div class="row g-3">
@@ -2685,29 +2689,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                         </div>
                     </div>
                 </div>
-
-    <!-- Icon Picker Modal -->
-    <div class="modal fade" id="iconPickerModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Select Bootstrap Icon</h5>
-                    <button type="button" class="btn-close" id="iconPickerCloseBtn" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <input type="text" id="iconSearchInput" class="form-control" placeholder="Search icons (e.g. heart, star, settings)..." />
-                    </div>
-                    <div id="iconGridContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto;">
-                        <!-- Icons will be loaded here -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
                 
     <div class="modal fade" id="editVisionModal" tabindex="-1">
@@ -7136,87 +7117,69 @@ if ($_SESSION['role'] === 'Member Staff') {
                         .sort();
                     
                     // Organizational values keywords for intelligent filtering
-                    const orgKeywords = [
-                        'people', 'person', 'community', 'group', 'team', 'collaborate', 'collaboration', 'connect', 'connection',
-                        'hand', 'handshake', 'hands', 'together', 'support', 'help', 'share', 'sharing',
-                        'innovation', 'innovate', 'lightbulb', 'idea', 'creative', 'creativity', 'design',
-                        'education', 'educational', 'learn', 'knowledge', 'school', 'book', 'reading',
-                        'advocacy', 'advocate', 'voice', 'speech', 'communication', 'communicate', 'network',
-                        'growth', 'grow', 'develop', 'development', 'progress', 'upward', 'arrow-up', 'rocket',
-                        'mission', 'vision', 'goal', 'target', 'focus', 'strategy', 'plan', 'planning',
-                        'trust', 'integrity', 'shield', 'security', 'safe', 'check', 'verified', 'reliable',
-                        'building', 'foundation', 'structure', 'strong', 'stable',
-                        'success', 'achievement', 'award', 'star', 'excellence', 'achieve',
-                        'leader', 'leadership', 'lead', 'guide', 'mentor', 'coach',
-                        'partnership', 'partner', 'alliance', 'link', 'chain', 'connected',
-                        'care', 'caring', 'compassion', 'heart', 'wellbeing', 'wellness',
-                        'equal', 'equality', 'justice', 'fair', 'fairness', 'balance',
-                        'diversity', 'inclusion', 'inclusive', 'embrace', 'open',
-                        'energy', 'dynamic', 'active', 'engagement', 'engage',
-                        'quality', 'excellence', 'outstanding', 'premium'
+            // Initialize icon picker - load from official Bootstrap Icons JSON  
+            async function initializeIconPicker() {
+                try {
+                    // Fetch the icons from the local JSON file
+                    const response = await fetch('assets/bootstrap-icons-1.11.3/font/bootstrap-icons.json');
+                    if (!response.ok) throw new Error('Failed to load icons');
+                    
+                    const allIcons = await response.json();
+                    _bootstrapIcons = Object.keys(allIcons).map(key => key.replace('bi-', ''));
+                    
+                    // Initialize with popular organizational icons
+                    const popularKeywords = [
+                        'people', 'handshake', 'heart', 'star', 'lightbulb', 'target', 'book',
+                        'shield', 'chart', 'check', 'award', 'link', 'network', 'globe',
+                        'growth', 'trust', 'unity', 'vision', 'team', 'collaborate'
                     ];
                     
-                    // Filter icons by organizational keywords
-                    const orgIcons = _bootstrapIcons.filter(icon => {
-                        const iconName = icon.replace('bi-', '').toLowerCase();
-                        return orgKeywords.some(keyword => iconName.includes(keyword));
-                    });
+                    const popularIcons = _bootstrapIcons.filter(icon => 
+                        popularKeywords.some(keyword => icon.includes(keyword))
+                    ).slice(0, 100);
                     
-                    // If we found organizational icons, show those; otherwise show all
-                    const initialIcons = orgIcons.length > 0 ? orgIcons.slice(0, 100) : _bootstrapIcons.slice(0, 100);
-                    loadIconGrid(initialIcons);
+                    loadValueIconGrid(popularIcons);
                     
-                } catch (error) {
-                    console.error('Error loading Bootstrap Icons:', error);
-                    // Fallback: show a message
-                    const container = document.getElementById('iconGridContainer');
-                    if (container) {
-                        container.innerHTML = 
-                            '<p class="text-danger text-center">Unable to load icons. Please try again.</p>';
+                    // Set up search functionality for embedded icon picker
+                    const searchInput = document.getElementById('valueIconSearch');
+                    if (searchInput) {
+                        searchInput.addEventListener('input', function() {
+                            const query = this.value.toLowerCase();
+                            if (query.length === 0) {
+                                loadValueIconGrid(popularIcons);
+                            } else {
+                                const filtered = _bootstrapIcons.filter(icon => icon.includes(query));
+                                loadValueIconGrid(filtered.slice(0, 200));
+                            }
+                        });
                     }
+                } catch (error) {
+                    console.error('Error initializing icon picker:', error);
                 }
+            }
+
+            function loadValueIconGrid(icons) {
+                const container = document.getElementById('valueIconGrid');
+                if (!container) return;
                 
-                // Search functionality
-                const searchInput = document.getElementById('iconSearchInput');
-                if (searchInput) {
-                    searchInput.addEventListener('input', function(e) {
-                        const searchTerm = e.target.value.toLowerCase();
-                        if (searchTerm.length === 0) {
-                            // Show organizational-related icons if search is empty
-                            const orgKeywords = [
-                                'people', 'person', 'community', 'group', 'team', 'collaborate', 'collaboration', 'connect', 'connection',
-                                'hand', 'handshake', 'hands', 'together', 'support', 'help', 'share', 'sharing',
-                                'innovation', 'innovate', 'lightbulb', 'idea', 'creative', 'creativity', 'design',
-                                'education', 'educational', 'learn', 'knowledge', 'school', 'book', 'reading',
-                                'advocacy', 'advocate', 'voice', 'speech', 'communication', 'communicate', 'network',
-                                'growth', 'grow', 'develop', 'development', 'progress', 'upward', 'arrow-up', 'rocket',
-                                'mission', 'vision', 'goal', 'target', 'focus', 'strategy', 'plan', 'planning',
-                                'trust', 'integrity', 'shield', 'security', 'safe', 'check', 'verified', 'reliable',
-                                'building', 'foundation', 'structure', 'strong', 'stable',
-                                'success', 'achievement', 'award', 'star', 'excellence', 'achieve',
-                                'leader', 'leadership', 'lead', 'guide', 'mentor', 'coach',
-                                'partnership', 'partner', 'alliance', 'link', 'chain', 'connected',
-                                'care', 'caring', 'compassion', 'heart', 'wellbeing', 'wellness',
-                                'equal', 'equality', 'justice', 'fair', 'fairness', 'balance',
-                                'diversity', 'inclusion', 'inclusive', 'embrace', 'open',
-                                'energy', 'dynamic', 'active', 'engagement', 'engage',
-                                'quality', 'excellence', 'outstanding', 'premium'
-                            ];
-                            const orgIcons = _bootstrapIcons.filter(icon => {
-                                const iconName = icon.replace('bi-', '').toLowerCase();
-                                return orgKeywords.some(keyword => iconName.includes(keyword));
-                            });
-                            const initialIcons = orgIcons.length > 0 ? orgIcons.slice(0, 100) : _bootstrapIcons.slice(0, 100);
-                            loadIconGrid(initialIcons);
-                        } else {
-                            // Filter by search term - all available icons
-                            const filtered = _bootstrapIcons.filter(icon => 
-                                icon.replace('bi-', '').includes(searchTerm)
-                            ).slice(0, 500); // Limit results for performance
-                            loadIconGrid(filtered);
-                        }
+                container.innerHTML = icons.map(iconClass => `
+                    <div style="display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; border: 1px solid #e0e0e0; border-radius: 4px; transition: all 0.2s; background: white;" 
+                         class="icon-item" onclick="selectIcon('bi-${iconClass}')" title="bi-${iconClass}">
+                        <i class="bi bi-${iconClass}" style="font-size: 24px;"></i>
+                    </div>
+                `).join('');
+                
+                // Add hover effects
+                document.querySelectorAll('.icon-item').forEach(item => {
+                    item.addEventListener('mouseover', () => {
+                        item.style.backgroundColor = '#f0f7ff';
+                        item.style.borderColor = '#035996';
                     });
-                }
+                    item.addEventListener('mouseout', () => {
+                        item.style.backgroundColor = 'white';
+                        item.style.borderColor = '#e0e0e0';
+                    });
+                });
             }
 
             function loadIconGrid(icons) {
@@ -7255,56 +7218,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                     
                     container.appendChild(div);
                 });
-            }
-
-            function selectIcon(iconClass) {
-                // Update the input field with the selected icon class
-                const iconInput = document.getElementById('valueIcon');
-                if (iconInput) {
-                    iconInput.value = iconClass;
-                }
-                
-                // Update the preview with the selected icon
-                const preview = document.getElementById('valueIconPreview');
-                if (preview) {
-                    preview.innerHTML = `<i class="bi ${iconClass}"></i>`;
-                }
-                
-                // Show a brief confirmation (visual feedback)
-                if (iconInput) {
-                    const originalText = iconInput.placeholder;
-                    iconInput.placeholder = '✓ Icon selected! Save the value to apply.';
-                    setTimeout(() => {
-                        if (iconInput) {
-                            iconInput.placeholder = originalText;
-                        }
-                    }, 2000);
-                }
-                
-                // Close icon picker modal ONLY using DOM manipulation (avoid event propagation)
-                setTimeout(() => {
-                    const iconModal = document.getElementById('iconPickerModal');
-                    if (iconModal) {
-                        // Use DOM manipulation to hide modal without triggering close events
-                        iconModal.classList.remove('show');
-                        iconModal.setAttribute('aria-hidden', 'true');
-                        
-                        // Remove just the icon picker modal's backdrop
-                        const backdrops = document.querySelectorAll('.modal-backdrop');
-                        if (backdrops.length > 0) {
-                            // Remove the last backdrop (most recently added, should be icon picker)
-                            backdrops[backdrops.length - 1].remove();
-                        }
-                        
-                        // If there's still a parent modal (newValueModal), restore body scroll
-                        const parentModal = document.getElementById('newValueModal');
-                        if (parentModal && parentModal.classList.contains('show')) {
-                            document.body.classList.add('modal-open');
-                        } else {
-                            document.body.classList.remove('modal-open');
-                        }
-                    }
-                }, 50);
             }
 
             async function loadValues() {
