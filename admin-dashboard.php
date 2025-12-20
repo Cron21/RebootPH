@@ -6,9 +6,21 @@ require_once 'api/config.php';
 // Check kung naka-login at kung may officer role (not Member or Member Staff)
 $officerRoles = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator', 'Finance Officer', 'Meal Officer'];
 
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
-    // Kung hindi officer ang role, i-redirect sa member dashboard
-    header("Location: login.html?error=not_officer");
+if (!isset($_SESSION['role'])) {
+    // Not logged in - redirect to login
+    header("Location: login.html");
+    exit();
+}
+
+if (!in_array($_SESSION['role'], $officerRoles) && $_SESSION['role'] !== 'Member Staff') {
+    // Invalid role - redirect to login
+    header("Location: login.html?error=invalid_role");
+    exit();
+}
+
+if ($_SESSION['role'] === 'Member Staff') {
+    // Member Staff users should access member dashboard
+    header("Location: member-dashboard.php");
     exit();
 }
 ?>
