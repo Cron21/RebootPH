@@ -5920,7 +5920,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                     '"': '&quot;',
                     "'": '&#039;'
                 };
-                return text.replace(/[&<>"']/g, m => map[m]);
+                // Convert to string in case text is null, undefined, or a number
+                const str = String(text || '');
+                return str.replace(/[&<>"']/g, m => map[m]);
             }
 
             // Initialize initiatives management
