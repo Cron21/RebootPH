@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Mission & Vision Cards -->
-                <div class="row g-4 mt-5" id="missionVisionContainer">
+                <div class="row g-4 mt-3 " id="missionVisionContainer">
                     <p class="text-muted text-center col-12">Loading mission and vision...</p>
                 </div>
 
@@ -860,16 +860,16 @@ async function loadMemberBenefits() {
                     html += `
                         <div class="col-12 col-md-6">
                             <div class="card h-100 p-4 rounded-4 shadow-sm" style="min-height: 280px;">
-                                <div class="mb-3">
-                                    <i class="bi bi-bullseye" style="font-size:2.2rem;color:#0b4f86"></i>
+                                <div class="mb-3 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-bullseye" style="font-size:3rem;color:#0b4f86"></i>
                                 </div>
-                                <h3 class="h6 fw-bold mb-2" style="color: #02457A;">${escapeHtml(mission.title || 'Our Mission')}</h3>
-                                <p class="text-muted small mb-3">${escapeHtml(mission.subtitle || '')}</p>
+                                <h3 class="h6 fw-bold mb-2 d-flex align-items-center justify-content-center" style="color: #02457A;">${escapeHtml(mission.title || 'Our Mission')}</h3>
+                                <p class="text-muted small mb-3 d-flex align-items-center justify-content-center">${escapeHtml(mission.subtitle || '')}</p>
                                 ${bullets.length > 0 ? `
                                     <ul class="list-unstyled small text-muted">
                                         ${bullets.map(bullet => `<li class="mb-2"><i class="bi bi-check-circle-fill" style="color:#0b4f86; margin-right:0.5rem;"></i>${escapeHtml(bullet)}</li>`).join('')}
                                     </ul>
-                                ` : '<p class="text-muted">No details available</p>'}
+                                ` : '<p class="text-muted ">No details available</p>'}
                             </div>
                         </div>
                     `;
@@ -884,17 +884,18 @@ async function loadMemberBenefits() {
                     
                     html += `
                         <div class="col-12 col-md-6">
-                            <div class="card h-100 p-4 rounded-4 shadow-sm" style="min-height: 280px;">
+                            <div class="card h-100 p-4 rounded-4 shadow-sm d-flex align-items-center justify-content-center" style="min-height: 280px;">
                                 <div class="mb-3">
-                                    <i class="bi bi-eye" style="font-size:2.2rem;color:#0b4f86"></i>
+                                    <i class="bi bi-eye" style="font-size:3rem;color:#0b4f86"></i>
                                 </div>
-                                <h3 class="h6 fw-bold mb-2" style="color: #02457A;">${escapeHtml(vision.title || 'Our Vision')}</h3>
-                                <p class="text-muted small mb-3">${escapeHtml(vision.subtitle || '')}</p>
+
+                                <h3 class="h6 fw-bold mb-2 d-flex align-items-center justify-content-center" style="color: #02457A;">${escapeHtml(vision.title || 'Our Vision')}</h3>
+                                <p class="text-muted small mb-3 d-flex align-items-center justify-content-center">${escapeHtml(vision.subtitle || '')}</p>
                                 ${bullets.length > 0 ? `
                                     <ul class="list-unstyled small text-muted">
                                         ${bullets.map(bullet => `<li class="mb-2"><i class="bi bi-check-circle-fill" style="color:#0b4f86; margin-right:0.5rem;"></i>${escapeHtml(bullet)}</li>`).join('')}
                                     </ul>
-                                ` : '<p class="text-muted">No details available</p>'}
+                                ` : '<p class="text-muted ">No details available</p>'}
                             </div>
                         </div>
                     `;
