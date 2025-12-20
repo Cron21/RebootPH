@@ -2583,8 +2583,16 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         <textarea id="valueDescription" class="form-control" rows="3"></textarea>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Icon Class (Bootstrap icon class)</label>
-                                        <input type="text" id="valueIcon" class="form-control" placeholder="e.g. bi-heart" />
+                                        <label class="form-label">Icon (Bootstrap Icons)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="valueIconPreview">
+                                                <i class="bi-square"></i>
+                                            </span>
+                                            <input type="text" id="valueIcon" class="form-control" placeholder="Click button to select icon" readonly />
+                                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#iconPickerModal">
+                                                <i class="bi bi-search"></i> Pick Icon
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="row g-3">
                                         <div class="col-md-6">
@@ -2608,7 +2616,27 @@ if ($_SESSION['role'] === 'Member Staff') {
                     </div>
                 </div>
 
-    <!-- Edit Vision Modal -->
+    <!-- Icon Picker Modal -->
+    <div class="modal fade" id="iconPickerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Bootstrap Icon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" id="iconSearchInput" class="form-control" placeholder="Search icons (e.g. heart, star, settings)..." />
+                    </div>
+                    <div id="iconGridContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto;">
+                        <!-- Icons will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                
     <div class="modal fade" id="editVisionModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -6812,6 +6840,8 @@ if ($_SESSION['role'] === 'Member Staff') {
             function openAddValueModal() {
                 document.getElementById('valueForm').reset();
                 document.getElementById('valueId').value = '';
+                document.getElementById('valueIcon').value = '';
+                document.getElementById('valueIconPreview').innerHTML = '<i class="bi-square"></i>';
                 document.getElementById('newValueModalLabel').textContent = 'Add Value';
                 new bootstrap.Modal(document.getElementById('newValueModal')).show();
             }
@@ -6823,6 +6853,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('valueTitle').value = v.title || '';
                 document.getElementById('valueDescription').value = v.description || '';
                 document.getElementById('valueIcon').value = v.icon_class || '';
+                const iconClass = v.icon_class || 'bi-square';
+                document.getElementById('valueIconPreview').innerHTML = `<i class="bi ${iconClass}"></i>`;
                 document.getElementById('valueOrder').value = v.display_order || 1;
                 document.getElementById('valueActive').checked = (v.is_active == 1 || v.is_active === '1');
                 document.getElementById('newValueModalLabel').textContent = 'Edit Value';
@@ -6846,6 +6878,79 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             let _valuesCache = [];
+            let _bootstrapIcons = [];
+
+            // Bootstrap Icons list (common icons)
+            const bootstrapIconsList = [
+                'heart', 'star', 'gear', 'settings', 'bell', 'envelope', 'user', 'users', 'lock', 'unlock',
+                'eye', 'eye-slash', 'search', 'plus', 'minus', 'x', 'check', 'checkmark', 'trash', 'delete',
+                'edit', 'pencil', 'save', 'download', 'upload', 'folder', 'file', 'calendar', 'clock', 'time',
+                'home', 'house', 'building', 'briefcase', 'chart-bar', 'chart-line', 'graph', 'trend-up', 'trend-down',
+                'target', 'flag', 'bookmark', 'tag', 'tags', 'link', 'globe', 'map', 'compass', 'location',
+                'phone', 'telephone', 'mobile', 'code', 'terminal', 'bug', 'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right',
+                'refresh', 'reload', 'sync', 'loop', 'spinner', 'play', 'pause', 'stop', 'skip', 'volume',
+                'music', 'speaker', 'microphone', 'camera', 'image', 'picture', 'gallery', 'video', 'film',
+                'award', 'trophy', 'medal', 'cup', 'leaf', 'sun', 'moon', 'cloud', 'thunderstorm', 'droplet',
+                'lightbulb', 'lamp', 'fire', 'zap', 'battery', 'plug', 'wifi', 'bluetooth', 'antenna',
+                'palette', 'paint', 'brush', 'crayon', 'pen', 'pencil-square', 'highlighter', 'eraser',
+                'book', 'bookmark-fill', 'library', 'school', 'graduation', 'university', 'mortarboard',
+                'graduation-cap', 'backpack', 'bag', 'basket', 'box', 'package', 'gift', 'ribbon',
+                'flower1', 'flower2', 'flower3', 'leaf-fill', 'tree', 'pine-tree', 'palm-tree',
+                'soccer', 'basketball', 'football', 'baseball', 'tennis', 'badminton', 'hockey', 'lacrosse',
+                'dumbbell', 'fitness', 'bike', 'bicycle', 'motorcycle', 'truck', 'car', 'bus', 'train', 'tram',
+                'ship', 'airplane', 'rocket', 'helicopter', 'drone', 'ufo', 'hot-air-balloon', 'parachute',
+                'utensils', 'fork-knife', 'spoon', 'cup', 'teacup', 'wine-glass', 'beer', 'cocktail', 'coffee', 'tea',
+                'cake', 'cupcake', 'cookie', 'donut', 'candy', 'carrot', 'apple', 'lemon', 'orange', 'banana'
+            ];
+
+            // Initialize icon picker
+            function initializeIconPicker() {
+                _bootstrapIcons = bootstrapIconsList.map(icon => 'bi-' + icon);
+                loadIconGrid(_bootstrapIcons);
+                
+                // Search functionality
+                document.getElementById('iconSearchInput').addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filtered = _bootstrapIcons.filter(icon => 
+                        icon.replace('bi-', '').includes(searchTerm)
+                    );
+                    loadIconGrid(filtered);
+                });
+            }
+
+            function loadIconGrid(icons) {
+                const container = document.getElementById('iconGridContainer');
+                container.innerHTML = '';
+                
+                icons.forEach(iconClass => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'text-align: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px solid #ddd;';
+                    div.innerHTML = `<i class="bi ${iconClass}" style="font-size: 1.8rem;"></i>`;
+                    div.title = iconClass;
+                    
+                    div.addEventListener('mouseenter', () => {
+                        div.style.backgroundColor = '#e7f1fb';
+                        div.style.borderColor = '#035996';
+                    });
+                    
+                    div.addEventListener('mouseleave', () => {
+                        div.style.backgroundColor = '';
+                        div.style.borderColor = '#ddd';
+                    });
+                    
+                    div.addEventListener('click', () => {
+                        selectIcon(iconClass);
+                    });
+                    
+                    container.appendChild(div);
+                });
+            }
+
+            function selectIcon(iconClass) {
+                document.getElementById('valueIcon').value = iconClass;
+                document.getElementById('valueIconPreview').innerHTML = `<i class="bi ${iconClass}"></i>`;
+                bootstrap.Modal.getInstance(document.getElementById('iconPickerModal')).hide();
+            }
 
             async function loadValues() {
                 try {
@@ -6919,7 +7024,10 @@ if ($_SESSION['role'] === 'Member Staff') {
             window.openAddValueModal = openAddValueModal;
             window.editValue = editValue;
             window.deleteValue = deleteValue;
-            document.addEventListener('DOMContentLoaded', loadValues);
+            document.addEventListener('DOMContentLoaded', function() {
+                loadValues();
+                initializeIconPicker();
+            });
 
             // Load and display mission
             async function loadMission() {
