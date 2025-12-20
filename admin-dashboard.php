@@ -3,10 +3,12 @@
 // Huwag nang maglagay ng session_start() dito kung meron na sa config.php
 require_once 'api/config.php'; 
 
-// Check kung naka-login at kung Admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-    // Kung bakit ka nababalik sa login, ibig sabihin hindi 'Admin' ang laman ng $_SESSION['role']
-    header("Location: login.html?error=not_admin");
+// Check kung naka-login at kung may officer role (not Member or Member Staff)
+$officerRoles = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator', 'Finance Officer', 'Meal Officer'];
+
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
+    // Kung hindi officer ang role, i-redirect sa member dashboard
+    header("Location: login.html?error=not_officer");
     exit();
 }
 ?>

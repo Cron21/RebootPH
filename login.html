@@ -181,7 +181,10 @@
                     }));
 
                     // Redirect based on role
-                    if (data.role === 'Admin') {
+                    // Officer roles (except Member Staff) go to admin-dashboard
+                    const officerRoles = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator', 'Finance Officer', 'Meal Officer'];
+                    
+                    if (officerRoles.includes(data.role)) {
                         window.location.href = 'admin-dashboard.php';
                     } else {
                         window.location.href = 'member-dashboard.php';
