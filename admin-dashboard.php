@@ -2687,12 +2687,12 @@ if ($_SESSION['role'] === 'Member Staff') {
                 </div>
 
     <!-- Icon Picker Modal -->
-    <div class="modal fade" id="iconPickerModal" tabindex="-1">
+    <div class="modal fade" id="iconPickerModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Select Bootstrap Icon</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" id="iconPickerCloseBtn" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -2701,6 +2701,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <div id="iconGridContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto;">
                         <!-- Icons will be loaded here -->
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -7278,18 +7281,13 @@ if ($_SESSION['role'] === 'Member Staff') {
                     }, 2000);
                 }
                 
-                // Close ONLY the icon picker modal - keep the value modal open
-                const iconPickerModal = document.getElementById('iconPickerModal');
-                if (iconPickerModal) {
-                    try {
-                        const bsModal = bootstrap.Modal.getInstance(iconPickerModal);
-                        if (bsModal) {
-                            bsModal.hide();
-                        }
-                    } catch (e) {
-                        console.log('Modal close handled');
+                // Close icon picker modal using the close button
+                setTimeout(() => {
+                    const closeBtn = document.getElementById('iconPickerCloseBtn');
+                    if (closeBtn) {
+                        closeBtn.click();
                     }
-                }
+                }, 100);
             }
 
             async function loadValues() {
