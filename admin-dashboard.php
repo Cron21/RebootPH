@@ -7268,27 +7268,26 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
                 
                 // Show a brief confirmation (visual feedback)
-                const originalText = iconInput.placeholder;
-                iconInput.placeholder = '✓ Icon selected! Save the value to apply.';
-                setTimeout(() => {
-                    if (iconInput) {
-                        iconInput.placeholder = originalText;
-                    }
-                }, 2000);
+                if (iconInput) {
+                    const originalText = iconInput.placeholder;
+                    iconInput.placeholder = '✓ Icon selected! Save the value to apply.';
+                    setTimeout(() => {
+                        if (iconInput) {
+                            iconInput.placeholder = originalText;
+                        }
+                    }, 2000);
+                }
                 
-                // Close the icon picker modal
-                const modal = document.getElementById('iconPickerModal');
-                if (modal) {
-                    const bsModal = bootstrap.Modal.getInstance(modal);
-                    if (bsModal) {
-                        bsModal.hide();
-                    } else {
-                        // Fallback if modal instance doesn't exist
-                        modal.classList.remove('show');
-                        modal.style.display = 'none';
-                        document.body.classList.remove('modal-open');
-                        const backdrop = document.querySelector('.modal-backdrop');
-                        if (backdrop) backdrop.remove();
+                // Close ONLY the icon picker modal - keep the value modal open
+                const iconPickerModal = document.getElementById('iconPickerModal');
+                if (iconPickerModal) {
+                    try {
+                        const bsModal = bootstrap.Modal.getInstance(iconPickerModal);
+                        if (bsModal) {
+                            bsModal.hide();
+                        }
+                    } catch (e) {
+                        console.log('Modal close handled');
                     }
                 }
             }
