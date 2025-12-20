@@ -204,6 +204,20 @@
 
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Helper function to escape HTML special characters
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            // Convert to string in case text is null, undefined, or a number
+            const str = String(text || '');
+            return str.replace(/[&<>"']/g, m => map[m]);
+        }
+
         async function displayTeam() {
             try {
                 const response = await fetch('api/manage-about-us.php?type=org-team');
