@@ -532,38 +532,100 @@
             }
         }
 
-        // Load member benefits and render a bootstrap carousel / cards
-        async function loadMemberBenefits() {
-            try {
-                const res = await fetch('api/get-member-benefits.php');
-                const data = await res.json();
-                const container = document.getElementById('memberBenefitsContainer');
+        // Render member benefits as a Bootstrap carousel with uniform card height
+async function loadMemberBenefits() {
+    try {
+        const res = await fetch('api/get-member-benefits.php');
+        const data = await res.json();
+        const container = document.getElementById('memberBenefitsContainer');
 
-                if (!data.success || !data.benefits || data.benefits.length === 0) {
-                    container.innerHTML = '<p class="text-muted col-12 text-center">No member benefits available.</p>';
-                    return;
-                }
+        if (!data.success || !Array.isArray(data.benefits) || data.benefits.length === 0) {
+            container.innerHTML = '<p class="text-muted col-12 text-center">No member benefits available.</p>';
+            return;
+        }
 
-                // Build carousel items if you prefer a carousel; here we will render cards in columns but using a carousel when >3 items
-                const benefits = data.benefits;
-                const itemsHtml = benefits.map(b => {
-                    const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
-                    return `
+        const benefits = data.benefits;
+
+        // Measure longest card height by creating off-screen element with same card markup
+        const measurer = document.createElement('div');
+        measurer.style.position = 'absolute';
+        measurer.style.left = '-9999px';
+        measurer.style.top = '-9999px';
+        measurer.style.width = '320px'; // approximate card width for measurement (adjust if needed)
+        document.body.appendChild(measurer);
+
+        let maxHeight = 0;
+        benefits.forEach(b => {
+            const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
+            measurer.innerHTML = `
+                <div class="card p-4 rounded-4 shadow-sm text-center">
+                    <div class="mb-3">${iconHtml}</div>
+                    <h3 class="h6 fw-bold mb-2" style="color:#02457A;">${escapeHtml(b.Title)}</h3>
+                    <p class="text-muted">${escapeHtml(b.Description || '')}</p>
+                </div>`;
+            const h = measurer.offsetHeight;
+            if (h > maxHeight) maxHeight = h;
+        });
+
+        document.body.removeChild(measurer);
+
+        // Build carousel (3 cards per slide)
+        const perSlide = 3;
+        const slides = [];
+        for (let i = 0; i < benefits.length; i += perSlide) {
+            const group = benefits.slice(i, i + perSlide);
+            const cards = group.map(b => {
+                const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
+                return `
                     <div class="col-12 col-md-4">
-                        <div class="card h-100 p-4 rounded-4 shadow-sm text-center" style="min-height: 280px;">
+                        <div class="card h-100 p-4 rounded-4 shadow-sm text-center" style="min-height:${maxHeight}px; display:flex; flex-direction:column;">
                             <div class="mb-3">${iconHtml}</div>
                             <h3 class="h6 fw-bold mb-2" style="color:#02457A;">${escapeHtml(b.Title)}</h3>
-                            <p class="text-muted">${escapeHtml((b.Description||'').substring(0,140))}</p>
+                            <p class="text-muted mb-0" style="flex:1;">${escapeHtml((b.Description||'').substring(0, 500))}</p>
                         </div>
                     </div>`;
-                }).join('');
+            }).join('');
 
-                container.innerHTML = itemsHtml;
+            slides.push(`<div class="carousel-item">
+                <div class="row g-4 align-items-stretch">
+                    ${cards}
+                </div>
+            </div>`);
+        }
+
+        const carouselId = `memberBenefitsCarousel`;
+        const indicators = benefits.length > perSlide
+            ? `<div class="carousel-indicators">
+                ${slides.map((_, idx) => `<button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${idx}" ${idx===0?'class="active" aria-current="true"':''} aria-label="Slide ${idx+1}"></button>`).join('')}
+              </div>`
+            : '';
+
+        const inner = slides.map((s, idx) => s.replace('carousel-item', `carousel-item ${idx===0?'active':''}`)).join('');
+
+        container.innerHTML = `
+            <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                ${indicators}
+                <div class="carousel-inner py-3">
+                    ${inner}
+                </div>
+                ${benefits.length > perSlide ? `
+                    <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>` : ''}
+            </div>`;
             } catch (e) {
                 console.error('Error loading member benefits', e);
                 document.getElementById('memberBenefitsContainer').innerHTML = '<p class="text-muted col-12 text-center">Error loading member benefits.</p>';
             }
         }
+
+        // call it on load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof loadMemberBenefits === 'function') loadMemberBenefits();
+        });
 
         // Show initiative details in modal
         function showInitiativeDetails(index) {

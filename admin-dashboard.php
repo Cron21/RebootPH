@@ -6547,35 +6547,43 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             async function saveMemberBenefit() {
-                const id = document.getElementById('benefitId').value.trim();
-                const title = document.getElementById('benefitTitle').value.trim();
-                const description = document.getElementById('benefitDescription').value.trim();
-                const iconClass = document.getElementById('benefitIconClass').value.trim();
-                const order = parseInt(document.getElementById('benefitOrder').value || 0);
-                const isActive = document.getElementById('benefitIsActive').checked ? 1 : 0;
+            const id = document.getElementById('benefitId').value.trim();
+            const title = document.getElementById('benefitTitle').value.trim();
+            const description = document.getElementById('benefitDescription').value.trim();
+            const iconClass = document.getElementById('benefitIconClass').value.trim();
+            const order = parseInt(document.getElementById('benefitOrder').value || 0);
+            const isActive = document.getElementById('benefitIsActive').checked ? 1 : 0;
 
-                if (!title) { alert('Title required'); return; }
+            if (!title) { alert('Title required'); return; }
 
-                const action = id ? 'update' : 'create';
-                const payload = { action, title, description, iconClass, order, isActive };
-                if (id) payload.id = parseInt(id);
+            const action = id ? 'update' : 'create';
+            const payload = { action, title, description, iconClass, order, isActive };
+            if (id) payload.id = parseInt(id);
 
-                try {
-                    const res = await fetch('api/manage-member-benefits.php', {
-                        method: 'POST',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify(payload)
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        alert(data.message);
-                        bootstrap.Modal.getInstance(document.getElementById('memberBenefitModal')).hide();
-                        loadMemberBenefitsAdmin();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                } catch (e) { console.error(e); alert('Error saving benefit'); }
+            try {
+                const res = await fetch('api/manage-member-benefits.php', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    // hide only the member benefit modal
+                    const modalEl = document.getElementById('memberBenefitModal');
+                    const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modalInst.hide();
+                    // reload table
+                    if (typeof loadMemberBenefitsAdmin === 'function') loadMemberBenefitsAdmin();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error saving benefit');
             }
+        }
 
             async function deleteMemberBenefit(id, title) {
                 if (!confirm(`Delete "${title}"?`)) return;
