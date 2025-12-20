@@ -8754,14 +8754,14 @@ if ($_SESSION['role'] === 'Member Staff') {
                             const displayMemberSinceEl = document.getElementById('displayMemberSince');
                             const displayStatusEl = document.getElementById('displayStatus');
 
-                            if (displayFullNameEl) displayFullNameEl.value = window.currentMemberName;
-                            if (displayEmailEl) displayEmailEl.value = member.ApplicantEmail;
-                            if (displayPhoneEl) displayPhoneEl.value = member.Phone || '';
-                            if (displayRoleEl) displayRoleEl.value = member.Role || 'Member';
+                            if (displayFullNameEl) displayFullNameEl.textContent = window.currentMemberName;
+                            if (displayEmailEl) displayEmailEl.textContent = member.ApplicantEmail;
+                            if (displayPhoneEl) displayPhoneEl.textContent = member.Phone || 'N/A';
+                            if (displayRoleEl) displayRoleEl.textContent = member.Role || 'Member';
 
                             const joinDate = new Date(member.JoinDate);
-                            if (displayMemberSinceEl) displayMemberSinceEl.value = joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-                            if (displayStatusEl) displayStatusEl.value = member.isActive ? 'Active' : 'Inactive';
+                            if (displayMemberSinceEl) displayMemberSinceEl.textContent = joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+                            if (displayStatusEl) displayStatusEl.textContent = member.isActive ? 'Active' : 'Inactive';
 
                             // Display profile image
                             const profileImageEl = document.getElementById('displayProfileImage');
