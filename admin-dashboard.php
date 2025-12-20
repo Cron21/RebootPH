@@ -3965,12 +3965,12 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const activeInitiativesCard = document.getElementById('activeInitiativesCard');
                 if (activeInitiativesCard) {
                     activeInitiativesCard.addEventListener('click', function () {
-                        const contentMgmtLink = document.querySelector('a[href="#content-management"]');
+                        const contentMgmtLink = document.querySelector('a[href="#content"]');
                         if (contentMgmtLink) {
                             contentMgmtLink.click();
                             // Switch to initiatives tab after opening content management
                             setTimeout(function () {
-                                const initiativesTab = document.querySelector('button[data-bs-target="#initiativesMgmt"]');
+                                const initiativesTab = document.querySelector('a[href="#initiatives-content"]');
                                 if (initiativesTab) {
                                     initiativesTab.click();
                                 }
