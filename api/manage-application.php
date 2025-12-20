@@ -79,19 +79,8 @@ try {
                     throw new Exception('This application is being processed or has already been approved.');
                 }
 
-                // Now check if member already exists (inside transaction for safety)
-                $memberCheckStmt = $pdo->prepare("SELECT MemberID FROM member WHERE ApplicationID = ? FOR UPDATE");
-                $memberCheckStmt->execute([$applicationId]);
-                $existingMember = $memberCheckStmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($existingMember) {
-                    $pdo->rollBack();
-                    throw new Exception('A member record already exists for this application. Cannot create duplicate.');
-                }
-
-                // Create member record
-                $memberStmt = $pdo->prepare("INSERT INTO member (ApplicationID, Role, isActive, JoinDate) VALUES (?, 'Member Staff', 1, NOW())");
-                $memberStmt->execute([$applicationId]);
+                // NOTE: Member record is created automatically by database trigger
+                // when ApplicationStatus is set to 1. No manual insert needed.
 
                 // Commit transaction
                 $pdo->commit();
