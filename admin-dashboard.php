@@ -7281,13 +7281,22 @@ if ($_SESSION['role'] === 'Member Staff') {
                     }, 2000);
                 }
                 
-                // Close icon picker modal using the close button
+                // Close icon picker modal using Bootstrap API with focus back to parent
                 setTimeout(() => {
-                    const closeBtn = document.getElementById('iconPickerCloseBtn');
-                    if (closeBtn) {
-                        closeBtn.click();
+                    const iconModal = document.getElementById('iconPickerModal');
+                    if (iconModal) {
+                        // Get the Bootstrap modal instance and hide it
+                        const bsModal = bootstrap.Modal.getInstance(iconModal);
+                        if (bsModal) {
+                            bsModal.hide();
+                        }
+                        // Ensure the backdrop is removed
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) {
+                            backdrop.remove();
+                        }
                     }
-                }, 100);
+                }, 50);
             }
 
             async function loadValues() {
