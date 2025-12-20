@@ -137,34 +137,8 @@
         <section class="pb-5">
             <div class="container">
                 <h2 class="text-center fs-4 fw-bold mb-4 text-primary">Our Values</h2>
-                <div class="row g-4 justify-content-center">
-                    <div class="col-12 col-md-4">
-                        <div class="bg-white shadow-sm text-center p-4" style="border-radius: 18px;">
-                            <div class="mb-3" style="font-size: 2rem; color: #ffdd57;">💡</div>
-                            <h3 class="h6 fw-bold text-success mb-2">Innovation</h3>
-                            <p class="text-muted small mb-0">
-                                We embrace creative solutions and new technologies to address environmental challenges.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="bg-white shadow-sm text-center p-4" style="border-radius: 18px;">
-                            <div class="mb-3" style="font-size: 2rem; color: #35b34a;">🤝</div>
-                            <h3 class="h6 fw-bold text-success mb-2">Collaboration</h3>
-                            <p class="text-muted small mb-0">
-                                We believe in the power of partnerships and collective action for sustainable change.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="bg-white shadow-sm text-center p-4" style="border-radius: 18px;">
-                            <div class="mb-3" style="font-size: 2rem; color: #ffc857;">🎓</div>
-                            <h3 class="h6 fw-bold text-success mb-2">Education</h3>
-                            <p class="text-muted small mb-0">
-                                We prioritize knowledge sharing and capacity building for long-term impact.
-                            </p>
-                        </div>
-                    </div>
+                <div class="row g-4 justify-content-center" id="values-container">
+                    <p class="text-center text-muted">Loading values...</p>
                 </div>
             </div>
         </section>
@@ -266,7 +240,34 @@
             }
         }
         
-        document.addEventListener('DOMContentLoaded', displayTeam);        
+        async function displayValues() {
+            try {
+                const resp = await fetch('api/manage-about-us.php?type=values');
+                const data = await resp.json();
+                const container = document.getElementById('values-container');
+                if (!data.success || !Array.isArray(data.values) || data.values.length === 0) {
+                    container.innerHTML = '<p class="text-center text-muted">No values to display.</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                data.values.forEach(v => {
+                    const icon = v.icon_class ? `<div class="mb-3" style="font-size:2rem;color:#35b34a;"><i class="${escapeHtml(v.icon_class)}"></i></div>` : `<div class="mb-3" style="font-size:2rem;color:#35b34a;">★</div>`;
+                    container.innerHTML += `
+                        <div class="col-12 col-md-4">
+                            <div class="bg-white shadow-sm text-center p-4" style="border-radius: 18px;">
+                                ${icon}
+                                <h3 class="h6 fw-bold text-success mb-2">${escapeHtml(v.title || '')}</h3>
+                                <p class="text-muted small mb-0">${escapeHtml(v.description || '')}</p>
+                            </div>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error('Error loading values:', error);
+                document.getElementById('values-container').innerHTML = '<p class="text-center text-danger">Error loading values.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () { displayTeam(); displayValues(); });
         
     </script>
 </body>
