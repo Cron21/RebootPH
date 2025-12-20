@@ -7,7 +7,7 @@ try {
         SELECT a.FName, a.LName 
         FROM member m
         JOIN application a ON m.ApplicationID = a.ApplicationID
-        WHERE m.Role = 'Admin'
+        WHERE m.Role = 'Executive Director' OR m.Role = 'Finance Officer' OR m.Role = 'Meal Officer' OR m.Role = 'Program Officer' OR m.Role = 'Regional Convenor' OR m.Role = 'Local Coordinator' OR m.Role = 'Member Staff'
         ORDER BY a.FName ASC
     ";
     
