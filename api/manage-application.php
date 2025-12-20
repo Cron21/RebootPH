@@ -58,19 +58,20 @@ try {
                 throw new Exception('This application has already been approved. Cannot approve duplicate.');
             }
 
-            // Check if member already exists for this application (prevent duplicates)
-            $memberCheckStmt = $pdo->prepare("SELECT MemberID FROM member WHERE ApplicationID = ?");
-            $memberCheckStmt->execute([$applicationId]);
-            $existingMember = $memberCheckStmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($existingMember) {
-                throw new Exception('A member record already exists for this application. Cannot create duplicate.');
-            }
-
             // Use transaction to ensure atomicity
             $pdo->beginTransaction();
 
             try {
+                // Lock and check if member already exists INSIDE transaction to prevent race conditions
+                $memberCheckStmt = $pdo->prepare("SELECT MemberID FROM member WHERE ApplicationID = ? FOR UPDATE");
+                $memberCheckStmt->execute([$applicationId]);
+                $existingMember = $memberCheckStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($existingMember) {
+                    $pdo->rollBack();
+                    throw new Exception('A member record already exists for this application. Cannot create duplicate.');
+                }
+
                 // Generate password or use the one provided by admin
                 $tempPassword = $customPassword ?: generateRandomPassword(12);
                 $passwordHash = password_hash($tempPassword, PASSWORD_BCRYPT);
@@ -94,8 +95,18 @@ try {
                     'message' => 'Application approved successfully. Password email has been sent to the applicant.',
                     'emailSent' => $emailSent
                 ]);
-            } catch (Exception $transactionError) {
+            } catch (PDOException $dbError) {
+                // Check for duplicate key constraint error (SQLSTATE 23000)
+                if ($dbError->getCode() == 23000) {
+                    $pdo->rollBack();
+                    throw new Exception('A member record already exists for this application. The application may have been approved simultaneously.');
+                }
                 $pdo->rollBack();
+                throw $dbError;
+            } catch (Exception $transactionError) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
                 throw $transactionError;
             }
             break;
