@@ -7,6 +7,7 @@
     <title>About Us - Reboot PH</title>
     <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
 <body class="bg-light d-flex flex-column min-vh-100" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
@@ -265,11 +266,20 @@
                 }
                 container.innerHTML = '';
                 data.values.forEach(v => {
-                    const icon = v.icon_class ? `<div class="mb-3" style="font-size:2rem;color:#35b34a;"><i class="${escapeHtml(v.icon_class)}"></i></div>` : `<div class="mb-3" style="font-size:2rem;color:#35b34a;">★</div>`;
+                    // Properly format the icon class with 'bi' prefix
+                    let iconHtml = '';
+                    if (v.icon_class) {
+                        // icon_class is stored as 'bi-heart', we need to add 'bi' class prefix
+                        const iconClass = escapeHtml(v.icon_class);
+                        iconHtml = `<div class="mb-3" style="font-size:2rem;color:#35b34a;"><i class="bi ${iconClass}"></i></div>`;
+                    } else {
+                        iconHtml = `<div class="mb-3" style="font-size:2rem;color:#35b34a;">★</div>`;
+                    }
+                    
                     container.innerHTML += `
                         <div class="col-12 col-md-4">
                             <div class="bg-white shadow-sm text-center p-4" style="border-radius: 18px;">
-                                ${icon}
+                                ${iconHtml}
                                 <h3 class="h6 fw-bold text-success mb-2">${escapeHtml(v.title || '')}</h3>
                                 <p class="text-muted small mb-0">${escapeHtml(v.description || '')}</p>
                             </div>
