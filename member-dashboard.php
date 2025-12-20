@@ -2,9 +2,11 @@
 
 require_once 'api/config.php'; 
 
-// Check kung naka-login at kung Admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Member') {
-    header("Location: login.html?error=not_admin");
+// Check kung naka-login at kung member (including Member Staff)
+$memberRoles = ['Member', 'Member Staff'];
+
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
+    header("Location: login.html?error=not_member");
     exit();
 }
 ?>
