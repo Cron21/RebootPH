@@ -62,7 +62,24 @@ try {
             $pdo->beginTransaction();
 
             try {
-                // Lock and check if member already exists INSIDE transaction to prevent race conditions
+                // Generate password or use the one provided by admin
+                $tempPassword = $customPassword ?: generateRandomPassword(12);
+                $passwordHash = password_hash($tempPassword, PASSWORD_BCRYPT);
+
+                // Update application status to 1 (approved) ONLY if it's currently 0
+                // This prevents race conditions - if 2 requests try to approve simultaneously,
+                // only the first will succeed in updating the status
+                $stmt = $pdo->prepare("UPDATE application SET ApplicationStatus = 1, ReviewDate = NOW(), PasswordHash = ? WHERE ApplicationID = ? AND ApplicationStatus = 0");
+                $stmt->execute([$passwordHash, $applicationId]);
+                $rowsAffected = $stmt->rowCount();
+
+                // If no rows were affected, another approval is already in progress or completed
+                if ($rowsAffected === 0) {
+                    $pdo->rollBack();
+                    throw new Exception('This application is being processed or has already been approved.');
+                }
+
+                // Now check if member already exists (inside transaction for safety)
                 $memberCheckStmt = $pdo->prepare("SELECT MemberID FROM member WHERE ApplicationID = ? FOR UPDATE");
                 $memberCheckStmt->execute([$applicationId]);
                 $existingMember = $memberCheckStmt->fetch(PDO::FETCH_ASSOC);
@@ -71,14 +88,6 @@ try {
                     $pdo->rollBack();
                     throw new Exception('A member record already exists for this application. Cannot create duplicate.');
                 }
-
-                // Generate password or use the one provided by admin
-                $tempPassword = $customPassword ?: generateRandomPassword(12);
-                $passwordHash = password_hash($tempPassword, PASSWORD_BCRYPT);
-
-                // Update application status to 1 (approved), set ReviewDate and PasswordHash
-                $stmt = $pdo->prepare("UPDATE application SET ApplicationStatus = 1, ReviewDate = NOW(), PasswordHash = ? WHERE ApplicationID = ?");
-                $stmt->execute([$passwordHash, $applicationId]);
 
                 // Create member record
                 $memberStmt = $pdo->prepare("INSERT INTO member (ApplicationID, Role, isActive, JoinDate) VALUES (?, 'Member Staff', 1, NOW())");
