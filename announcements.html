@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Reboot PH</title>
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100"
+    style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="navbar-brand d-flex align-items-center gap-2 brand-logo" href="index.html">
+                <img src="assets/image/reboot-logo.png" alt="Reboot PH logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-lg-auto header-nav mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="initiatives.html">Initiatives</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="announcements.html">Newsletters & Announcements</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="feedback.html">Event Feedback</a>
+                    </li> -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About Us</a>
+                    </li>
+                </ul>
+                <div class="d-flex justify-content-center justify-content-lg-end">
+                    <a href="login.html" class="btn btn-success rounded-pill px-4 header-login fw-bold">Log In</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-5 mt-5">
+
+        <!-- PAGE TITLE -->
+        <section class="py-4">
+            <div class="container text-center">
+                <h2 class="fw-bold">Newsletters & Announcements</h2>
+            </div>
+        </section>
+
+        <!-- NEWSLETTERS AND ANNOUNCEMENTS -->
+        <section class="py-5 bg-light">
+            <div class="container">
+                <div class="row g-4">
+
+                    <!-- NEWSLETTERS SECTION -->
+                    <div class="col-12">
+                        <h5 class="fw-bold text-success mb-3">Newsletter Archive</h5>
+                        <div id="newsletters-container"></div>
+                    </div>
+
+                    <!-- ANNOUNCEMENTS SECTION -->
+                    <div class="col-12">
+                        <h5 class="fw-bold text-success mb-3">Announcements</h5>
+                        <div id="announcements-container" class="row g-2"></div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Announcement Details Modal -->
+    <div class="modal fade" id="announcementDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Event Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Event Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Event Name</label>
+                                <input type="text" id="announcementTitle" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Status</label>
+                                <div id="announcementStatus" class="form-control" style="background-color: #f8f9fa; padding: 10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Date & Time</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Event Date</label>
+                                <input type="text" id="announcementDate" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Start Time</label>
+                                <input type="text" id="announcementStartTime" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">End Time</label>
+                                <input type="text" id="announcementEndTime" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Location & Capacity</h6>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Venue</label>
+                                <input type="text" id="announcementVenue" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Capacity</label>
+                                <input type="text" id="announcementCapacity" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Staff Participation Slots Left</label>
+                                <input type="text" id="announcementStaffSlots" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Total Members Registered</label>
+                                <input type="text" id="announcementRegistered" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Description</h6>
+                        <textarea id="announcementDescription" class="form-control" rows="3" readonly style="background-color: #f8f9fa;"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="border-bottom pb-2">Additional Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Submitted by</label>
+                                <input type="text" id="announcementAuthor" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Review Date</label>
+                                <input type="text" id="announcementReviewDate" class="form-control" readonly style="background-color: #f8f9fa;">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span id="priorityBadge"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer mt-auto">
+        <div class="footer-top py-5">
+            <div class="container">
+                <div class="row align-items-start gy-4 justify-content-between">
+                    <div class="col-12 col-md-4 d-flex align-items-center gap-3">
+                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center"
+                            href="index.html">
+                            <img src="assets/image/reboot-logo.png" alt="Reboot PH" class="img-fluid">
+                        </a>
+                        <div class="text-white small">
+                            <h4 class="h6 fw-bold mb-2">Reboot PH</h4>
+                            <p class="mb-1">2804, Discovery Centre, 25 ADB Ave, Ortigas Center</p>
+                            <p class="mb-0">Pasig, Philippines</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 text-white small text-center">
+                        <h4 class="h6 fw-bold mb-3">About Us</h4>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><a href="about.html#mission-vision" class="footer-link">Our Story</a></li>
+                            <li class="mb-2"><a href="about.html#team" class="footer-link">Team</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-4 text-white small text-md-end">
+                        <h4 class="h6 fw-bold mb-3">Contact Info</h4>
+                        <p class="mb-1">rebootphinstitute@gmail.com</p>
+                        <p class="mb-3">info@reboot-philippines.org</p>
+                        <div class="d-flex justify-content-start justify-content-md-end gap-3">
+                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
+                                aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                                        fill="currentColor" />
+                                </svg>
+                            </a>
+                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon" aria-label="Instagram" target="_blank"
+                                rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                                        fill="currentColor" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom py-3">
+            <div class="container text-center text-white-50 small">
+                &copy; 2024 Reboot PH. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/script.js"></script>
+    <script>
+        async function loadContent() {
+            try {
+                await Promise.all([
+                    loadNewsletters(),
+                    loadAnnouncements()
+                ]);
+            } catch (error) {
+                console.error('Error loading content:', error);
+            }
+        }
+
+        // Load newsletters
+        async function loadNewsletters() {
+            try {
+                const response = await fetch('api/get-newsletters.php');
+                const data = await response.json();
+
+                if (data.success && data.newsletters && data.newsletters.length > 0) {
+                    const container = document.getElementById('newsletters-container');
+                    const newsletters = data.newsletters;
+
+                    const newsLetterCards = newsletters.map(newsletter => {
+                        const images = newsletter.images && newsletter.images.length > 0
+                            ? newsletter.images
+                            : ['assets/image/placeholder.jpg'];
+
+                        const carouselId = `newsletter-carousel-${newsletter.NewsletterID}`;
+                        let imageHtml = '';
+
+                        if (images.length > 1) {
+                            // Multiple images - carousel
+                            imageHtml = `
+                                <div id="${carouselId}" class="carousel slide mb-3" data-bs-ride="carousel">
+                                    <div class="carousel-indicators">
+                                        ${images.map((_, idx) => `
+                                            <button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active"' : ''}></button>
+                                        `).join('')}
+                                    </div>
+                                    <div class="carousel-inner rounded">
+                                        ${images.map((img, idx) => `
+                                            <div class="carousel-item ${idx === 0 ? 'active' : ''}">
+                                                <img src="${img}" class="d-block w-100" style="height: 250px; object-fit: cover;" alt="Newsletter image" onerror="this.src='assets/image/placeholder.jpg'">
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon"></span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon"></span>
+                                    </button>
+                                </div>
+                            `;
+                        } else {
+                            // Single image
+                            imageHtml = `
+                                <img src="${images[0]}" class="mb-3 rounded img-fluid" style="max-height: 250px; object-fit: cover;" alt="Newsletter" onerror="this.src='assets/image/placeholder.jpg'">
+                            `;
+                        }
+
+                        return `
+                            <div class="card border-0 shadow-sm p-4 rounded-4 mb-3">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        ${imageHtml}
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h6 class="fw-bold">${escapeHtml(newsletter.Title)}</h6>
+                                        <p class="text-muted small mb-3">
+                                            ${escapeHtml(newsletter.Content.substring(0, 200))}...
+                                        </p>
+                                        <button class="btn btn-success btn-sm px-4 rounded-pill" onclick="downloadNewsletterPDF(${newsletter.NewsletterID}, '${escapeHtml(newsletter.Title)}')">Download PDF</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    container.innerHTML = newsLetterCards;
+                } else {
+                    document.getElementById('newsletters-container').innerHTML = '<p class="text-muted text-center">No newsletters available</p>';
+                }
+            } catch (error) {
+                console.error('Error loading newsletters:', error);
+            }
+        }
+
+        // Load announcements from the announcement table (which references proposals)
+        async function loadAnnouncements() {
+            try {
+                const response = await fetch('api/get-announcements.php');
+                const data = await response.json();
+
+                if (data.success && data.announcements && data.announcements.length > 0) {
+                    const container = document.getElementById('announcements-container');
+                    const announcements = data.announcements;
+
+                    const announcementCards = announcements.map(announcement => `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card border-0 shadow-sm p-2 rounded-3 h-100">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold text-success m-0 flex-grow-1" style="font-size: 0.95rem;">${escapeHtml(announcement.Title.substring(0, 40))}</h6>
+                                        ${announcement.IsPriority == 1 ? '<span class="badge bg-danger ms-2" style="font-size: 0.7rem;">Priority</span>' : ''}
+                                    </div>
+                                    <p class="text-muted mb-2" style="font-size: 0.8rem;">
+                                        ${escapeHtml(announcement.Description.substring(0, 70))}...
+                                    </p>
+                                    <small class="text-muted d-block mb-2" style="font-size: 0.75rem;">
+                                        ${escapeHtml(announcement.FName + ' ' + announcement.LName)}
+                                    </small>
+                                    <button class="btn btn-sm btn-outline-success rounded-pill w-100" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="showAnnouncementDetails('${announcement.AnnouncementID}', '${escapeHtml(announcement.Title)}', '${announcement.IsPriority}', '${escapeHtml(announcement.Status)}', '${escapeHtml(announcement.Description)}', '${escapeHtml(announcement.FName + ' ' + announcement.LName)}', '${announcement.ReviewDate}')">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    container.innerHTML = announcementCards;
+                } else {
+                    document.getElementById('announcements-container').innerHTML = '<p class="text-muted text-center col-12">No announcements available</p>';
+                }
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+            }
+        }
+
+        async function showAnnouncementDetails(id, title, isPriority, status, description, author, reviewDate) {
+            try {
+                // Fetch full announcement details from API
+                const response = await fetch(`api/get-announcements.php?id=${id}`);
+                const data = await response.json();
+
+                if (data.success && data.announcements && data.announcements.length > 0) {
+                    const announcement = data.announcements[0];
+
+                    // Set title
+                    document.getElementById('announcementTitle').value = escapeHtml(announcement.Title || title || 'N/A');
+                    
+                    // Set description
+                    document.getElementById('announcementDescription').value = escapeHtml(announcement.Description || description || 'N/A');
+                    
+                    // Set author
+                    const authorName = (announcement.FName && announcement.LName) 
+                        ? `${announcement.FName} ${announcement.LName}` 
+                        : author || 'N/A';
+                    document.getElementById('announcementAuthor').value = escapeHtml(authorName);
+                    
+                    // Set status with badge
+                    const statusText = announcement.Status || status || 'N/A';
+                    let statusClass = 'bg-secondary';
+                    if (statusText.toLowerCase() === 'approved') statusClass = 'bg-success';
+                    else if (statusText.toLowerCase() === 'pending') statusClass = 'bg-warning';
+                    document.getElementById('announcementStatus').innerHTML = `<span class="badge ${statusClass}">${escapeHtml(statusText)}</span>`;
+
+                    // Format event date
+                    let formattedDate = 'N/A';
+                    if (announcement.ProposedDate) {
+                        const eventDate = new Date(announcement.ProposedDate);
+                        formattedDate = eventDate.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    }
+                    document.getElementById('announcementDate').value = formattedDate;
+
+                    // Set start time
+                    document.getElementById('announcementStartTime').value = announcement.StartTime || 'N/A';
+
+                    // Set end time
+                    document.getElementById('announcementEndTime').value = announcement.EndTime || 'N/A';
+
+                    // Set venue
+                    document.getElementById('announcementVenue').value = escapeHtml(announcement.Venue || 'N/A');
+
+                    // Set capacity
+                    const capacity = parseInt(announcement.TargetParticipants) || 0;
+                    document.getElementById('announcementCapacity').value = capacity > 0 ? capacity : 'N/A';
+
+                    // Calculate and set staff slots left
+                    // All members (Admin or regular Member) can participate as staff
+                    const staffRequired = parseInt(announcement.StaffRequired) || 0;
+                    const staffRegistered = parseInt(announcement.StaffRegistered) || 0;
+                    const staffSlotsLeft = Math.max(0, staffRequired - staffRegistered);
+                    const staffSlotsText = staffRequired > 0 
+                        ? `${staffSlotsLeft} (${staffRequired} required, ${staffRegistered} registered)`
+                        : 'N/A';
+                    document.getElementById('announcementStaffSlots').value = staffSlotsText;
+
+                    // Set registered count (all members registered, regardless of role)
+                    const registeredCount = parseInt(announcement.RegisteredCount) || 0;
+                    document.getElementById('announcementRegistered').value = registeredCount;
+
+                    // Format review date
+                    let formattedReviewDate = 'N/A';
+                    const reviewDateValue = announcement.ReviewDate || reviewDate;
+                    if (reviewDateValue) {
+                        const reviewDateObj = new Date(reviewDateValue);
+                        formattedReviewDate = reviewDateObj.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    }
+                    document.getElementById('announcementReviewDate').value = formattedReviewDate;
+
+                    // Set priority badge
+                    const priorityValue = announcement.IsPriority || isPriority;
+                    const priorityBadge = document.getElementById('priorityBadge');
+                    if (priorityValue == 1) {
+                        priorityBadge.innerHTML = '<span class="badge bg-danger">Priority</span>';
+                    } else {
+                        priorityBadge.innerHTML = '';
+                    }
+                } else {
+                    // Fallback to passed parameters if API fails
+                    document.getElementById('announcementTitle').value = escapeHtml(title || 'N/A');
+                    document.getElementById('announcementDescription').value = escapeHtml(description || 'N/A');
+                    document.getElementById('announcementAuthor').value = escapeHtml(author || 'N/A');
+                    document.getElementById('announcementStatus').innerHTML = `<span class="badge bg-secondary">${escapeHtml(status || 'N/A')}</span>`;
+                    document.getElementById('announcementDate').value = 'N/A';
+                    document.getElementById('announcementStartTime').value = 'N/A';
+                    document.getElementById('announcementEndTime').value = 'N/A';
+                    document.getElementById('announcementVenue').value = 'N/A';
+                    document.getElementById('announcementCapacity').value = 'N/A';
+                    document.getElementById('announcementStaffSlots').value = 'N/A';
+                    document.getElementById('announcementRegistered').value = 'N/A';
+                    
+                    let formattedReviewDate = 'N/A';
+                    if (reviewDate) {
+                        const date = new Date(reviewDate);
+                        formattedReviewDate = date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    }
+                    document.getElementById('announcementReviewDate').value = formattedReviewDate;
+
+                    const priorityBadge = document.getElementById('priorityBadge');
+                    if (isPriority == 1) {
+                        priorityBadge.innerHTML = '<span class="badge bg-danger">Priority</span>';
+                    } else {
+                        priorityBadge.innerHTML = '';
+                    }
+                }
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('announcementDetailsModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error loading announcement details:', error);
+                // Fallback to basic display
+                document.getElementById('announcementTitle').value = escapeHtml(title || 'N/A');
+                document.getElementById('announcementDescription').value = escapeHtml(description || 'N/A');
+                document.getElementById('announcementAuthor').value = escapeHtml(author || 'N/A');
+                document.getElementById('announcementStatus').innerHTML = `<span class="badge bg-secondary">${escapeHtml(status || 'N/A')}</span>`;
+                
+                const modal = new bootstrap.Modal(document.getElementById('announcementDetailsModal'));
+                modal.show();
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        async function downloadNewsletterPDF(newsletterId, title) {
+        try {
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Generating...';
+
+            // Fetch newsletter data
+            const response = await fetch(`api/export-newsletter-pdf.php?id=${newsletterId}`);
+            const data = await response.json();
+
+            if (!data.success || !data.newsletter) {
+                throw new Error(data.message || 'Failed to fetch newsletter data');
+            }
+
+            const newsletter = data.newsletter;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Set document properties
+            doc.setProperties({
+                title: newsletter.Title,
+                author: 'Reboot PH'
+            });
+
+            // A4 dimensions
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 15;
+            const contentWidth = pageWidth - (2 * margin);
+            let yPosition = margin;
+
+            // Add header/title
+            doc.setFontSize(18);
+            doc.setTextColor(0, 102, 51); // Dark green
+            doc.setFont(undefined, 'bold');
+            
+            const splitTitle = doc.splitTextToSize(newsletter.Title, contentWidth);
+            doc.text(splitTitle, margin, yPosition);
+            yPosition += (splitTitle.length * 7) + 5;
+
+            // Add publish date
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Published: ${newsletter.PublishDateFormatted || 'N/A'}`, margin, yPosition);
+            yPosition += 8;
+
+            // Add separator line
+            doc.setDrawColor(0, 102, 51);
+            doc.line(margin, yPosition, pageWidth - margin, yPosition);
+            yPosition += 8;
+
+            // Add images if available
+            if (newsletter.images && newsletter.images.length > 0) {
+                // Load and add first image
+                const img = new Image();
+                img.onload = function() {
+                    const imgWidth = contentWidth;
+                    const imgHeight = (img.height / img.width) * contentWidth;
+                    
+                    if (yPosition + imgHeight > pageHeight - margin) {
+                        doc.addPage();
+                        yPosition = margin;
+                    }
+                    
+                    doc.addImage(img, 'JPEG', margin, yPosition, imgWidth, imgHeight);
+                    yPosition += imgHeight + 10;
+                    
+                    // Add content after images
+                    addContentToPDF();
+                };
+                img.onerror = function() {
+                    addContentToPDF();
+                };
+                img.src = newsletter.images[0];
+            } else {
+                addContentToPDF();
+            }
+
+            function addContentToPDF() {
+                // Add content/description
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'normal');
+                
+                const splitContent = doc.splitTextToSize(newsletter.Content, contentWidth);
+                
+                splitContent.forEach((line, index) => {
+                    if (yPosition + 7 > pageHeight - margin) {
+                        doc.addPage();
+                        yPosition = margin;
+                    }
+                    doc.text(line, margin, yPosition);
+                    yPosition += 7;
+                });
+
+                // Add footer
+                yPosition += 5;
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`© 2024 Reboot PH. Document ID: ${newsletter.NewsletterID}`, margin, pageHeight - 10);
+
+                // Download the PDF
+                const filename = `newsletter_${newsletter.NewsletterID}_${newsletter.Title.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                doc.save(filename);
+
+                // Restore button state
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+            alert('Failed to download PDF: ' + error.message);
+            // Restore button state on error
+            event.target.disabled = false;
+            event.target.textContent = 'Download PDF';
+        }
+    }
+
+        // Load content when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadContent();
+        });
+    </script>
+</body>
+
+</html>

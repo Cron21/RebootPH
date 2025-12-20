@@ -1,0 +1,176 @@
+<?php
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Content-Type');
+
+require_once 'config.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
+}
+
+try {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $action = $data['action'] ?? null;
+
+    if (!$action) {
+        throw new Exception('Action is required');
+    }
+
+    $memberId = $_SESSION['memberID'] ?? null;
+    $userRole = $_SESSION['role'] ?? null;
+
+    if (!$memberId) {
+        throw new Exception('Not authenticated - no member ID in session');
+    }
+
+    if ($action === 'create') {
+        // --- CREATE PROPOSAL LOGIC ---
+        $title = trim($data['title'] ?? '');
+        $description = trim($data['description'] ?? '');
+        $proposedDate = $data['proposedDate'] ?? '';
+        $startTime = $data['startTime'] ?? '';
+        $endTime = $data['endTime'] ?? '';
+        $venue = trim($data['venue'] ?? '');
+        $targetParticipants = (int)($data['targetParticipants'] ?? 0);
+        $eventType = trim($data['eventType'] ?? '');
+        $budgetEstimate = (float)($data['budgetEstimate'] ?? 0);
+        $staffRequired = (int)($data['staffRequired'] ?? 0);
+        $equipmentNeeded = trim($data['equipmentNeeded'] ?? '');
+        $objectives = trim($data['objectives'] ?? '');
+        $department = trim($data['department'] ?? '');
+        $partnersSponsor = trim($data['partnersSponsor'] ?? '');
+        $additionalNotes = trim($data['additionalNotes'] ?? '');
+
+        if (empty($title)) throw new Exception('Title is required');
+        if (empty($description)) throw new Exception('Description is required');
+        if (empty($proposedDate)) throw new Exception('Proposed date is required');
+
+        $stmt = $conn->prepare("
+            INSERT INTO proposal 
+            (Title, Description, ProposedDate, StartTime, EndTime, Venue, TargetParticipants, EventType, 
+             BudgetEstimate, StaffRequired, EquipmentNeeded, Objectives, Department, PartnersSponsor, 
+             AdditionalNotes, SubmittedByMemberID, Status, SubmissionDate)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())
+        ");
+
+        $stmt->execute([
+            $title, $description, $proposedDate, $startTime, $endTime, $venue,
+            $targetParticipants, $eventType, $budgetEstimate, $staffRequired,
+            $equipmentNeeded, $objectives, $department, $partnersSponsor,
+            $additionalNotes, $memberId
+        ]);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Event proposal submitted successfully',
+            'proposalID' => $conn->lastInsertId()
+        ]);
+
+    } elseif ($action === 'approve' || $action === 'reject') {
+        // --- APPROVE / REJECT LOGIC WITH SELF-APPROVAL PROTECTION ---
+        
+        $proposalId = (int)($data['proposalId'] ?? 0);
+        if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
+
+        if ($userRole !== 'Admin') {
+            throw new Exception('Unauthorized: Only admins can review proposals');
+        }
+
+        $checkPropStmt = $conn->prepare("SELECT SubmittedByMemberID, Status FROM proposal WHERE ProposalID = ?");
+        $checkPropStmt->execute([$proposalId]);
+        $proposal = $checkPropStmt->fetch();
+
+        if (!$proposal) {
+            throw new Exception('Proposal not found');
+        }
+
+        if ($proposal['Status'] !== 'Pending') {
+            throw new Exception('This proposal has already been reviewed');
+        }
+
+        // SELF-APPROVAL CHECK:
+        if ((int)$proposal['SubmittedByMemberID'] === (int)$memberId) {
+            throw new Exception('Security Alert: You cannot approve or reject your own proposal. Please let another administrator review this.');
+        }
+
+        if ($action === 'approve') {
+            $newStatus = 'Approved';
+            $message = 'Proposal approved successfully and announcement created';
+        } else {
+            $newStatus = 'Rejected';
+            $message = 'Proposal rejected successfully';
+        }
+
+        // 3. Update Status
+        $stmt = $conn->prepare("
+            UPDATE proposal 
+            SET Status = ?, ReviewByAdminID = ?, ReviewDate = NOW()
+            WHERE ProposalID = ?
+        ");
+        $stmt->execute([$newStatus, $memberId, $proposalId]);
+
+        // 4. Create announcement kung approved
+        if ($action === 'approve') {
+            $annCheck = $conn->prepare("SELECT AnnouncementID FROM announcement WHERE ProposalID = ?");
+            $annCheck->execute([$proposalId]);
+            
+            if ($annCheck->rowCount() === 0) {
+                $annStmt = $conn->prepare("
+                    INSERT INTO announcement (ProposalID, IsPriority, CreatedByAdminID, LastModifiedBy, LastModifiedDate)
+                    VALUES (?, 0, ?, ?, NOW())
+                ");
+                $annStmt->execute([$proposalId, $memberId, $memberId]);
+            }
+        }
+
+        echo json_encode(['success' => true, 'message' => $message]);
+
+    } elseif ($action === 'update') {
+        // --- UPDATE LOGIC ---
+        $proposalId = (int)($data['proposalId'] ?? 0);
+        if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
+
+        $isAdmin = ($userRole === 'Admin');
+
+        //  Update (Admin can edit any pending, Member only their own)
+        $query = "UPDATE proposal SET Title = ?, Description = ?, ProposedDate = ?, StartTime = ?, EndTime = ?, Venue = ?, TargetParticipants = ?, EventType = ?, BudgetEstimate = ?, StaffRequired = ?, EquipmentNeeded = ?, Objectives = ?, Department = ?, PartnersSponsor = ?, AdditionalNotes = ? WHERE ProposalID = ? AND Status = 'Pending'";
+        
+        $params = [
+            $data['title'], $data['description'], $data['proposedDate'], $data['startTime'], 
+            $data['endTime'], $data['venue'], $data['targetParticipants'], $data['eventType'], 
+            $data['budgetEstimate'], $data['staffRequired'], $data['equipmentNeeded'], 
+            $data['objectives'], $data['department'], $data['partnersSponsor'], 
+            $data['additionalNotes'], $proposalId
+        ];
+
+        if (!$isAdmin) {
+            $query .= " AND SubmittedByMemberID = ?";
+            $params[] = $memberId;
+        }
+
+        $stmt = $conn->prepare($query);
+        $stmt->execute($params);
+
+        if ($stmt->rowCount() === 0) {
+            throw new Exception('Proposal not found or no changes made');
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Proposal updated successfully']);
+
+    } else {
+        throw new Exception('Unknown action: ' . $action);
+    }
+
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
+?>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initiatives - Reboot PH</title>
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="navbar-brand d-flex align-items-center gap-2 brand-logo" href="index.html">
+                <img src="assets/image/reboot-logo.png" alt="Reboot PH logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-lg-auto header-nav mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="initiatives.html">Initiatives</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="announcements.html">Newsletters & Announcements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About Us</a>
+                    </li>
+                </ul>
+                <div class="d-flex justify-content-center justify-content-lg-end">
+                    <a href="login.html" class="btn btn-success rounded-pill px-4 header-login fw-bold">Log In</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-5 mt-5">
+        <section class="py-5">
+            <div class="container">
+                <h1 class="text-center fw-bold mb-4 initiatives-title">Our Initiatives</h1>
+                
+                <!-- Search and Filter -->
+                <div class="row g-3 mb-4 justify-content-center">
+                    <div class="col-12 col-md-5">
+                        <input type="text" id="searchBar" class="form-control initiatives-search" placeholder="Search Initiatives...">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <select id="filterOptions" class="form-select initiatives-filter" style="display: none;">
+                            <option value="">All Categories</option>
+                        </select>
+                        <div class="spinner-border spinner-border-sm text-success" role="status" id="filterSpinner">
+                            <span class="visually-hidden">Loading categories...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Highlights Carousel -->
+                <div id="initiativeCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <!-- Indicators will be dynamically generated -->
+                    </div>
+
+                    <div class="carousel-inner rounded shadow-lg">
+                        <!-- Carousel items will be dynamically generated from initiativesList data -->
+                    </div>
+
+                    <button class="carousel-control-prev" type="button" data-bs-target="#initiativeCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#initiativeCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+
+                <!-- Initiative Cards -->
+                <div id="initiativesList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <!-- Cards will be dynamically populated here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Initiative Details Modal -->
+    <div class="modal fade" id="initiativeDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="initiativeModalTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="initiativeModalImages" class="mb-3"></div>
+                    <div class="mb-3">
+                        <span id="initiativeModalCategory" class="badge bg-info"></span>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="fw-bold">Description</h6>
+                        <p id="initiativeModalDescription" class="text-muted"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer mt-auto">
+        <div class="footer-top py-5">
+            <div class="container">
+                <div class="row align-items-start gy-4 justify-content-between">
+                    <div class="col-12 col-md-4 d-flex align-items-center gap-3">
+                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center" href="index.html">
+                            <img src="assets/image/reboot-logo.png" alt="Reboot PH" class="img-fluid">
+                        </a>
+                        <div class="text-white small">
+                            <h4 class="h6 fw-bold mb-2">Reboot PH</h4>
+                            <p class="mb-1">2804, Discovery Centre, 25 ADB Ave, Ortigas Center</p>
+                            <p class="mb-0">Pasig, Philippines</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 text-white small text-center">
+                        <h4 class="h6 fw-bold mb-3">About Us</h4>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><a href="about.html#mission-vision" class="footer-link">Our Story</a></li>
+                            <li class="mb-2"><a href="about.html#team" class="footer-link">Team</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-4 text-white small text-md-end">
+                        <h4 class="h6 fw-bold mb-3">Contact Info</h4>
+                        <p class="mb-1">rebootphinstitute@gmail.com</p>
+                        <p class="mb-3">info@reboot-philippines.org</p>
+                        <div class="d-flex justify-content-start justify-content-md-end gap-3">
+                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom py-3">
+            <div class="container text-center text-white-50 small">
+                &copy; 2024 Reboot PH. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/script.js"></script>
+    <script>
+        let allInitiatives = [];
+
+        async function loadInitiatives() {
+            try {
+                const response = await fetch('api/get-initiatives.php');
+                const data = await response.json();
+                
+                if (data.success && data.initiatives) {
+                    allInitiatives = data.initiatives;
+                    populateHighlightCarousel();
+                    displayInitiatives(allInitiatives);
+                    populateFilters();
+                }
+            } catch (error) {
+                console.error('Error loading initiatives:', error);
+            }
+        }
+
+        function populateHighlightCarousel() {
+            const highlighted = allInitiatives.filter(i => i.isHighlighted == 1);
+            
+            if (highlighted.length === 0) return;
+            
+            const carousel = document.getElementById('initiativeCarousel');
+            const indicators = carousel.querySelector('.carousel-indicators');
+            const inner = carousel.querySelector('.carousel-inner');
+            
+            // Build indicators
+            indicators.innerHTML = highlighted.map((_, idx) => `
+                <button type="button" data-bs-target="#initiativeCarousel" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active"' : ''}></button>
+            `).join('');
+            
+            // Build carousel items
+            inner.innerHTML = highlighted.map((initiative, idx) => {
+                const imagePath = initiative.images && initiative.images[0]
+                    ? initiative.images[0]
+                    : 'assets/image/placeholder.jpg';
+                
+                return `
+                    <div class="carousel-item ${idx === 0 ? 'active' : ''}">
+                        <img src="${imagePath}" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="${escapeHtml(initiative.Title)}" onerror="this.src='assets/image/placeholder.jpg'">
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 p-4">
+                            <h5 class="text-white">${escapeHtml(initiative.Title)}</h5>
+                            <p class="text-white-50">${escapeHtml(initiative.Description.substring(0, 100))}...</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function populateFilters() {
+            const filterSelect = document.getElementById('filterOptions');
+            const filterSpinner = document.getElementById('filterSpinner');
+            const categories = [...new Set(allInitiatives.map(i => i.Category))].filter(Boolean);
+            
+            filterSelect.innerHTML = '<option value="">All Categories</option>';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.toLowerCase();
+                option.textContent = category;
+                filterSelect.appendChild(option);
+            });
+            
+            // Show dropdown and hide spinner
+            filterSpinner.style.display = 'none';
+            filterSelect.style.display = 'block';
+        }
+
+        function displayInitiatives(initiatives) {
+            const container = document.getElementById('initiativesList');
+            
+            if (initiatives.length === 0) {
+                container.innerHTML = '<p class="col-12 text-center text-muted">No initiatives found.</p>';
+                return;
+            }
+            
+            container.innerHTML = initiatives.map(initiative => {
+                const images = initiative.images && initiative.images.length > 0
+                    ? initiative.images
+                    : ['assets/image/placeholder.jpg'];
+                
+                const carouselId = `initiative-carousel-${initiative.InitiativeID}`;
+                let imageHtml = '';
+
+                if (images.length > 1) {
+                    // Multiple images - carousel
+                    imageHtml = `
+                        <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                ${images.map((_, idx) => `
+                                    <button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active"' : ''}></button>
+                                `).join('')}
+                            </div>
+                            <div class="carousel-inner">
+                                ${images.map((img, idx) => `
+                                    <div class="carousel-item ${idx === 0 ? 'active' : ''}">
+                                        <img src="${img}" class="d-block w-100" style="height: 200px; object-fit: cover;" alt="Initiative image" onerror="this.src='assets/image/placeholder.jpg'">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    // Single image
+                    imageHtml = `
+                        <img src="${images[0]}" class="w-100" style="height: 200px; object-fit: cover;" alt="${escapeHtml(initiative.Title)}" onerror="this.src='assets/image/placeholder.jpg'">
+                    `;
+                }
+                
+                return `
+                    <div class="col">
+                        <div class="card h-100 shadow-lg border-0">
+                            ${imageHtml}
+                            <div class="card-body">
+                                <span class="badge bg-info mb-2">${escapeHtml(initiative.Category || 'Uncategorized')}</span>
+                                <h5 class="card-title">${escapeHtml(initiative.Title)}</h5>
+                                <p class="card-text text-muted small">${escapeHtml(initiative.Description.substring(0, 100))}...</p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <button type="button" class="btn btn-sm btn-outline-primary w-100" onclick="showInitiativeDetails(${initiative.InitiativeID})">Learn More</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterInitiatives() {
+            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+            const filterTerm = document.getElementById('filterOptions').value.toLowerCase();
+            
+            const filtered = allInitiatives.filter(initiative => {
+                const matchesSearch = initiative.Title.toLowerCase().includes(searchTerm) ||
+                                    initiative.Description.toLowerCase().includes(searchTerm);
+                const matchesFilter = !filterTerm || 
+                                    initiative.Category.toLowerCase() === filterTerm;
+                return matchesSearch && matchesFilter;
+            });
+            
+            displayInitiatives(filtered);
+        }
+
+        // Show initiative details in modal
+        function showInitiativeDetails(initiativeId) {
+            const initiative = allInitiatives.find(i => i.InitiativeID == initiativeId);
+            if (!initiative) return;
+
+            document.getElementById('initiativeModalTitle').textContent = escapeHtml(initiative.Title);
+            document.getElementById('initiativeModalDescription').textContent = escapeHtml(initiative.Description);
+            
+            // Set category badge
+            const categoryBadge = document.getElementById('initiativeModalCategory');
+            if (initiative.Category) {
+                categoryBadge.textContent = escapeHtml(initiative.Category);
+                categoryBadge.style.display = 'inline-block';
+            } else {
+                categoryBadge.style.display = 'none';
+            }
+
+            // Display images
+            const imagesContainer = document.getElementById('initiativeModalImages');
+            const images = initiative.images && initiative.images.length > 0
+                ? initiative.images
+                : ['assets/image/placeholder.jpg'];
+
+            if (images.length > 1) {
+                const carouselId = `modal-initiative-carousel-${initiative.InitiativeID}`;
+                imagesContainer.innerHTML = `
+                    <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            ${images.map((_, idx) => `
+                                <button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active"' : ''}></button>
+                            `).join('')}
+                        </div>
+                        <div class="carousel-inner rounded">
+                            ${images.map((img, idx) => `
+                                <div class="carousel-item ${idx === 0 ? 'active' : ''}">
+                                    <img src="${img}" class="d-block w-100" style="height: 300px; object-fit: cover;" alt="Initiative image" onerror="this.src='assets/image/placeholder.jpg'">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                `;
+            } else {
+                imagesContainer.innerHTML = `
+                    <img src="${images[0]}" class="img-fluid w-100 rounded" style="max-height: 300px; object-fit: cover;" alt="Initiative image" onerror="this.src='assets/image/placeholder.jpg'">
+                `;
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('initiativeDetailsModal'));
+            modal.show();
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitiatives();
+            
+            document.getElementById('searchBar').addEventListener('input', filterInitiatives);
+            document.getElementById('filterOptions').addEventListener('change', filterInitiatives);
+        });
+    </script>
+</body>
+
+</html>

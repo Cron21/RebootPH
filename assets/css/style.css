@@ -1,0 +1,302 @@
+
+
+.max-width-500 {
+    max-width: 500px;
+}
+
+.header-bar {
+    background-color: #fff !important;
+    border: 2px solid #1a8cff;
+    border-radius: 12px;
+    margin: 1rem auto;
+    max-width: 1140px;
+}
+
+.brand-logo img {
+    height: 48px;
+    width: auto;
+}
+
+.header-nav .nav-link {
+    color: #0d4c8c;
+    font-weight: 600;
+    margin: 0 0.75rem;
+}
+
+.header-nav .nav-link.active {
+    color: #4BB949;
+}
+
+.header-nav .nav-link:hover {
+    color: #4BB949;
+}
+
+.header-login {
+    background-color: #4BB949;
+    border: none;
+}
+
+.header-login:hover {
+    background-color: #4BB949;
+}
+
+.highlight-section {
+    background-color: #E6F4EA;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2B702A;
+}
+
+.highlight-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(13, 76, 140, 0.15);
+}
+
+.highlight-image img {
+    display: block;
+    object-fit: cover;
+    height: 220px;
+}
+
+.highlight-card p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.highlight-btn {
+    background-color: #035996;
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.highlight-btn:hover {
+    background-color: #035996;
+    color: #fff;
+}
+
+/* Newsletters & Announcements */
+.newsletter-section {
+    background-color: #f7fbff;
+}
+
+.newsletter-feature {
+    border-radius: 18px;
+}
+
+.newsletter-feature img {
+    max-height: 260px;
+}
+
+.announcements-wrapper {
+    border-radius: 18px;
+}
+
+.announcement-link {
+    color: #1a8cff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.announcement-link:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.site-footer {
+    background-color: #00508f;
+}
+
+.footer-top {
+    background: linear-gradient(90deg, #00508f 0%, #0070b8 100%);
+}
+
+.footer-bottom {
+    background-color: #003963;
+}
+
+.footer-logo-wrapper {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    background-color: #ffffff;
+    padding: 8px;
+}
+
+.footer-link {
+    color: #e3efff;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}
+
+.footer-social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer-social-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.footer-social-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Initiatives Page */
+.initiatives-title {
+    position: relative;
+    display: block;
+    text-align: center;
+    margin: 0 auto 1.5rem auto;
+    width: fit-content;
+    bottom: 30px;
+}
+
+.initiatives-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% + 40px);
+    height: 3px;
+    background-color: #90EE90;
+    border-radius: 2px;
+}
+
+.initiatives-search,
+.initiatives-filter {
+    border: 1px solid #dee2e6;
+    border-radius: 100px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+}
+
+.initiatives-search:focus,
+.initiatives-filter:focus {
+    border-color: #90EE90;
+    box-shadow: 0 0 0 0.2rem rgba(144, 238, 144, 0.25);
+    outline: 0;
+}
+
+/* Login inputs */
+.login-input {
+    border-radius: 999px;
+    border: 2px solid #c7c7c7;
+    padding: 0.9rem 1.25rem;
+    box-shadow: none !important;
+}
+
+.login-input:focus {
+    border-color: #35b34a;
+    box-shadow: 0 0 0 0.15rem rgba(53, 179, 74, 0.2);
+}
+
+@media (max-width: 991px) {
+    .header-bar {
+        margin: 0.5rem;
+    }
+
+    .header-nav .nav-link {
+        margin: 0.25rem 0;
+    }
+
+    .header-login {
+        width: 100%;
+    }
+
+    .highlight-image img {
+        height: auto;
+    }
+}
+
+/* Hero section text outline and improved contrast on video background */
+.hero-section .hero-intro h1 {
+    -webkit-text-stroke: 1.6px #ffffff;
+    /* text-stroke: 1.6px #ffffff; */
+    /* Fallback outline for browsers without text-stroke */
+    text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff, 0 0 8px rgba(255,255,255,0.12);
+}
+
+.hero-section .hero-intro p {
+    -webkit-text-stroke: 0.9px #02457A;
+    /* text-stroke: 0.9px #02457A; */
+    text-shadow: -0.5px -0.5px 0 #ffffff, 0.5px -0.5px 0 #ffffff, -0.5px 0.5px 0 #ffffff, 0.5px 0.5px 0 #ffffff;
+}
+
+    /* Why Join carousel: reduce card width and style arrows to match brand */
+    #whyJoinCarousel .carousel-inner .row { justify-content: center; }
+    @media (min-width: 768px) {
+        #whyJoinCarousel .card { max-width: 340px; margin: 0 auto; }
+    }
+
+    /* Custom colored carousel controls for the Why Join carousel */
+    #whyJoinCarousel .carousel-control-prev-icon,
+    #whyJoinCarousel .carousel-control-next-icon {
+        width: 3rem;
+        height: 2.2rem;
+        background-size: 2.2rem 2.2rem;
+    }
+
+    /* left arrow (filled with #2B702A) */
+    #whyJoinCarousel .carousel-control-prev-icon {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232B702A'%3E%3Cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
+    }
+
+    /* right arrow */
+    #whyJoinCarousel .carousel-control-next-icon {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%232B702A'%3E%3Cpath d='M4.646 1.646a.5.5 0 0 0 0 .708L10.293 8 4.646 13.646a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708l-6-6a.5.5 0 0 0-.708 0z'/%3E%3C/svg%3E");
+    }
+
+/* Outstanding member of the month styles */
+.outstanding-section {
+    padding: 4.5rem 0;
+}
+.outstanding-section .card {
+    border-radius: 18px;
+    overflow: hidden;
+}
+.member-photo-wrapper {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(9, 30, 66, 0.08);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+.outstanding-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #02457A;
+}
+.outstanding-section .text-muted {
+    color: #414141;
+}
+
+@media (max-width: 767px) {
+    .outstanding-section { padding: 2.5rem 0; }
+    .outstanding-section h2 { font-size: 1.6rem; }
+    .member-photo-wrapper img { max-height: 260px; }
+}
+

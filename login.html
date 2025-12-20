@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Reboot PH</title>
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/bootstrap-icons-1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+    <!-- Navbar (match main site) -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="navbar-brand d-flex align-items-center gap-2 brand-logo" href="index.html">
+                <img src="assets/image/reboot-logo.png" alt="Reboot PH logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-lg-auto header-nav mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="initiatives.html">Initiatives</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="announcements.html">Newsletters & Announcements</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="feedback.html">Event Feedback</a>
+                    </li> -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About Us</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="d-flex flex-grow-1 align-items-center justify-content-center" style="background-color:#e7f1fb; padding-top:5rem; padding-bottom:3rem;">
+        <div class="container d-flex justify-content-center">
+            <div class="bg-white shadow-sm p-4 p-md-5" style="border-radius:18px; max-width:480px; width:100%;">
+                <h1 class="text-center fw-bold mb-4" style="color:#0353a4; font-size:1.7rem;">Login to Your Account</h1>
+                
+                <!-- Success Message for Password Change -->
+                <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+                    <i class="bi bi-check-circle"></i> <strong>Success!</strong> Your password has been set successfully. You can now login with your new credentials.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold text-primary mb-1">Email Address</label>
+                        <input type="email" class="form-control login-input" id="email" name="email" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold text-primary mb-1">Password</label>
+                        <input type="password" class="form-control login-input" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn w-100 mb-3 fw-semibold"
+                            style="background-color:#35b34a; border-radius:999px; color:#fff;" id="loginBtn">
+                        Log In
+                    </button>
+                </form>
+                <p class="mt-2 text-center mb-0" style="font-size:0.9rem;">
+                    <span class="text-muted">Not a Member Yet?</span>
+                    <a href="register.html" style="color:#35b34a; text-decoration:none;">Apply Here</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer mt-auto">
+        <div class="footer-top py-5">
+            <div class="container">
+                <div class="row align-items-start gy-4 justify-content-between">
+                    <div class="col-12 col-md-4 d-flex align-items-center gap-3">
+                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center" href="index.html">
+                            <img src="assets/image/reboot-logo.png" alt="Reboot PH" class="img-fluid">
+                        </a>
+                        <div class="text-white small">
+                            <h4 class="h6 fw-bold mb-2">Reboot PH</h4>
+                            <p class="mb-1">2804, Discovery Centre, 25 ADB Ave, Ortigas Center</p>
+                            <p class="mb-0">Pasig, Philippines</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 text-white small text-center">
+                        <h4 class="h6 fw-bold mb-3">About Us</h4>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><a href="about.html#mission-vision" class="footer-link">Our Story</a></li>
+                            <li class="mb-2"><a href="about.html#team" class="footer-link">Team</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-4 text-white small text-md-end">
+                        <h4 class="h6 fw-bold mb-3">Contact Info</h4>
+                        <p class="mb-1">rebootphinstitute@gmail.com</p>
+                        <p class="mb-3">info@reboot-philippines.org</p>
+                        <div class="d-flex justify-content-start justify-content-md-end gap-3">
+                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom py-3">
+            <div class="container text-center text-white-50 small">
+                &copy; 2024 Reboot PH. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <h5 class="modal-title mb-2" style="color:#dc3545;">Login Failed</h5>
+                    <p id="errorMessage" class="text-muted small mb-3"></p>
+                    <button type="button" class="btn btn-danger rounded-pill" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Check if password was just changed
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('passwordChanged') === 'true') {
+            document.getElementById('successAlert').classList.remove('d-none');
+            // Clear the URL parameter
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Logging in...';
+
+            try {
+                const response = await fetch('api/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store session info in localStorage
+                    localStorage.setItem('userSession', JSON.stringify({
+                        memberID: data.memberID,
+                        email: data.email,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        role: data.role
+                    }));
+
+                    // Redirect based on role
+                    if (data.role === 'Admin') {
+                        window.location.href = 'admin-dashboard.php';
+                    } else {
+                        window.location.href = 'member-dashboard.php';
+                    }
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Connection error: ' + error.message);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Log In';
+            }
+        });
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+        }
+    </script>
+</body>
+
+</html>

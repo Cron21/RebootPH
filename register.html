@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Reboot PH</title>
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+    <!-- Navbar (match main site) -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="navbar-brand d-flex align-items-center gap-2 brand-logo" href="index.html">
+                <img src="assets/image/reboot-logo.png" alt="Reboot PH logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-lg-auto header-nav mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="initiatives.html">Initiatives</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="announcements.html">Newsletters & Announcements</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="feedback.html">Event Feedback</a>
+                    </li> -->
+                    <li class="nav-item">
+                        <a class="nav-link active" href="about.html">About Us</a>
+                    </li>
+                </ul>
+                <div class="d-flex justify-content-center justify-content-lg-end">
+                    <a href="login.html" class="btn btn-success rounded-pill px-4 header-login fw-bold">Log In</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="d-flex flex-grow-1 align-items-center justify-content-center" style="background-color:#e7f1fb; padding-top:5rem; padding-bottom:3rem;">
+        <div class="container d-flex justify-content-center">
+            <div class="bg-white shadow-sm p-4 p-md-5 w-100" style="border-radius:18px; max-width:720px;">
+                <h1 class="text-center fw-bold mb-4" style="color:#0353a4; font-size:1.7rem;">Register for Membership</h1>
+                <form id="registrationForm">
+                    <div class="row g-3">
+                        <!-- ID Upload Section at Top -->
+                        <div class="col-12">
+                            <p class="fw-semibold text-primary mb-2" style="font-size:0.95rem;">
+                                <span class="badge bg-success me-2">Optional</span> Valid ID Images (to autofill details)
+                            </p>
+                            <p class="text-muted small mb-3">Upload your ID to automatically fill in your personal details. This helps speed up the registration process.</p>
+                            <div class="row g-3">
+                                <div class="col-12 col-sm-6">
+                                    <label for="frontID" class="form-label small text-primary mb-1">Front of ID</label>
+                                    <div class="border border-2 border-dashed rounded-3 d-flex align-items-center justify-content-center py-4 mb-1 position-relative"
+                                         style="border-style:dashed; color:#c7c7c7; min-height:120px; cursor:pointer;" id="frontIDUpload">
+                                        <span class="small text-center" id="frontIDText">📸 Upload front of ID</span>
+                                        <input type="file" id="frontID" name="frontID" accept="image/*" class="position-absolute w-100 h-100 opacity-0" style="cursor:pointer;">
+                                    </div>
+                                    <small class="text-muted d-block" id="frontIDStatus"></small>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label for="backID" class="form-label small text-primary mb-1">Back of ID</label>
+                                    <div class="border border-2 border-dashed rounded-3 d-flex align-items-center justify-content-center py-4 mb-1 position-relative"
+                                         style="border-style:dashed; color:#c7c7c7; min-height:120px; cursor:pointer;" id="backIDUpload">
+                                        <span class="small text-center" id="backIDText">📸 Upload back of ID</span>
+                                        <input type="file" id="backID" name="backID" accept="image/*" class="position-absolute w-100 h-100 opacity-0" style="cursor:pointer;">
+                                    </div>
+                                    <small class="text-muted d-block" id="backIDStatus"></small>
+                                </div>
+                            </div>
+                            <div id="ocrStatus" class="alert alert-info d-none mt-2" role="alert">
+                                <small id="ocrStatusText"></small>
+                            </div>
+                        </div>
+
+                        <hr class="mt-3 mb-3">
+
+                        <div class="col-12">
+                            <h5 class="fw-semibold text-primary mb-3" style="font-size:0.95rem;">Personal Information</h5>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <label for="lastName" class="form-label fw-semibold text-primary mb-1">Last Name</label>
+                            <input type="text" class="form-control login-input" id="lastName" name="lastName" placeholder="Cruz" required>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label for="firstName" class="form-label fw-semibold text-primary mb-1">First Name</label>
+                            <input type="text" class="form-control login-input" id="firstName" name="firstName" placeholder="Juan" required>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label for="middleName" class="form-label fw-semibold text-primary mb-1">Middle Name</label>
+                            <input type="text" class="form-control login-input" id="middleName" name="middleName" placeholder="Dela">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label for="extensionName" class="form-label fw-semibold text-primary mb-1">Extension Name</label>
+                            <input type="text" class="form-control login-input" id="extensionName" name="extensionName" placeholder="e.g., Jr., Sr., II, III">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label for="birthDate" class="form-label fw-semibold text-primary mb-1">Birth Date</label>
+                            <input type="date" class="form-control login-input" id="birthDate" name="birthDate" required>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label for="gender" class="form-label fw-semibold text-primary mb-1">Gender</label>
+                            <select class="form-select login-input" id="gender" name="gender" required>
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Non-Binary">Non-Binary</option>
+                                <option value="Genderqueer">Genderqueer</option>
+                                <option value="Genderfluid">Genderfluid</option>
+                                <option value="Agender">Agender</option>
+                                <option value="Bigender">Bigender</option>
+                                <option value="Two-Spirit">Two-Spirit</option>
+                                <option value="Transgender Man">Transgender Man</option>
+                                <option value="Transgender Woman">Transgender Woman</option>
+                                <option value="Transgender">Transgender</option>
+                                <option value="Intersex">Intersex</option>
+                                <option value="Third Gender">Third Gender</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                                <option value="Other">Others (please specify)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6" id="otherGenderWrapper">
+                            <label for="otherGender" class="form-label fw-semibold text-primary mb-1">
+                                Please specify your gender
+                            </label>
+                            <input type="text"
+                                   class="form-control login-input"
+                                   id="otherGender"
+                                   name="otherGender"
+                                   placeholder="Enter your gender"
+                                   disabled>
+                        </div>
+                        
+                        <div class="col-12 mt-3">
+                            <label class="form-label fw-semibold text-primary mb-2">
+                                Marginalized Sector
+                            </label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="notApplicable" name="notApplicable">
+                                <label class="form-check-label small" for="notApplicable">
+                                    Not Applicable
+                                </label>
+                            </div>
+                            <select class="form-select login-input" id="marginalizedSector" name="marginalizedSector" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="PWD">Person with Disability (PWD)</option>
+                                <option value="Indigenous People">Indigenous People (IP)</option>
+                                <option value="Senior Citizen">Senior Citizen</option>
+                                <option value="LGBTQ+">LGBTQ+ Community</option>
+                                <option value="Women">Women / Gender-based Issues</option>
+                                <option value="Youth">Youth / Young People</option>
+                                <option value="Rural Workers">Rural / Agrarian Workers</option>
+                                <option value="Urban Poor">Urban Poor</option>
+                                <option value="Children">Children</option>
+                                <option value="Farmers">Farmers</option>
+                                <option value="Fisherfolk">Fisherfolk</option>
+                                <option value="OFW">Overseas Filipino Workers (OFW)</option>
+                                <option value="Mental Health">Persons with Mental Health Conditions</option>
+                                <option value="Chronic Disease">Persons with Chronic Diseases</option>
+                                <option value="Trafficking Victims">Victims of Trafficking/Abuse</option>
+                                <option value="Solo Parents">Solo Parents</option>
+                                <option value="Religious Minorities">Religious Minorities</option>
+                                <option value="Homeless">Homeless Persons</option>
+                                <option value="Other">Other (please specify)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <label for="specifyMarginalizedSector" class="form-label fw-semibold text-primary mb-1">
+                                Please specify
+                            </label>
+                            <input type="text"
+                                   class="form-control login-input"
+                                   id="specifyMarginalizedSector"
+                                   name="specifyMarginalizedSector"
+                                   placeholder="Specify type"
+                                   disabled>
+                        </div>
+
+
+
+                        <div class="col-12">
+                            <label for="email" class="form-label fw-semibold text-primary mb-1">Email Address</label>
+                            <input type="email" class="form-control login-input" id="email" name="email" required>
+                        </div>
+                        <!--<div class="col-12 col-sm-6">-->
+                        <!--    <label for="password" class="form-label fw-semibold text-primary mb-1">Password</label>-->
+                        <!--    <input type="password" class="form-control login-input" id="password" name="password" required>-->
+                        <!--</div>-->
+                        <!--<div class="col-12 col-sm-6">-->
+                        <!--    <label for="confirmPassword" class="form-label fw-semibold text-primary mb-1">Confirm Password</label>-->
+                        <!--    <input type="password" class="form-control login-input" id="confirmPassword" name="confirmPassword" required>-->
+                        <!--</div>-->
+
+                        <!-- Assessment Questions -->
+                        <div class="col-12 mt-3">
+                            <h5 class="fw-semibold text-primary mb-1" style="font-size:1rem;">Assessment Questions</h5>
+                            <p class="text-muted small mb-0">
+                                Please answer the following questions thoughtfully. Your responses will help us understand your alignment with our mission.
+                            </p>
+                        </div>
+
+                        <div id="questionsContainer" class="col-12">
+                            <!-- Questions will be loaded here dynamically -->
+                        </div>
+
+                        <!-- Terms -->
+                        <div class="col-12 mt-2">
+                            <div class="form-check d-flex align-items-center gap-2">
+                                <input class="form-check-input" type="checkbox" id="terms" name="terms" required disabled>
+                                <label class="form-check-label small" for="terms">
+                                    I have read and agree to the
+                                    <button type="button"
+                                            class="btn btn-link p-0 align-baseline"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#termsModal">
+                                        Terms and Conditions
+                                    </button>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="col-12 mt-3">
+                            <button type="submit" class="btn w-100 fw-semibold"
+                                    style="background-color:#35b34a; border-radius:999px; color:#fff;" id="submitBtn">
+                                Register
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer mt-auto">
+        <div class="footer-top py-5">
+            <div class="container">
+                <div class="row align-items-start gy-4 justify-content-between">
+                    <div class="col-12 col-md-4 d-flex align-items-center gap-3">
+                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center" href="index.html">
+                            <img src="assets/image/reboot-logo.png" alt="Reboot PH" class="img-fluid">
+                        </a>
+                        <div class="text-white small">
+                            <h4 class="h6 fw-bold mb-2">Reboot PH</h4>
+                            <p class="mb-1">2804, Discovery Centre, 25 ADB Ave, Ortigas Center</p>
+                            <p class="mb-0">Pasig, Philippines</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 text-white small text-center">
+                        <h4 class="h6 fw-bold mb-3">About Us</h4>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><a href="about.html#mission-vision" class="footer-link">Our Story</a></li>
+                            <li class="mb-2"><a href="about.html#team" class="footer-link">Team</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-4 text-white small text-md-end">
+                        <h4 class="h6 fw-bold mb-3">Contact Info</h4>
+                        <p class="mb-1">rebootphinstitute@gmail.com</p>
+                        <p class="mb-3">info@reboot-philippines.org</p>
+                        
+                        <div class="d-flex justify-content-start justify-content-md-end gap-3">
+                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom py-3">
+            <div class="container text-center text-white-50 small">
+                &copy; 2024 Reboot PH. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <h5 class="modal-title mb-2" style="color:#35b34a;">Registration Successful!</h5>
+                    <p class="text-muted small mb-3">Your application has been submitted for review. You will receive a confirmation email shortly.</p>
+                    <button type="button" class="btn btn-success rounded-pill" data-bs-dismiss="modal" onclick="window.location.href='login.html'">Go to Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <h5 class="modal-title mb-2" style="color:#dc3545;">Registration Error</h5>
+                    <div id="errorList" class="text-start small text-muted mb-3"></div>
+                    <button type="button" class="btn btn-danger rounded-pill" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+   
+    <!-- Terms & Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="termsModalLabel">Terms and Conditions for RebootPH</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    <p class="text-muted small mb-3"><strong>Last Updated:</strong> December 17, 2025</p>
+
+                    <p>Welcome to RebootPH. By registering an account on our platform, you agree to comply with and be bound by the following terms and conditions. Please read them carefully.</p>
+
+                    <h6 class="fw-bold mt-3">1. Acceptance of Terms</h6>
+                    <p>By checking the &quot;I have read and agree to the Terms and Conditions&quot; box, you acknowledge that you have read, understood, and agreed to be bound by these terms. If you do not agree, you will not be able to proceed with the registration.</p>
+
+                    <h6 class="fw-bold mt-3">2. Purpose of the Platform</h6>
+                    <p>This website serves as a centralized digital management system to:</p>
+                    <ul>
+                        <li>Streamline documentation and tracking of renewable energy projects.</li>
+                        <li>Facilitate community mobilization (including the Bicol Chapter).</li>
+                        <li>Promote UN Sustainable Development Goals (SDGs) 7, 11, 13, 16, and 17.</li>
+                    </ul>
+
+                    <h6 class="fw-bold mt-3">3. User Eligibility and Registration</h6>
+                    <p><strong>Accuracy:</strong> You agree to provide true, accurate, and complete information during the registration process.</p>
+                    <p><strong>Security:</strong> You are responsible for maintaining the confidentiality of your login credentials.</p>
+                    <p><strong>Authorized Use:</strong> Accounts are for individual volunteers or authorized stakeholders only. Sharing accounts is discouraged to maintain data integrity.</p>
+
+                    <h6 class="fw-bold mt-3">4. Data Privacy &amp; Documentation</h6>
+                    <p>As we transition from paper-based to digital documentation:</p>
+                    <p><strong>Data Collection:</strong> We collect personal information (Name, Region, Contact Details) to track organizational progress and impact.</p>
+                    <p><strong>Usage:</strong> Your data will be used solely for RebootPH’s advocacy and internal management.</p>
+                    <p><strong>Transparency:</strong> In line with SDG 16 (Peace, Justice, and Strong Institutions), we are committed to transparent data handling. Please refer to our Privacy Policy for details on how we protect your information under the Data Privacy Act of 2012.</p>
+
+                    <h6 class="fw-bold mt-3">5. Code of Conduct</h6>
+                    <p>RebootPH is a volunteer-driven space. Users must:</p>
+                    <ul>
+                        <li>Interact with other members with respect and integrity.</li>
+                        <li>Refrain from uploading false data or misrepresenting project progress.</li>
+                        <li>Avoid using the platform for any commercial solicitation or unauthorized political campaigning.</li>
+                    </ul>
+
+                    <h6 class="fw-bold mt-3">6. Limitation of Liability</h6>
+                    <p>RebootPH provides this platform &quot;as is.&quot; While we strive for 100% uptime to boost our digital presence, we are not liable for any temporary service interruptions or data loss due to technical failures.</p>
+
+                    <h6 class="fw-bold mt-3">7. Termination</h6>
+                    <p>We reserve the right to suspend or terminate accounts that violate these terms or act in a manner inconsistent with the mission of RebootPH.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="termsUnderstandBtn" data-bs-dismiss="modal">I Understand</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    // File upload handlers
+    document.getElementById('frontIDUpload').addEventListener('click', function() {
+        document.getElementById('frontID').click();
+    });
+
+    document.getElementById('frontID').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('frontIDText').textContent = `✓ ${file.name}`;
+            document.getElementById('frontIDStatus').textContent = `File selected (${(file.size / 1024).toFixed(2)} KB)`;
+            document.getElementById('frontIDUpload').style.borderColor = '#35b34a';
+            document.getElementById('frontIDUpload').style.color = '#35b34a';
+            extractIDDetails(file, 'front');
+        }
+    });
+
+    document.getElementById('backIDUpload').addEventListener('click', function() {
+        document.getElementById('backID').click();
+    });
+
+    document.getElementById('backID').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('backIDText').textContent = `✓ ${file.name}`;
+            document.getElementById('backIDStatus').textContent = `File selected (${(file.size / 1024).toFixed(2)} KB)`;
+            document.getElementById('backIDUpload').style.borderColor = '#35b34a';
+            document.getElementById('backIDUpload').style.color = '#35b34a';
+        }
+    });
+
+    // OCR function to extract details from ID image
+    async function extractIDDetails(file, side) {
+        const statusDiv = document.getElementById('ocrStatus');
+        const statusText = document.getElementById('ocrStatusText');
+        
+        statusDiv.classList.remove('d-none');
+        statusText.textContent = `Processing ${side} of ID...`;
+
+        try {
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const result = await Tesseract.recognize(e.target.result, 'eng', {
+                    logger: m => console.log(m)
+                });
+
+                const text = result.data.text.toUpperCase();
+                console.log('Extracted text:', text);
+
+                // Simple parsing logic - adjust based on your ID format
+                const lines = text.split('\n').filter(line => line.trim().length > 0);
+                
+                // Try to extract name and DOB
+                let lastNameExtracted = false;
+                let firstNameExtracted = false;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+
+                    // Try to find date of birth (format: MM/DD/YYYY or DD/MM/YYYY)
+                    const dobMatch = line.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                    if (dobMatch && !document.getElementById('birthDate').value) {
+                        const month = dobMatch[1].padStart(2, '0');
+                        const day = dobMatch[2].padStart(2, '0');
+                        const year = dobMatch[3];
+                        document.getElementById('birthDate').value = `${year}-${month}-${day}`;
+                        statusText.textContent += ` ✓ Birth date found`;
+                    }
+
+                    // Try to extract names (simple heuristic: longer words are likely names)
+                    if (line.length > 2 && line.length < 30 && !lastNameExtracted) {
+                        if (/^[A-Z\s\.]+$/.test(line)) {
+                            const parts = line.split(/\s+/);
+                            if (parts.length >= 1) {
+                                document.getElementById('lastName').value = parts[0];
+                                if (parts.length >= 2 && !firstNameExtracted) {
+                                    document.getElementById('firstName').value = parts[1];
+                                    firstNameExtracted = true;
+                                }
+                                lastNameExtracted = true;
+                            }
+                        }
+                    }
+                }
+
+                statusText.textContent += ` ✓ Details extracted`;
+                setTimeout(() => statusDiv.classList.add('d-none'), 3000);
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('OCR Error:', error);
+            statusText.textContent = 'Could not extract details. Please fill manually.';
+            setTimeout(() => statusDiv.classList.add('d-none'), 3000);
+        }
+    }
+
+    // Load active questionnaires
+    async function loadActiveQuestionnaires() {
+        try {
+            const response = await fetch('api/get-questionnaires.php');
+            const data = await response.json();
+
+            if (data.success && data.questionnaires) {
+                const activeQuestions = data.questionnaires.filter(q => q.IsActive);
+                const container = document.getElementById('questionsContainer');
+                
+                if (activeQuestions.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No active questions at this time.</p>';
+                    return;
+                }
+
+                let html = '';
+                activeQuestions.forEach((question, index) => {
+                    const inputId = `question${index + 1}`;
+                    html += `
+                        <div class="col-12">
+                            <label for="${inputId}" class="form-label mt-3" style="font-size:0.9rem;">
+                                ${index + 1}. ${question.QuestionText}
+                            </label>
+                            <textarea
+                                class="form-control question-textarea"
+                                id="${inputId}"
+                                name="${inputId}"
+                                data-question-id="${question.QuestionID}"
+                                rows="4"
+                                style="border-radius:18px; resize:vertical;"
+                                placeholder="Please provide your answer..."
+                                required
+                            ></textarea>
+                            <div class="form-text small">Minimum 100 characters required</div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+                // Add event listeners for character count to dynamically created textareas
+                document.querySelectorAll('.question-textarea').forEach(textarea => {
+                    textarea.addEventListener('input', function() {
+                        const count = this.value.length;
+                        const status = count >= 100 ? '✓' : '';
+                        this.parentElement.querySelector('.form-text').textContent = `${status} ${count} characters (Minimum 100 required)`;
+                    });
+                });
+            }
+        } catch (error) {
+            console.error('Error loading questionnaires:', error);
+            document.getElementById('questionsContainer').innerHTML = '<p class="text-danger">Error loading questions. Please refresh the page.</p>';
+        }
+    }
+
+    // Load questions when page loads
+    // document.addEventListener('DOMContentLoaded', loadActiveQuestionnaires);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Disable submit until terms are acknowledged
+        const submitBtnInit = document.getElementById('submitBtn');
+        if (submitBtnInit) {
+            submitBtnInit.disabled = true;
+        }
+
+        loadActiveQuestionnaires();
+    });
+
+    // Form submission
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        
+        // Extra safety: block submission if terms are not agreed
+        const termsCheckbox = document.getElementById('terms');
+        if (!termsCheckbox || !termsCheckbox.checked) {
+            const errorList = document.getElementById('errorList');
+            errorList.innerHTML = '<p>You must read and agree to the Terms and Conditions before registering.</p>';
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+            return;
+        }
+
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Registering...';
+
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch('api/register.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                this.reset();
+                document.getElementById('frontIDUpload').style.borderColor = '';
+                document.getElementById('frontIDUpload').style.color = '';
+                document.getElementById('backIDUpload').style.borderColor = '';
+                document.getElementById('backIDUpload').style.color = '';
+            } else {
+                const errorList = document.getElementById('errorList');
+                if (Array.isArray(data.errors)) {
+                    errorList.innerHTML = '<ul class="mb-0">' + 
+                        data.errors.map(err => `<li>${err}</li>`).join('') + 
+                        '</ul>';
+                } else {
+                    errorList.innerHTML = `<p>${data.message}</p>`;
+                }
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
+            }
+        } catch (error) {
+            const errorList = document.getElementById('errorList');
+            errorList.innerHTML = `<p>Network error: ${error.message}</p>`;
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            errorModal.show();
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Register';
+        }
+    });
+
+    // Password validation
+    // document.getElementById('password').addEventListener('change', function() {
+    //     if (this.value.length < 8) {
+    //         this.classList.add('is-invalid');
+    //     } else {
+    //         this.classList.remove('is-invalid');
+    //     }
+    // });
+
+    // document.getElementById('confirmPassword').addEventListener('change', function() {
+    //     if (this.value !== document.getElementById('password').value) {
+    //         this.classList.add('is-invalid');
+    //     } else {
+    //         this.classList.remove('is-invalid');
+    //     }
+    // });
+
+    // Terms and Conditions acknowledgment logic
+    const termsCheckbox = document.getElementById('terms');
+    const termsUnderstandBtn = document.getElementById('termsUnderstandBtn');
+    const submitBtnGlobal = document.getElementById('submitBtn');
+    let termsAcknowledged = false;
+
+    if (termsCheckbox && termsUnderstandBtn) {
+        // Prevent manually checking the box before acknowledging terms
+        termsCheckbox.addEventListener('click', function(e) {
+            if (!termsAcknowledged) {
+                e.preventDefault();
+                const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+                termsModal.show();
+            }
+        });
+
+        // When user clicks "I Understand", auto-check and enable the checkbox and submit button
+        termsUnderstandBtn.addEventListener('click', function() {
+            termsAcknowledged = true;
+            termsCheckbox.disabled = false;
+            termsCheckbox.checked = true;
+            if (submitBtnGlobal) {
+                submitBtnGlobal.disabled = false;
+            }
+        });
+    }
+    
+    // handles gender for option "Others (please specify)"
+    document.getElementById("gender").addEventListener("change", function () {
+    const otherInput = document.getElementById("otherGender");
+        if (this.value === "Other") {
+            otherInput.disabled = false;
+            otherInput.required = true;
+            otherInput.focus();
+        } else {
+            otherInput.disabled = true;
+            otherInput.required = false;
+            otherInput.value = "";
+        }
+    });
+    
+    // handles Marginalized Sector
+    const marginalizedSectorSelect = document.getElementById("marginalizedSector");
+    const notApplicableCheckbox = document.getElementById("notApplicable");
+    const specifyMarginalizedSector = document.getElementById("specifyMarginalizedSector");
+    
+    // Toggle marginalized sector when "Not Applicable" is checked
+    notApplicableCheckbox.addEventListener("change", function() {
+        if (this.checked) {
+            marginalizedSectorSelect.disabled = true;
+            marginalizedSectorSelect.required = false;
+            marginalizedSectorSelect.value = "";
+            marginalizedSectorSelect.style.opacity = "0.5";
+            marginalizedSectorSelect.style.backgroundColor = "#f0f0f0";
+            specifyMarginalizedSector.disabled = true;
+            specifyMarginalizedSector.value = "";
+        } else {
+            marginalizedSectorSelect.disabled = false;
+            marginalizedSectorSelect.required = true;
+            marginalizedSectorSelect.style.opacity = "1";
+            marginalizedSectorSelect.style.backgroundColor = "";
+        }
+    });
+    
+    marginalizedSectorSelect.addEventListener("change", function () {
+        if (this.value === "Other") {
+            specifyMarginalizedSector.disabled = false;
+            specifyMarginalizedSector.required = true;
+            specifyMarginalizedSector.focus();
+        } else {
+            specifyMarginalizedSector.disabled = true;
+            specifyMarginalizedSector.required = false;
+            specifyMarginalizedSector.value = "";
+        }
+    });
+    </script>
+</body>
+
+</html>
