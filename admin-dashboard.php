@@ -475,51 +475,6 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                                                 <p id="appEmail" class="mb-0"></p>
                                             </div>
                                         </div>
-
-                <!-- Add/Edit Value Modal -->
-                <div class="modal fade" id="newValueModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="newValueModalLabel">Add Value</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="valueForm">
-                                    <input type="hidden" id="valueId" />
-                                    <div class="mb-3">
-                                        <label class="form-label">Title</label>
-                                        <input type="text" id="valueTitle" class="form-control" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Description</label>
-                                        <textarea id="valueDescription" class="form-control" rows="3"></textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Icon Class (Bootstrap icon class)</label>
-                                        <input type="text" id="valueIcon" class="form-control" placeholder="e.g. bi-heart" />
-                                    </div>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Display Order</label>
-                                            <input type="number" id="valueOrder" class="form-control" value="1" min="1" />
-                                        </div>
-                                        <div class="col-md-6 d-flex align-items-end">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="valueActive" checked />
-                                                <label class="form-check-label" for="valueActive">Active</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" onclick="saveValue()">Save Value</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                                     </div>
 
                                     <div class="mb-4">
@@ -1196,6 +1151,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                                                 </table>
                                             </div>
                                         </div>
+                                        
 
                                         <!-- Org Team Section -->
                                         <div id="org-team-content" class="tab-pane fade" role="tabpanel">
@@ -2594,6 +2550,51 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
             </div>
         </div>
     </div>
+
+    <!-- Add/Edit Value Modal -->
+                <div class="modal fade" id="newValueModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="newValueModalLabel">Add Value</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="valueForm">
+                                    <input type="hidden" id="valueId" />
+                                    <div class="mb-3">
+                                        <label class="form-label">Title</label>
+                                        <input type="text" id="valueTitle" class="form-control" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Description</label>
+                                        <textarea id="valueDescription" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Icon Class (Bootstrap icon class)</label>
+                                        <input type="text" id="valueIcon" class="form-control" placeholder="e.g. bi-heart" />
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Display Order</label>
+                                            <input type="number" id="valueOrder" class="form-control" value="1" min="1" />
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="valueActive" checked />
+                                                <label class="form-check-label" for="valueActive">Active</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="saveValue()">Save Value</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
     <!-- Edit Vision Modal -->
     <div class="modal fade" id="editVisionModal" tabindex="-1">
