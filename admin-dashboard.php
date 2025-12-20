@@ -7149,18 +7149,23 @@ if ($_SESSION['role'] === 'Member Staff') {
                 if (!container) return;
                 
                 container.innerHTML = icons.map(iconClass => `
-                    <div style="display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; border: 1px solid #e0e0e0; border-radius: 4px; transition: all 0.2s; background: white;" 
-                         class="icon-item" onclick="selectIcon('bi-${iconClass}')" title="bi-${iconClass}">
+                    <div class="icon-item" data-icon="bi-${iconClass}" style="display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; border: 1px solid #e0e0e0; border-radius: 4px; transition: all 0.2s; background: white;" title="bi-${iconClass}">
                         <i class="bi bi-${iconClass}" style="font-size: 24px;"></i>
                     </div>
                 `).join('');
                 
-                // Add hover effects
-                document.querySelectorAll('.icon-item').forEach(item => {
+                // Add click and hover effects
+                document.querySelectorAll('#valueIconGrid .icon-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const iconClass = item.getAttribute('data-icon');
+                        selectIcon(iconClass);
+                    });
+                    
                     item.addEventListener('mouseover', () => {
                         item.style.backgroundColor = '#f0f7ff';
                         item.style.borderColor = '#035996';
                     });
+                    
                     item.addEventListener('mouseout', () => {
                         item.style.backgroundColor = 'white';
                         item.style.borderColor = '#e0e0e0';
@@ -7280,6 +7285,22 @@ if ($_SESSION['role'] === 'Member Staff') {
                     console.error('Save error:', e); 
                     alert('Request failed: ' + e.message); 
                 }
+            }
+
+            function selectIcon(iconClass) {
+                // Update the input field with the selected icon class
+                const iconInput = document.getElementById('valueIcon');
+                if (iconInput) {
+                    iconInput.value = iconClass;
+                }
+                
+                // Update the preview with the selected icon
+                const preview = document.getElementById('valueIconPreview');
+                if (preview) {
+                    preview.innerHTML = `<i class="bi ${iconClass}"></i>`;
+                }
+                
+                console.log('Icon selected:', iconClass);
             }
 
             // expose global functions used by inline handlers
