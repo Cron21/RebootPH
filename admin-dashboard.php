@@ -307,7 +307,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <div class="list-group list-group-flush" id="recentApplicationsList">
                                         <p class="text-muted">Loading...</p>
                                     </div>
-                                    <button class="btn btn-success fw-semibold mt-3" style="width: 100%;">View All
+                                    <button id="viewAllApplicationsBtn" class="btn btn-success fw-semibold mt-3" style="width: 100%;">View All
                                         Applications</button>
                                 </div>
                             </div>
@@ -319,7 +319,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <div class="list-group list-group-flush" id="dashboardEventsList">
                                         <p class="text-muted">Loading...</p>
                                     </div>
-                                    <button class="btn btn-success fw-semibold mt-3" style="width: 100%;">View All
+                                    <button id="viewAllEventsBtn" class="btn btn-success fw-semibold mt-3" style="width: 100%;">View All
                                         Events</button>
                                 </div>
                             </div>
@@ -3997,6 +3997,28 @@ if ($_SESSION['role'] === 'Member Staff') {
                         const proposalsLink = document.querySelector('a[href="#event-proposals"]');
                         if (proposalsLink) {
                             proposalsLink.click();
+                        }
+                    });
+                }
+
+                // View All Applications button
+                const viewAllApplicationsBtn = document.getElementById('viewAllApplicationsBtn');
+                if (viewAllApplicationsBtn) {
+                    viewAllApplicationsBtn.addEventListener('click', function () {
+                        const applicationsLink = document.querySelector('a[href="#applications"]');
+                        if (applicationsLink) {
+                            applicationsLink.click();
+                        }
+                    });
+                }
+
+                // View All Events button
+                const viewAllEventsBtn = document.getElementById('viewAllEventsBtn');
+                if (viewAllEventsBtn) {
+                    viewAllEventsBtn.addEventListener('click', function () {
+                        const eventMgmtLink = document.querySelector('a[href="#event-management"]');
+                        if (eventMgmtLink) {
+                            eventMgmtLink.click();
                         }
                     });
                 }
