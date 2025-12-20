@@ -923,7 +923,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <!-- Hero Section Content -->
                                 <div id="hero-content" class="tab-pane fade">
                                     <div class="d-flex justify-content-between align-items-center mb-4">
-                                        <h3 class="h5 mb-0">Manage Hero Sections</h3>
+                                        <h3 class="h5 mb-0">Manage Landing Page</h3>
                                         <button class="btn btn-primary" data-bs-toggle="modal"
                                             data-bs-target="#newHeroModal" onclick="openAddHeroModal()">
                                             Add New Hero Section
@@ -931,6 +931,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     </div>
 
                                     <!-- Hero Sections List -->
+                                     <h4 class="h6 mb-3">Manage Member Benefits</h4>
                                     <div class="table-responsive">
                                         <table class="table">
                                             <thead>
@@ -951,6 +952,35 @@ if ($_SESSION['role'] === 'Member Staff') {
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    <!-- Manage Member Benefits -->
+                                    <hr class="my-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h3 class="h5 mb-0">Manage Member Benefits (Carousel)</h3>
+                                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#memberBenefitModal" onclick="openAddMemberBenefitModal()">
+                                                Add Benefit
+                                            </button>
+                                        </div>
+
+                                        <div class="table-responsive mb-4">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Title</th>
+                                                        <th>Description</th>
+                                                        <th>Icon / Class</th>
+                                                        <th>Order</th>
+                                                        <th>Active</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="memberBenefitsTableBody">
+                                                    <tr><td colspan="6" class="text-center text-muted">Loading member benefits...</td></tr>
+                                            </tbody>
+                                            </table>
+                                        </div>
+                                    </hr>
+
                                 </div>
 
                                 <!-- Initiatives Content -->
@@ -2421,6 +2451,46 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="saveHero()">Save Hero Section</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="memberBenefitModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="memberBenefitModalTitle">Add Benefit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="memberBenefitForm">
+                <input type="hidden" id="benefitId" value="">
+                <div class="mb-3">
+                    <label class="form-label">Title</label>
+                    <input type="text" id="benefitTitle" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea id="benefitDescription" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Icon Class (e.g., bi bi-book)</label>
+                    <input type="text" id="benefitIconClass" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Order</label>
+                    <input type="number" id="benefitOrder" class="form-control" value="0">
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="benefitIsActive">
+                    <label class="form-check-label">Set as active</label>
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" onclick="saveMemberBenefit()">Save</button>
+            </div>
             </div>
         </div>
     </div>
@@ -6400,6 +6470,140 @@ if ($_SESSION['role'] === 'Member Staff') {
                         '<tr><td colspan="6" class="text-center text-danger">Error loading hero sections</td></tr>';
                 }
             }
+
+            // ===== MEMBER BENEFITS MANAGEMENT =====
+            async function loadMemberBenefitsAdmin() {
+                try {
+                    const res = await fetch('api/get-member-benefits.php');
+                    const data = await res.json();
+                    const tbody = document.getElementById('memberBenefitsTableBody');
+
+                    if (!data.success || !data.benefits || data.benefits.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No member benefits found.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = data.benefits.map(b => {
+                        return `<tr>
+                            <td>${escapeHtml(b.Title)}</td>
+                            <td>${escapeHtml(b.Description || '').substring(0,120)}</td>
+                            <td>${escapeHtml(b.IconClass || '')}</td>
+                            <td>${b.Order}</td>
+                            <td>${b.isActive==1 ? '<span class="badge bg-success">Active</span>' : ''}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="editMemberBenefit(${b.BenefitID})">Edit</button>
+                                    <button class="btn btn-outline-danger" onclick="deleteMemberBenefit(${b.BenefitID}, '${escapeHtml(b.Title)}')">Delete</button>
+                                    <button class="btn btn-outline-secondary" onclick="setActiveMemberBenefit(${b.BenefitID}, '${escapeHtml(b.Title)}')">Set Active</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                } catch (e) {
+                    console.error('Error loading member benefits', e);
+                }
+            }
+
+            function openAddMemberBenefitModal() {
+                document.getElementById('memberBenefitModalTitle').textContent = 'Add Benefit';
+                document.getElementById('memberBenefitForm').reset();
+                document.getElementById('benefitId').value = '';
+                document.getElementById('benefitIsActive').checked = false;
+                new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
+            }
+
+            async function editMemberBenefit(id) {
+                try {
+                    const res = await fetch(`api/get-member-benefits.php`);
+                    const data = await res.json();
+                    const b = (data.benefits || []).find(x => parseInt(x.BenefitID) === parseInt(id));
+                    if (!b) { alert('Benefit not found'); return; }
+
+                    document.getElementById('memberBenefitModalTitle').textContent = 'Edit Benefit';
+                    document.getElementById('benefitId').value = b.BenefitID;
+                    document.getElementById('benefitTitle').value = b.Title;
+                    document.getElementById('benefitDescription').value = b.Description;
+                    document.getElementById('benefitIconClass').value = b.IconClass;
+                    document.getElementById('benefitOrder').value = b.Order || 0;
+                    document.getElementById('benefitIsActive').checked = b.isActive==1;
+                    new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
+                } catch (e) { console.error(e); alert('Error loading benefit'); }
+            }
+
+            async function saveMemberBenefit() {
+                const id = document.getElementById('benefitId').value.trim();
+                const title = document.getElementById('benefitTitle').value.trim();
+                const description = document.getElementById('benefitDescription').value.trim();
+                const iconClass = document.getElementById('benefitIconClass').value.trim();
+                const order = parseInt(document.getElementById('benefitOrder').value || 0);
+                const isActive = document.getElementById('benefitIsActive').checked ? 1 : 0;
+
+                if (!title) { alert('Title required'); return; }
+
+                const action = id ? 'update' : 'create';
+                const payload = { action, title, description, iconClass, order, isActive };
+                if (id) payload.id = parseInt(id);
+
+                try {
+                    const res = await fetch('api/manage-member-benefits.php', {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(data.message);
+                        bootstrap.Modal.getInstance(document.getElementById('memberBenefitModal')).hide();
+                        loadMemberBenefitsAdmin();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (e) { console.error(e); alert('Error saving benefit'); }
+            }
+
+            async function deleteMemberBenefit(id, title) {
+                if (!confirm(`Delete "${title}"?`)) return;
+                try {
+                    const res = await fetch('api/manage-member-benefits.php', {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({ action: 'delete', id: id })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(data.message);
+                        loadMemberBenefitsAdmin();
+                    } else alert('Error: ' + data.message);
+                } catch (e) { console.error(e); alert('Error deleting'); }
+            }
+
+            async function setActiveMemberBenefit(id, title) {
+                try {
+                    const res = await fetch('api/manage-member-benefits.php', {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({ action: 'setActive', id: id })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(`"${title}" set as active`);
+                        loadMemberBenefitsAdmin();
+                    } else alert('Error: ' + data.message);
+                } catch (e) { console.error(e); alert('Error setting active'); }
+            }
+
+            // Ensure loadMemberBenefitsAdmin() is invoked when Content Management tab is opened.
+            // Call it on page load as well:
+            document.addEventListener('DOMContentLoaded', function() {
+                // other initializations...
+                // call this when content panel shows:
+                const contentLink = document.querySelector('a[href="#content"]');
+                if (contentLink) {
+                    contentLink.addEventListener('click', function () {
+                        setTimeout(loadMemberBenefitsAdmin, 150);
+                    });
+                }
+            });
 
             // Populate hero sections table
             function populateHeroTable(heroSections) {

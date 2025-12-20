@@ -112,12 +112,17 @@
                 </div>
 
                 <!-- Mission & Vision Cards -->
-                <div class="row g-4 mt-5 p-5" id="missionVisionContainer">
+                <div class="row g-4 mt-5" id="missionVisionContainer">
                     <p class="text-muted text-center col-12">Loading mission and vision...</p>
                 </div>
 
                 <!-- Member Benefits Carousel -->
                 <h3 class="h6 fw-bold mb-3 text-center" style="color: #02457A; padding-top: 3rem">Member Benefits</h3>
+                <div id="memberBenefitsContainer" class="row g-4" style="min-height: 350px;">
+                    <p class="text-muted col-12 text-center">Loading member benefits...</p>
+                </div>
+                
+                <!-- <h3 class="h6 fw-bold mb-3 text-center" style="color: #02457A; padding-top: 3rem">Member Benefits</h3>
                 <div id="whyJoinCarousel" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-indicators">
                         <button type="button" data-bs-target="#whyJoinCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -194,7 +199,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="d-flex justify-content-center gap-3 mt-4">
                     <button class="btn btn-dark" type="button" data-bs-target="#whyJoinCarousel" data-bs-slide="prev">
@@ -524,6 +529,39 @@
                 }
             } catch (error) {
                 console.error('Error loading highlights:', error);
+            }
+        }
+
+        // Load member benefits and render a bootstrap carousel / cards
+        async function loadMemberBenefits() {
+            try {
+                const res = await fetch('api/get-member-benefits.php');
+                const data = await res.json();
+                const container = document.getElementById('memberBenefitsContainer');
+
+                if (!data.success || !data.benefits || data.benefits.length === 0) {
+                    container.innerHTML = '<p class="text-muted col-12 text-center">No member benefits available.</p>';
+                    return;
+                }
+
+                // Build carousel items if you prefer a carousel; here we will render cards in columns but using a carousel when >3 items
+                const benefits = data.benefits;
+                const itemsHtml = benefits.map(b => {
+                    const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
+                    return `
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100 p-4 rounded-4 shadow-sm text-center" style="min-height: 280px;">
+                            <div class="mb-3">${iconHtml}</div>
+                            <h3 class="h6 fw-bold mb-2" style="color:#02457A;">${escapeHtml(b.Title)}</h3>
+                            <p class="text-muted">${escapeHtml((b.Description||'').substring(0,140))}</p>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                container.innerHTML = itemsHtml;
+            } catch (e) {
+                console.error('Error loading member benefits', e);
+                document.getElementById('memberBenefitsContainer').innerHTML = '<p class="text-muted col-12 text-center">Error loading member benefits.</p>';
             }
         }
 
@@ -916,6 +954,7 @@
             loadHighlights();
             loadNewslettersSection();
             loadMissionVision();
+            loadMemberBenefits();
         });
     </script>
 </body>
