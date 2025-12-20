@@ -39,7 +39,7 @@ try {
                 throw new Exception('You cannot change your own role');
             }
 
-            $validRoles = ['Member', 'Member Staff', 'Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator', 'Finance Officer', 'Meal Officer'];
+            $validRoles = ['Member Staff', 'Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator', 'Finance Officer', 'Meal Officer'];
             if (!in_array($newRole, $validRoles)) {
                 throw new Exception('Invalid role');
             }

@@ -335,14 +335,13 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                                 <div class="col-md-3">
                                     <select class="form-select" id="memberRoleFilter" onchange="filterMembers()">
                                         <option value="">All Roles</option>
-                                        <option value="Member">Member</option>
+                                        <option value="Member Staff">Member Staff</option>
                                         <option value="Executive Director">Executive Director</option>
                                         <option value="Program Officer">Program Officer</option>
                                         <option value="Regional Convenor">Regional Convenor</option>
                                         <option value="Local Coordinator">Local Coordinator</option>
                                         <option value="Finance Officer">Finance Officer</option>
                                         <option value="Meal Officer">Meal Officer</option>
-                                        <option value="Member Staff">Member Staff</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -3869,14 +3868,14 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                                 ${roleDisabled}
                                 title="${roleTitle}"
                                 onchange="updateMemberRole(${member.MemberID}, this.value)">
-                                <option value="Member" ${member.Role === 'Member' ? 'selected' : ''}>Member</option>
+                                <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
                                 <option value="Executive Director" ${member.Role === 'Executive Director' ? 'selected' : ''}>Executive Director</option>
                                 <option value="Program Officer" ${member.Role === 'Program Officer' ? 'selected' : ''}>Program Officer</option>
                                 <option value="Regional Convenor" ${member.Role === 'Regional Convenor' ? 'selected' : ''}>Regional Convenor</option>
                                 <option value="Local Coordinator" ${member.Role === 'Local Coordinator' ? 'selected' : ''}>Local Coordinator</option>
                                 <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
                                 <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
-                                <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>\n                            </select>
+                            </select>
                         </td>
                         <td>
                             <span class="badge ${member.isActive ? 'bg-success' : 'bg-danger'}">
