@@ -6880,52 +6880,76 @@ if ($_SESSION['role'] === 'Member Staff') {
             let _valuesCache = [];
             let _bootstrapIcons = [];
 
-            // Bootstrap Icons list (common icons)
-            const bootstrapIconsList = [
-                'heart', 'star', 'gear', 'settings', 'bell', 'envelope', 'user', 'users', 'lock', 'unlock',
-                'eye', 'eye-slash', 'search', 'plus', 'minus', 'x', 'check', 'checkmark', 'trash', 'delete',
-                'edit', 'pencil', 'save', 'download', 'upload', 'folder', 'file', 'calendar', 'clock', 'time',
-                'home', 'house', 'building', 'briefcase', 'chart-bar', 'chart-line', 'graph', 'trend-up', 'trend-down',
-                'target', 'flag', 'bookmark', 'tag', 'tags', 'link', 'globe', 'map', 'compass', 'location',
-                'phone', 'telephone', 'mobile', 'code', 'terminal', 'bug', 'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right',
-                'refresh', 'reload', 'sync', 'loop', 'spinner', 'play', 'pause', 'stop', 'skip', 'volume',
-                'music', 'speaker', 'microphone', 'camera', 'image', 'picture', 'gallery', 'video', 'film',
-                'award', 'trophy', 'medal', 'cup', 'leaf', 'sun', 'moon', 'cloud', 'thunderstorm', 'droplet',
-                'lightbulb', 'lamp', 'fire', 'zap', 'battery', 'plug', 'wifi', 'bluetooth', 'antenna',
-                'palette', 'paint', 'brush', 'crayon', 'pen', 'pencil-square', 'highlighter', 'eraser',
-                'book', 'bookmark-fill', 'library', 'school', 'graduation', 'university', 'mortarboard',
-                'graduation-cap', 'backpack', 'bag', 'basket', 'box', 'package', 'gift', 'ribbon',
-                'flower1', 'flower2', 'flower3', 'leaf-fill', 'tree', 'pine-tree', 'palm-tree',
-                'soccer', 'basketball', 'football', 'baseball', 'tennis', 'badminton', 'hockey', 'lacrosse',
-                'dumbbell', 'fitness', 'bike', 'bicycle', 'motorcycle', 'truck', 'car', 'bus', 'train', 'tram',
-                'ship', 'airplane', 'rocket', 'helicopter', 'drone', 'ufo', 'hot-air-balloon', 'parachute',
-                'utensils', 'fork-knife', 'spoon', 'cup', 'teacup', 'wine-glass', 'beer', 'cocktail', 'coffee', 'tea',
-                'cake', 'cupcake', 'cookie', 'donut', 'candy', 'carrot', 'apple', 'lemon', 'orange', 'banana'
-            ];
-
-            // Initialize icon picker
-            function initializeIconPicker() {
-                _bootstrapIcons = bootstrapIconsList.map(icon => 'bi-' + icon);
-                loadIconGrid(_bootstrapIcons);
+            // Initialize icon picker - load from official Bootstrap Icons JSON
+            async function initializeIconPicker() {
+                try {
+                    // Fetch the official Bootstrap Icons list
+                    const response = await fetch('assets/bootstrap-icons-1.11.3/font/bootstrap-icons.json');
+                    const iconData = await response.json();
+                    
+                    // Extract icon names from the JSON keys (they are icon class names without 'bi-' prefix)
+                    _bootstrapIcons = Object.keys(iconData)
+                        .filter(name => name !== '123') // Filter out numeric entries
+                        .map(name => 'bi-' + name)
+                        .sort();
+                    
+                    // Initial load - show popular icons
+                    const popularIcons = _bootstrapIcons.filter(icon => 
+                        ['heart', 'star', 'gear', 'settings', 'bell', 'envelope', 'user', 'lock', 
+                         'check', 'trash', 'edit', 'home', 'search', 'plus', 'calendar', 'chart'].some(word => 
+                        icon.includes(word))
+                    );
+                    loadIconGrid(popularIcons.length > 0 ? popularIcons : _bootstrapIcons.slice(0, 100));
+                    
+                } catch (error) {
+                    console.error('Error loading Bootstrap Icons:', error);
+                    // Fallback: show a message
+                    document.getElementById('iconGridContainer').innerHTML = 
+                        '<p class="text-danger text-center">Unable to load icons. Please try again.</p>';
+                }
                 
                 // Search functionality
-                document.getElementById('iconSearchInput').addEventListener('input', function(e) {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const filtered = _bootstrapIcons.filter(icon => 
-                        icon.replace('bi-', '').includes(searchTerm)
-                    );
-                    loadIconGrid(filtered);
-                });
+                const searchInput = document.getElementById('iconSearchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', function(e) {
+                        const searchTerm = e.target.value.toLowerCase();
+                        if (searchTerm.length === 0) {
+                            // Show popular icons if search is empty
+                            const popularIcons = _bootstrapIcons.filter(icon => 
+                                ['heart', 'star', 'gear', 'settings', 'bell', 'envelope', 'user', 'lock', 
+                                 'check', 'trash', 'edit', 'home', 'search', 'plus', 'calendar', 'chart'].some(word => 
+                                icon.includes(word))
+                            );
+                            loadIconGrid(popularIcons.length > 0 ? popularIcons : _bootstrapIcons.slice(0, 100));
+                        } else {
+                            // Filter by search term
+                            const filtered = _bootstrapIcons.filter(icon => 
+                                icon.replace('bi-', '').includes(searchTerm)
+                            ).slice(0, 500); // Limit results for performance
+                            loadIconGrid(filtered);
+                        }
+                    });
+                }
             }
 
             function loadIconGrid(icons) {
                 const container = document.getElementById('iconGridContainer');
+                if (!container) return;
+                
                 container.innerHTML = '';
+                
+                if (icons.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center" style="grid-column: 1/-1;">No icons found</p>';
+                    return;
+                }
                 
                 icons.forEach(iconClass => {
                     const div = document.createElement('div');
                     div.style.cssText = 'text-align: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px solid #ddd;';
-                    div.innerHTML = `<i class="bi ${iconClass}" style="font-size: 1.8rem;"></i>`;
+                    
+                    // Create icon element with error handling
+                    const iconHtml = `<i class="bi ${iconClass}" style="font-size: 1.8rem;"></i>`;
+                    div.innerHTML = iconHtml;
                     div.title = iconClass;
                     
                     div.addEventListener('mouseenter', () => {
@@ -6949,7 +6973,8 @@ if ($_SESSION['role'] === 'Member Staff') {
             function selectIcon(iconClass) {
                 document.getElementById('valueIcon').value = iconClass;
                 document.getElementById('valueIconPreview').innerHTML = `<i class="bi ${iconClass}"></i>`;
-                bootstrap.Modal.getInstance(document.getElementById('iconPickerModal')).hide();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('iconPickerModal'));
+                if (modal) modal.hide();
             }
 
             async function loadValues() {
