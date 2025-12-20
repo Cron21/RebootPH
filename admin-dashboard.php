@@ -7103,20 +7103,6 @@ if ($_SESSION['role'] === 'Member Staff') {
             let _valuesCache = [];
             let _bootstrapIcons = [];
 
-            // Initialize icon picker - load from official Bootstrap Icons JSON
-            async function initializeIconPicker() {
-                try {
-                    // Fetch the official Bootstrap Icons list
-                    const response = await fetch('assets/bootstrap-icons-1.11.3/font/bootstrap-icons.json');
-                    const iconData = await response.json();
-                    
-                    // Extract icon names from the JSON keys (they are icon class names without 'bi-' prefix)
-                    _bootstrapIcons = Object.keys(iconData)
-                        .filter(name => name !== '123') // Filter out numeric entries
-                        .map(name => 'bi-' + name)
-                        .sort();
-                    
-                    // Organizational values keywords for intelligent filtering
             // Initialize icon picker - load from official Bootstrap Icons JSON  
             async function initializeIconPicker() {
                 try {
