@@ -4016,7 +4016,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const viewAllEventsBtn = document.getElementById('viewAllEventsBtn');
                 if (viewAllEventsBtn) {
                     viewAllEventsBtn.addEventListener('click', function () {
-                        const eventMgmtLink = document.querySelector('a[href="#event-management"]');
+                        const eventMgmtLink = document.querySelector('a[href="#events"]');
                         if (eventMgmtLink) {
                             eventMgmtLink.click();
                         }
