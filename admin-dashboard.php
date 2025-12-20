@@ -4333,18 +4333,17 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                     return;
                 }
 
-                if (!confirm('Are you sure you want to approve this application?')) {
-                    return;
-                }
-
-                // Find and disable the approve button
-                const approveBtn = document.querySelector('[onclick*="approveApplicationByBtn"]');
+                // Find and disable all approve buttons to prevent double-click
                 const modalApproveBtn = document.getElementById('approveBtn');
+                const tableApproveBtns = document.querySelectorAll(`[onclick*="approveApplicationByBtn"][onclick*="${currentApplicationId}"]`);
                 
                 if (modalApproveBtn) {
                     modalApproveBtn.disabled = true;
                     modalApproveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Approving...';
                 }
+                tableApproveBtns.forEach(btn => {
+                    btn.disabled = true;
+                });
 
                 try {
                     const response = await fetch('api/manage-application.php', {
@@ -4362,7 +4361,10 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
 
                     if (data.success) {
                         alert(data.message);
-                        bootstrap.Modal.getInstance(document.getElementById('applicationModal')).hide();
+                        const modalEl = document.getElementById('applicationModal');
+                        if (modalEl && bootstrap.Modal.getInstance(modalEl)) {
+                            bootstrap.Modal.getInstance(modalEl).hide();
+                        }
                         loadApplications();
                     } else {
                         alert('Error: ' + data.message);
@@ -4371,11 +4373,14 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                     console.error('Error approving application:', error);
                     alert('Error approving application');
                 } finally {
-                    // Re-enable the button
+                    // Re-enable the buttons
                     if (modalApproveBtn) {
                         modalApproveBtn.disabled = false;
                         modalApproveBtn.innerHTML = 'Approve';
                     }
+                    tableApproveBtns.forEach(btn => {
+                        btn.disabled = false;
+                    });
                 }
             }
 

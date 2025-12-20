@@ -80,7 +80,7 @@ try {
                 $stmt->execute([$passwordHash, $applicationId]);
 
                 // Create member record
-                $memberStmt = $pdo->prepare("INSERT INTO member (ApplicationID, Role, isActive, JoinDate) VALUES (?, 'member', 1, NOW())");
+                $memberStmt = $pdo->prepare("INSERT INTO member (ApplicationID, Role, isActive, JoinDate) VALUES (?, 'Member Staff', 1, NOW())");
                 $memberStmt->execute([$applicationId]);
 
                 // Commit transaction
