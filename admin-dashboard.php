@@ -81,6 +81,12 @@ if ($_SESSION['role'] === 'Member Staff') {
             color: #ffffff !important;
             border-color: #4BB949 !important;
         }
+
+        /* Metric Cards Hover Effect */
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+        }
     </style>
 
 </head>
@@ -221,7 +227,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <h2 class="h4 mb-4">Admin Dashboard</h2>
                     <div class="row g-4 mb-4">
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="totalMembersCard" style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Total Members.svg" alt="Total Members Icon" height="32px">
                                     <h5 class="text-secondary fw-bold">Total Members</h5>
@@ -232,7 +238,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="activeInitiativesCard" style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Active Initiatives.svg" alt="Active Initiatives Icon"
                                         height="32px">
@@ -244,7 +250,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="pendingApplicationsCard" style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Pending Applications.svg" alt="Pending Applications Icon"
                                         height="32px">
@@ -255,7 +261,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="eventProposalsCard" style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Event Proposals.svg" alt="Event Proposals Icon"
                                         height="32px">
@@ -3938,6 +3944,60 @@ if ($_SESSION['role'] === 'Member Staff') {
                 if (questionnaireLink) {
                     questionnaireLink.addEventListener('click', function () {
                         setTimeout(() => loadQuestionnaires(), 100);
+                    });
+                }
+            });
+
+            // ===== METRIC CARDS CLICK HANDLERS =====
+            document.addEventListener('DOMContentLoaded', function () {
+                // Total Members card - navigate to Members Management
+                const totalMembersCard = document.getElementById('totalMembersCard');
+                if (totalMembersCard) {
+                    totalMembersCard.addEventListener('click', function () {
+                        const membersLink = document.querySelector('a[href="#members"]');
+                        if (membersLink) {
+                            membersLink.click();
+                        }
+                    });
+                }
+
+                // Active Initiatives card - navigate to Content Management > Initiatives
+                const activeInitiativesCard = document.getElementById('activeInitiativesCard');
+                if (activeInitiativesCard) {
+                    activeInitiativesCard.addEventListener('click', function () {
+                        const contentMgmtLink = document.querySelector('a[href="#content-management"]');
+                        if (contentMgmtLink) {
+                            contentMgmtLink.click();
+                            // Switch to initiatives tab after opening content management
+                            setTimeout(function () {
+                                const initiativesTab = document.querySelector('button[data-bs-target="#initiativesMgmt"]');
+                                if (initiativesTab) {
+                                    initiativesTab.click();
+                                }
+                            }, 100);
+                        }
+                    });
+                }
+
+                // Pending Applications card - navigate to Member Application Management
+                const pendingApplicationsCard = document.getElementById('pendingApplicationsCard');
+                if (pendingApplicationsCard) {
+                    pendingApplicationsCard.addEventListener('click', function () {
+                        const applicationsLink = document.querySelector('a[href="#applications"]');
+                        if (applicationsLink) {
+                            applicationsLink.click();
+                        }
+                    });
+                }
+
+                // Event Proposals card - navigate to Event Proposals
+                const eventProposalsCard = document.getElementById('eventProposalsCard');
+                if (eventProposalsCard) {
+                    eventProposalsCard.addEventListener('click', function () {
+                        const proposalsLink = document.querySelector('a[href="#event-proposals"]');
+                        if (proposalsLink) {
+                            proposalsLink.click();
+                        }
                     });
                 }
             });
