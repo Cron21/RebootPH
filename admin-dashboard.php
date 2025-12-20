@@ -931,7 +931,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     </div>
 
                                     <!-- Hero Sections List -->
-                                     <h4 class="h6 mb-3">Manage Member Benefits</h4>
+                                     <h4 class="h6 mb-3">Manage Landing Page</h4>
                                     <div class="table-responsive">
                                         <table class="table">
                                             <thead>
@@ -956,8 +956,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <!-- Manage Member Benefits -->
                                     <hr class="my-4">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h3 class="h5 mb-0">Manage Member Benefits (Carousel)</h3>
-                                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#memberBenefitModal" onclick="openAddMemberBenefitModal()">
+                                            <h3 class="h5 mb-0">Manage Member Benefits</h3>
+                                            <button class="btn btn-primarybtn-sm" data-bs-toggle="modal" data-bs-target="#memberBenefitModal" onclick="openAddMemberBenefitModal()">
                                                 Add Benefit
                                             </button>
                                         </div>
@@ -6473,34 +6473,50 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // ===== MEMBER BENEFITS MANAGEMENT =====
             async function loadMemberBenefitsAdmin() {
+                const tbody = document.getElementById('memberBenefitsTableBody');
+                if (!tbody) return;
+
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Loading member benefits...</td></tr>';
+
                 try {
                     const res = await fetch('api/get-member-benefits.php');
                     const data = await res.json();
-                    const tbody = document.getElementById('memberBenefitsTableBody');
 
-                    if (!data.success || !data.benefits || data.benefits.length === 0) {
+                    if (!data.success || !Array.isArray(data.benefits) || data.benefits.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No member benefits found.</td></tr>';
                         return;
                     }
 
                     tbody.innerHTML = data.benefits.map(b => {
-                        return `<tr>
-                            <td>${escapeHtml(b.Title)}</td>
-                            <td>${escapeHtml(b.Description || '').substring(0,120)}</td>
-                            <td>${escapeHtml(b.IconClass || '')}</td>
-                            <td>${b.Order}</td>
-                            <td>${b.isActive==1 ? '<span class="badge bg-success">Active</span>' : ''}</td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" onclick="editMemberBenefit(${b.BenefitID})">Edit</button>
-                                    <button class="btn btn-outline-danger" onclick="deleteMemberBenefit(${b.BenefitID}, '${escapeHtml(b.Title)}')">Delete</button>
-                                    <button class="btn btn-outline-secondary" onclick="setActiveMemberBenefit(${b.BenefitID}, '${escapeHtml(b.Title)}')">Set Active</button>
-                                </div>
-                            </td>
-                        </tr>`;
+                        const id = b.BenefitID;
+                        const title = escapeHtml(String(b.Title || ''));
+                        const rawDesc = String(b.Description || '');
+                        const descPreview = escapeHtml(rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc);
+                        const iconClass = escapeHtml(String(b.IconClass || ''));
+                        const order = escapeHtml(String(b.Order ?? b.order ?? 0));
+                        const activeBadge = (String(b.isActive) === '1' || b.isActive === 1) ? '<span class="badge bg-success">Active</span>' : '';
+                        const titleArg = JSON.stringify(String(b.Title || ''));
+
+                        return `
+                            <tr>
+                                <td>${title}</td>
+                                <td>${descPreview}</td>
+                                <td>${iconClass}</td>
+                                <td>${order}</td>
+                                <td>${activeBadge}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="editMemberBenefit(${id})">Edit</button>
+                                        <button class="btn btn-outline-danger" onclick="deleteMemberBenefit(${id}, ${titleArg})">Delete</button>
+                                        <button class="btn btn-outline-secondary" onclick="setActiveMemberBenefit(${id}, ${titleArg})">Set Active</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
                     }).join('');
-                } catch (e) {
-                    console.error('Error loading member benefits', e);
+                } catch (err) {
+                    console.error('Error loading member benefits:', err);
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading member benefits</td></tr>';
                 }
             }
 
