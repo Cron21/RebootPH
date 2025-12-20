@@ -6794,6 +6794,119 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                 }
             }
 
+            // ----- Core Values (Values) Management -----
+            function openAddValueModal() {
+                document.getElementById('valueForm').reset();
+                document.getElementById('valueId').value = '';
+                document.getElementById('newValueModalLabel').textContent = 'Add Value';
+                new bootstrap.Modal(document.getElementById('newValueModal')).show();
+            }
+
+            function editValue(id) {
+                const v = _valuesCache.find(x => Number(x.value_id) === Number(id));
+                if (!v) return alert('Value not found');
+                document.getElementById('valueId').value = v.value_id;
+                document.getElementById('valueTitle').value = v.title || '';
+                document.getElementById('valueDescription').value = v.description || '';
+                document.getElementById('valueIcon').value = v.icon_class || '';
+                document.getElementById('valueOrder').value = v.display_order || 1;
+                document.getElementById('valueActive').checked = (v.is_active == 1 || v.is_active === '1');
+                document.getElementById('newValueModalLabel').textContent = 'Edit Value';
+                new bootstrap.Modal(document.getElementById('newValueModal')).show();
+            }
+
+            async function deleteValue(id) {
+                if (!confirm('Delete this value?')) return;
+                try {
+                    const res = await fetch('api/manage-about-us.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'delete', type: 'values', value_id: id })
+                    });
+                    const j = await res.json();
+                    if (j.success) {
+                        alert(j.message || 'Deleted');
+                        loadValues();
+                    } else alert('Error: ' + (j.message || 'Failed'));
+                } catch (e) { console.error(e); alert('Request failed'); }
+            }
+
+            let _valuesCache = [];
+
+            async function loadValues() {
+                try {
+                    const res = await fetch('api/manage-about-us.php?type=values');
+                    const j = await res.json();
+                    const tbody = document.getElementById('valuesTableBody');
+                    if (!j.success || !Array.isArray(j.values) || j.values.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No values found.</td></tr>';
+                        _valuesCache = [];
+                        return;
+                    }
+                    _valuesCache = j.values;
+                    tbody.innerHTML = '';
+                    j.values.forEach(v => {
+                        const status = (v.is_active == 1 || v.is_active === '1') ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>';
+                        const iconHtml = v.icon_class ? `<i class="${escapeHtml(v.icon_class)}"></i> ${escapeHtml(v.icon_class)}` : '';
+                        tbody.innerHTML += `\
+                            <tr>\
+                                <td>${escapeHtml(v.title || '')}</td>\
+                                <td style="max-width:320px;">${escapeHtml(v.description || '')}</td>\
+                                <td>${iconHtml}</td>\
+                                <td>${escapeHtml(v.display_order || '')}</td>\
+                                <td>${status}</td>\
+                                <td>\
+                                    <button class="btn btn-sm btn-primary me-1" onclick="editValue(${v.value_id})"><i class="bi bi-pencil"></i></button>\
+                                    <button class="btn btn-sm btn-danger" onclick="deleteValue(${v.value_id})"><i class="bi bi-trash"></i></button>\
+                                </td>\
+                            </tr>`;
+                    });
+                } catch (e) { console.error('loadValues error', e); }
+            }
+
+            async function saveValue() {
+                const id = document.getElementById('valueId').value;
+                const title = document.getElementById('valueTitle').value.trim();
+                const description = document.getElementById('valueDescription').value.trim();
+                const icon = document.getElementById('valueIcon').value.trim();
+                const order = Number(document.getElementById('valueOrder').value || 1);
+
+                if (!title) { alert('Title is required'); return; }
+
+                const payload = {
+                    action: id ? 'update' : 'create',
+                    type: 'values',
+                    title: title,
+                    description: description,
+                    icon_class: icon,
+                    display_order: order
+                };
+                if (id) payload.value_id = id;
+
+                try {
+                    const res = await fetch('api/manage-about-us.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const j = await res.json();
+                    if (j.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('newValueModal'));
+                        if (modal) modal.hide();
+                        alert(j.message || 'Saved');
+                        loadValues();
+                    } else {
+                        alert('Error: ' + (j.message || 'Failed to save'));
+                    }
+                } catch (e) { console.error(e); alert('Request failed'); }
+            }
+
+            // expose global functions used by inline handlers
+            window.openAddValueModal = openAddValueModal;
+            window.editValue = editValue;
+            window.deleteValue = deleteValue;
+            document.addEventListener('DOMContentLoaded', loadValues);
+
             // Load and display mission
             async function loadMission() {
                 try {
