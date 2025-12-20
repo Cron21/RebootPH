@@ -1866,12 +1866,46 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                 <!-- Settings Content -->
                 <div id="settings" class="d-none active-section member-section">
-                    <div class="card">
-                        <div class="card-body">
-                            <h2 class="h4 mb-4">Settings</h2>
-                            <div class="alert alert-info">
-                                Settings will be available here.
+                    <div class="card shadow-sm p-4" style="background:#f0f6ff; border-radius:12px;">
+                        <h2 class="text-center fw-bold mb-4" style="color:#0b3d91;">Settings</h2>
+
+                        <div class="p-4 mb-4" style="background:white; border-radius:12px; border-left:6px solid #0b3d91;">
+                            <h4 class="fw-bold mb-3" style="color:#0b3d91;">Notification Settings</h4>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="emailNotif" checked>
+                                <label class="form-check-label" for="emailNotif">
+                                    Email notifications for new activities
+                                </label>
                             </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="reminderNotif" checked>
+                                <label class="form-check-label" for="reminderNotif">
+                                    Activity reminders (24 hours before)
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="newsletterNotif" checked>
+                                <label class="form-check-label" for="newsletterNotif">
+                                    Newsletter subscription
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="p-4 mb-4" style="background:white; border-radius:12px; border-left:6px solid #0b3d91;">
+                            <h4 class="fw-bold mb-3" style="color:#0b3d91;">Privacy Settings</h4>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Show my profile to other members</span>
+                                <input type="checkbox" class="form-check-input" id="profileVisibility" checked>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Show my activity history</span>
+                                <input type="checkbox" class="form-check-input" id="activityVisibility" checked>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <h4 class="fw-bold mb-3" style="color:#0b3d91;">Account Actions</h4>
+                            <button class="btn btn-danger px-4" onclick="deactivateAccount()">Deactivate Account</button>
                         </div>
                     </div>
                 </div>
@@ -9047,6 +9081,40 @@ if ($_SESSION['role'] === 'Member Staff') {
                     console.error('Error downloading ID:', error);
                     alert('Failed to download ID. Ensure the QR code has finished loading.');
                 });
+            }
+
+
+            // ===== ACCOUNT MANAGEMENT FUNCTIONS =====
+
+            // Deactivate account
+            async function deactivateAccount() {
+                if (!confirm('Are you sure you want to deactivate your account? This action will disable your access to the platform.')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('api/update-member.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            action: 'deactivateAccount'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('Your account has been deactivated. You will be redirected to the login page.');
+                        window.location.href = 'login.html';
+                    } else {
+                        alert('Failed to deactivate account: ' + (data.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error deactivating account:', error);
+                    alert('An error occurred while deactivating your account.');
+                }
             }
 
 
