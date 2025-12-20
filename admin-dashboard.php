@@ -7281,19 +7281,27 @@ if ($_SESSION['role'] === 'Member Staff') {
                     }, 2000);
                 }
                 
-                // Close icon picker modal using Bootstrap API with focus back to parent
+                // Close icon picker modal ONLY using DOM manipulation (avoid event propagation)
                 setTimeout(() => {
                     const iconModal = document.getElementById('iconPickerModal');
                     if (iconModal) {
-                        // Get the Bootstrap modal instance and hide it
-                        const bsModal = bootstrap.Modal.getInstance(iconModal);
-                        if (bsModal) {
-                            bsModal.hide();
+                        // Use DOM manipulation to hide modal without triggering close events
+                        iconModal.classList.remove('show');
+                        iconModal.setAttribute('aria-hidden', 'true');
+                        
+                        // Remove just the icon picker modal's backdrop
+                        const backdrops = document.querySelectorAll('.modal-backdrop');
+                        if (backdrops.length > 0) {
+                            // Remove the last backdrop (most recently added, should be icon picker)
+                            backdrops[backdrops.length - 1].remove();
                         }
-                        // Ensure the backdrop is removed
-                        const backdrop = document.querySelector('.modal-backdrop');
-                        if (backdrop) {
-                            backdrop.remove();
+                        
+                        // If there's still a parent modal (newValueModal), restore body scroll
+                        const parentModal = document.getElementById('newValueModal');
+                        if (parentModal && parentModal.classList.contains('show')) {
+                            document.body.classList.add('modal-open');
+                        } else {
+                            document.body.classList.remove('modal-open');
                         }
                     }
                 }, 50);
