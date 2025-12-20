@@ -893,7 +893,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $officerRoles)) {
                             <h2 class="h4 mb-4">Content Management</h2>
                             <ul class="nav nav-tabs mb-4">
                                 <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#hero-content">Hero Section</a>
+                                    <a class="nav-link" data-bs-toggle="tab" href="#hero-content">landing Page</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" data-bs-toggle="tab" href="#initiatives-content">Initiatives</a>
