@@ -80,8 +80,11 @@ try {
         $proposalId = (int)($data['proposalId'] ?? 0);
         if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
 
-        if ($userRole !== 'Admin') {
-            throw new Exception('Unauthorized: Only admins can review proposals');
+        // Only these roles can approve/reject event proposals
+        $rolesCanApproveProposals = ['Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator'];
+        
+        if (!in_array($userRole, $rolesCanApproveProposals)) {
+            throw new Exception('Unauthorized: Only Executive Director, Program Officer, Regional Convenor, and Local Coordinator can review proposals');
         }
 
         $checkPropStmt = $conn->prepare("SELECT SubmittedByMemberID, Status FROM proposal WHERE ProposalID = ?");

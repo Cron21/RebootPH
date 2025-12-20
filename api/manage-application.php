@@ -22,6 +22,12 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password_db);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Get user's role from session
+    if (!isset($_SESSION['role'])) {
+        throw new Exception('Not authenticated - no role in session');
+    }
+    $userRole = $_SESSION['role'];
+
     $action = $input['action'];
 
     switch ($action) {
@@ -31,6 +37,11 @@ try {
 
             if (!$applicationId) {
                 throw new Exception('Application ID is required');
+            }
+
+            // Only Executive Director can approve members
+            if ($userRole !== 'Executive Director') {
+                throw new Exception('Unauthorized: Only Executive Director can approve members');
             }
 
             // Get applicant details and current status

@@ -340,6 +340,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
                                         <option value="Local Coordinator">Local Coordinator</option>
                                         <option value="Finance Officer">Finance Officer</option>
                                         <option value="Meal Officer">Meal Officer</option>
+                                        <option value="Member Staff">Member Staff</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -2760,9 +2761,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
         <script src="assets/js/member-dashboard-shared.js"></script>
         <script>
 
+            // Get current user's role from PHP session
+            window.currentUserRole = '<?php echo isset($_SESSION['role']) ? htmlspecialchars($_SESSION['role']) : ''; ?>';
             window.isAdminView = true;
             window.currentMemberId = null;
-            console.log('Initialized: isAdminView=' + window.isAdminView + ', currentMemberId=' + window.currentMemberId);
+            console.log('Initialized: isAdminView=' + window.isAdminView + ', currentMemberId=' + window.currentMemberId + ', currentUserRole=' + window.currentUserRole);
 
             // Navigate to members management section
             function navigateToMembers() {
@@ -3871,7 +3874,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
                                 <option value="Local Coordinator" ${member.Role === 'Local Coordinator' ? 'selected' : ''}>Local Coordinator</option>
                                 <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
                                 <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
-                            </select>
+                                <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>\n                            </select>
                         </td>
                         <td>
                             <span class="badge ${member.isActive ? 'bg-success' : 'bg-danger'}">
@@ -4253,6 +4256,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
 
             // Approve application directly from table
             async function approveApplicationByBtn(applicationId, applicantName) {
+                // Only Executive Director can approve members
+                if (window.currentUserRole !== 'Executive Director') {
+                    alert('You do not have authority to approve members. Only Executive Director can approve members.');
+                    return;
+                }
                 currentApplicationId = applicationId;
                 if (!confirm(`Are you sure you want to approve ${applicantName}'s application?`)) {
                     return;
@@ -4317,6 +4325,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
             // Approve application
             async function approveApplication() {
                 if (!currentApplicationId) return;
+
+                // Only Executive Director can approve members
+                if (window.currentUserRole !== 'Executive Director') {
+                    alert('You do not have authority to approve members. Only Executive Director can approve members.');
+                    return;
+                }
 
                 if (!confirm('Are you sure you want to approve this application?')) {
                     return;
@@ -4823,6 +4837,13 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
 
             // Fix for approveProposalFromTable (line 4569)
             async function approveProposalFromTable(proposalId) {
+                // Check if user has authority to approve event proposals
+                const rolesCanApproveProposals = ['Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator'];
+                if (!rolesCanApproveProposals.includes(window.currentUserRole)) {
+                    alert('You do not have authority to approve event proposals. Only Executive Director, Program Officer, Regional Convenor, and Local Coordinator can approve proposals.');
+                    return;
+                }
+                
                 try {
                     const approveResponse = await fetch('api/manage-event-proposal.php', {
                         method: 'POST',
