@@ -7001,6 +7001,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 // Load mission and vision on page load if About Us tab is active
                 loadMission();
                 loadVision();
+                loadValues();
 
                 // Load when About Us tab is clicked
                 const aboutUsTab = document.querySelector('button[data-bs-target="#about-us-content"]');
@@ -7008,12 +7009,14 @@ if ($_SESSION['role'] === 'Member Staff') {
                     aboutUsTab.addEventListener('shown.bs.tab', function () {
                         loadMission();
                         loadVision();
+                        loadValues();
                     });
                 }
 
-                // Load when Mission/Vision pills are clicked
+                // Load when Mission/Vision/Values pills are clicked
                 const missionPill = document.querySelector('button[data-bs-target="#mission-content"]');
                 const visionPill = document.querySelector('button[data-bs-target="#vision-content"]');
+                const valuesPill = document.querySelector('button[data-bs-target="#values-content"]');
 
                 if (missionPill) {
                     missionPill.addEventListener('shown.bs.tab', function () {
@@ -7024,6 +7027,12 @@ if ($_SESSION['role'] === 'Member Staff') {
                 if (visionPill) {
                     visionPill.addEventListener('shown.bs.tab', function () {
                         loadVision();
+                    });
+                }
+
+                if (valuesPill) {
+                    valuesPill.addEventListener('shown.bs.tab', function () {
+                        loadValues();
                     });
                 }
             });
