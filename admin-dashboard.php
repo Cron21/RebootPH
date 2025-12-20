@@ -7132,24 +7132,36 @@ if ($_SESSION['role'] === 'Member Staff') {
                         .map(name => 'bi-' + name)
                         .sort();
                     
-                    // Initial load - show values-appropriate icons (better fit for organizational core values)
-                    const valueIcons = [
-                        'bi-hands-bound', 'bi-hand-thumbs-up', 'bi-people', 'bi-people-fill',
-                        'bi-shield-check', 'bi-award', 'bi-lightbulb', 'bi-gem', 'bi-brightness-high',
-                        'bi-fire', 'bi-compass', 'bi-target', 'bi-heart', 'bi-heart-fill',
-                        'bi-handshake', 'bi-trust', 'bi-check-circle', 'bi-flower1',
-                        'bi-tree', 'bi-leaf', 'bi-graph-up', 'bi-growth',
-                        'bi-key', 'bi-unlock', 'bi-door-open', 'bi-path',
-                        'bi-arrow-up-right', 'bi-rocket', 'bi-star', 'bi-star-fill',
-                        'bi-link', 'bi-chain', 'bi-link-45deg', 'bi-puzzle',
-                        'bi-gear', 'bi-sliders', 'bi-tools', 'bi-hammer',
-                        'bi-person-check', 'bi-person-fill', 'bi-person-circle',
-                        'bi-building', 'bi-house', 'bi-foundation', 'bi-pillar'
+                    // Organizational values keywords for intelligent filtering
+                    const orgKeywords = [
+                        'people', 'person', 'community', 'group', 'team', 'collaborate', 'collaboration', 'connect', 'connection',
+                        'hand', 'handshake', 'hands', 'together', 'support', 'help', 'share', 'sharing',
+                        'innovation', 'innovate', 'lightbulb', 'idea', 'creative', 'creativity', 'design',
+                        'education', 'educational', 'learn', 'knowledge', 'school', 'book', 'reading',
+                        'advocacy', 'advocate', 'voice', 'speech', 'communication', 'communicate', 'network',
+                        'growth', 'grow', 'develop', 'development', 'progress', 'upward', 'arrow-up', 'rocket',
+                        'mission', 'vision', 'goal', 'target', 'focus', 'strategy', 'plan', 'planning',
+                        'trust', 'integrity', 'shield', 'security', 'safe', 'check', 'verified', 'reliable',
+                        'building', 'foundation', 'structure', 'strong', 'stable',
+                        'success', 'achievement', 'award', 'star', 'excellence', 'achieve',
+                        'leader', 'leadership', 'lead', 'guide', 'mentor', 'coach',
+                        'partnership', 'partner', 'alliance', 'link', 'chain', 'connected',
+                        'care', 'caring', 'compassion', 'heart', 'wellbeing', 'wellness',
+                        'equal', 'equality', 'justice', 'fair', 'fairness', 'balance',
+                        'diversity', 'inclusion', 'inclusive', 'embrace', 'open',
+                        'energy', 'dynamic', 'active', 'engagement', 'engage',
+                        'quality', 'excellence', 'outstanding', 'premium'
                     ];
                     
-                    // Filter to show only icons that exist in our library
-                    const popularIcons = valueIcons.filter(icon => _bootstrapIcons.includes(icon));
-                    loadIconGrid(popularIcons.length > 0 ? popularIcons : _bootstrapIcons.slice(0, 100));
+                    // Filter icons by organizational keywords
+                    const orgIcons = _bootstrapIcons.filter(icon => {
+                        const iconName = icon.replace('bi-', '').toLowerCase();
+                        return orgKeywords.some(keyword => iconName.includes(keyword));
+                    });
+                    
+                    // If we found organizational icons, show those; otherwise show all
+                    const initialIcons = orgIcons.length > 0 ? orgIcons.slice(0, 100) : _bootstrapIcons.slice(0, 100);
+                    loadIconGrid(initialIcons);
                     
                 } catch (error) {
                     console.error('Error loading Bootstrap Icons:', error);
@@ -7167,24 +7179,34 @@ if ($_SESSION['role'] === 'Member Staff') {
                     searchInput.addEventListener('input', function(e) {
                         const searchTerm = e.target.value.toLowerCase();
                         if (searchTerm.length === 0) {
-                            // Show values-appropriate icons if search is empty
-                            const valueIcons = [
-                                'bi-hands-bound', 'bi-hand-thumbs-up', 'bi-people', 'bi-people-fill',
-                                'bi-shield-check', 'bi-award', 'bi-lightbulb', 'bi-gem', 'bi-brightness-high',
-                                'bi-fire', 'bi-compass', 'bi-target', 'bi-heart', 'bi-heart-fill',
-                                'bi-handshake', 'bi-trust', 'bi-check-circle', 'bi-flower1',
-                                'bi-tree', 'bi-leaf', 'bi-graph-up', 'bi-growth',
-                                'bi-key', 'bi-unlock', 'bi-door-open', 'bi-path',
-                                'bi-arrow-up-right', 'bi-rocket', 'bi-star', 'bi-star-fill',
-                                'bi-link', 'bi-chain', 'bi-link-45deg', 'bi-puzzle',
-                                'bi-gear', 'bi-sliders', 'bi-tools', 'bi-hammer',
-                                'bi-person-check', 'bi-person-fill', 'bi-person-circle',
-                                'bi-building', 'bi-house', 'bi-foundation', 'bi-pillar'
+                            // Show organizational-related icons if search is empty
+                            const orgKeywords = [
+                                'people', 'person', 'community', 'group', 'team', 'collaborate', 'collaboration', 'connect', 'connection',
+                                'hand', 'handshake', 'hands', 'together', 'support', 'help', 'share', 'sharing',
+                                'innovation', 'innovate', 'lightbulb', 'idea', 'creative', 'creativity', 'design',
+                                'education', 'educational', 'learn', 'knowledge', 'school', 'book', 'reading',
+                                'advocacy', 'advocate', 'voice', 'speech', 'communication', 'communicate', 'network',
+                                'growth', 'grow', 'develop', 'development', 'progress', 'upward', 'arrow-up', 'rocket',
+                                'mission', 'vision', 'goal', 'target', 'focus', 'strategy', 'plan', 'planning',
+                                'trust', 'integrity', 'shield', 'security', 'safe', 'check', 'verified', 'reliable',
+                                'building', 'foundation', 'structure', 'strong', 'stable',
+                                'success', 'achievement', 'award', 'star', 'excellence', 'achieve',
+                                'leader', 'leadership', 'lead', 'guide', 'mentor', 'coach',
+                                'partnership', 'partner', 'alliance', 'link', 'chain', 'connected',
+                                'care', 'caring', 'compassion', 'heart', 'wellbeing', 'wellness',
+                                'equal', 'equality', 'justice', 'fair', 'fairness', 'balance',
+                                'diversity', 'inclusion', 'inclusive', 'embrace', 'open',
+                                'energy', 'dynamic', 'active', 'engagement', 'engage',
+                                'quality', 'excellence', 'outstanding', 'premium'
                             ];
-                            const popularIcons = valueIcons.filter(icon => _bootstrapIcons.includes(icon));
-                            loadIconGrid(popularIcons.length > 0 ? popularIcons : _bootstrapIcons.slice(0, 100));
+                            const orgIcons = _bootstrapIcons.filter(icon => {
+                                const iconName = icon.replace('bi-', '').toLowerCase();
+                                return orgKeywords.some(keyword => iconName.includes(keyword));
+                            });
+                            const initialIcons = orgIcons.length > 0 ? orgIcons.slice(0, 100) : _bootstrapIcons.slice(0, 100);
+                            loadIconGrid(initialIcons);
                         } else {
-                            // Filter by search term
+                            // Filter by search term - all available icons
                             const filtered = _bootstrapIcons.filter(icon => 
                                 icon.replace('bi-', '').includes(searchTerm)
                             ).slice(0, 500); // Limit results for performance
@@ -7244,6 +7266,15 @@ if ($_SESSION['role'] === 'Member Staff') {
                 if (preview) {
                     preview.innerHTML = `<i class="bi ${iconClass}"></i>`;
                 }
+                
+                // Show a brief confirmation (visual feedback)
+                const originalText = iconInput.placeholder;
+                iconInput.placeholder = '✓ Icon selected! Save the value to apply.';
+                setTimeout(() => {
+                    if (iconInput) {
+                        iconInput.placeholder = originalText;
+                    }
+                }, 2000);
                 
                 // Close the icon picker modal
                 const modal = document.getElementById('iconPickerModal');
