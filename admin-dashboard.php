@@ -6444,6 +6444,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                         setTimeout(() => {
                             loadAnnouncements();
                             loadNewsletters();
+                            loadValues();
+                            initializeIconPicker();
                         }, 100);
                     });
                 }
@@ -7066,11 +7068,20 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // ----- Core Values (Values) Management -----
             function openAddValueModal() {
+                // Close icon picker if it's open
+                const iconModal = document.getElementById('iconPickerModal');
+                if (iconModal && iconModal.classList.contains('show')) {
+                    const bsIconModal = bootstrap.Modal.getInstance(iconModal);
+                    if (bsIconModal) bsIconModal.hide();
+                }
+                
+                // Reset form
                 document.getElementById('valueForm').reset();
                 document.getElementById('valueId').value = '';
                 document.getElementById('valueIcon').value = '';
-                document.getElementById('valueIconPreview').innerHTML = '<i class="bi-square"></i>';
+                document.getElementById('valueIconPreview').innerHTML = '<i class="bi bi-square"></i>';
                 document.getElementById('newValueModalLabel').textContent = 'Add Value';
+                document.getElementById('valueActive').checked = true; // Default to active
                 new bootstrap.Modal(document.getElementById('newValueModal')).show();
             }
 
@@ -7121,19 +7132,33 @@ if ($_SESSION['role'] === 'Member Staff') {
                         .map(name => 'bi-' + name)
                         .sort();
                     
-                    // Initial load - show popular icons
-                    const popularIcons = _bootstrapIcons.filter(icon => 
-                        ['heart', 'star', 'gear', 'settings', 'bell', 'envelope', 'user', 'lock', 
-                         'check', 'trash', 'edit', 'home', 'search', 'plus', 'calendar', 'chart'].some(word => 
-                        icon.includes(word))
-                    );
+                    // Initial load - show values-appropriate icons (better fit for organizational core values)
+                    const valueIcons = [
+                        'bi-hands-bound', 'bi-hand-thumbs-up', 'bi-people', 'bi-people-fill',
+                        'bi-shield-check', 'bi-award', 'bi-lightbulb', 'bi-gem', 'bi-brightness-high',
+                        'bi-fire', 'bi-compass', 'bi-target', 'bi-heart', 'bi-heart-fill',
+                        'bi-handshake', 'bi-trust', 'bi-check-circle', 'bi-flower1',
+                        'bi-tree', 'bi-leaf', 'bi-graph-up', 'bi-growth',
+                        'bi-key', 'bi-unlock', 'bi-door-open', 'bi-path',
+                        'bi-arrow-up-right', 'bi-rocket', 'bi-star', 'bi-star-fill',
+                        'bi-link', 'bi-chain', 'bi-link-45deg', 'bi-puzzle',
+                        'bi-gear', 'bi-sliders', 'bi-tools', 'bi-hammer',
+                        'bi-person-check', 'bi-person-fill', 'bi-person-circle',
+                        'bi-building', 'bi-house', 'bi-foundation', 'bi-pillar'
+                    ];
+                    
+                    // Filter to show only icons that exist in our library
+                    const popularIcons = valueIcons.filter(icon => _bootstrapIcons.includes(icon));
                     loadIconGrid(popularIcons.length > 0 ? popularIcons : _bootstrapIcons.slice(0, 100));
                     
                 } catch (error) {
                     console.error('Error loading Bootstrap Icons:', error);
                     // Fallback: show a message
-                    document.getElementById('iconGridContainer').innerHTML = 
-                        '<p class="text-danger text-center">Unable to load icons. Please try again.</p>';
+                    const container = document.getElementById('iconGridContainer');
+                    if (container) {
+                        container.innerHTML = 
+                            '<p class="text-danger text-center">Unable to load icons. Please try again.</p>';
+                    }
                 }
                 
                 // Search functionality
@@ -7142,12 +7167,21 @@ if ($_SESSION['role'] === 'Member Staff') {
                     searchInput.addEventListener('input', function(e) {
                         const searchTerm = e.target.value.toLowerCase();
                         if (searchTerm.length === 0) {
-                            // Show popular icons if search is empty
-                            const popularIcons = _bootstrapIcons.filter(icon => 
-                                ['heart', 'star', 'gear', 'settings', 'bell', 'envelope', 'user', 'lock', 
-                                 'check', 'trash', 'edit', 'home', 'search', 'plus', 'calendar', 'chart'].some(word => 
-                                icon.includes(word))
-                            );
+                            // Show values-appropriate icons if search is empty
+                            const valueIcons = [
+                                'bi-hands-bound', 'bi-hand-thumbs-up', 'bi-people', 'bi-people-fill',
+                                'bi-shield-check', 'bi-award', 'bi-lightbulb', 'bi-gem', 'bi-brightness-high',
+                                'bi-fire', 'bi-compass', 'bi-target', 'bi-heart', 'bi-heart-fill',
+                                'bi-handshake', 'bi-trust', 'bi-check-circle', 'bi-flower1',
+                                'bi-tree', 'bi-leaf', 'bi-graph-up', 'bi-growth',
+                                'bi-key', 'bi-unlock', 'bi-door-open', 'bi-path',
+                                'bi-arrow-up-right', 'bi-rocket', 'bi-star', 'bi-star-fill',
+                                'bi-link', 'bi-chain', 'bi-link-45deg', 'bi-puzzle',
+                                'bi-gear', 'bi-sliders', 'bi-tools', 'bi-hammer',
+                                'bi-person-check', 'bi-person-fill', 'bi-person-circle',
+                                'bi-building', 'bi-house', 'bi-foundation', 'bi-pillar'
+                            ];
+                            const popularIcons = valueIcons.filter(icon => _bootstrapIcons.includes(icon));
                             loadIconGrid(popularIcons.length > 0 ? popularIcons : _bootstrapIcons.slice(0, 100));
                         } else {
                             // Filter by search term
@@ -7199,10 +7233,33 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             function selectIcon(iconClass) {
-                document.getElementById('valueIcon').value = iconClass;
-                document.getElementById('valueIconPreview').innerHTML = `<i class="bi ${iconClass}"></i>`;
-                const modal = bootstrap.Modal.getInstance(document.getElementById('iconPickerModal'));
-                if (modal) modal.hide();
+                // Update the input field with the selected icon class
+                const iconInput = document.getElementById('valueIcon');
+                if (iconInput) {
+                    iconInput.value = iconClass;
+                }
+                
+                // Update the preview with the selected icon
+                const preview = document.getElementById('valueIconPreview');
+                if (preview) {
+                    preview.innerHTML = `<i class="bi ${iconClass}"></i>`;
+                }
+                
+                // Close the icon picker modal
+                const modal = document.getElementById('iconPickerModal');
+                if (modal) {
+                    const bsModal = bootstrap.Modal.getInstance(modal);
+                    if (bsModal) {
+                        bsModal.hide();
+                    } else {
+                        // Fallback if modal instance doesn't exist
+                        modal.classList.remove('show');
+                        modal.style.display = 'none';
+                        document.body.classList.remove('modal-open');
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
+                    }
+                }
             }
 
             async function loadValues() {
@@ -7242,8 +7299,12 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const description = document.getElementById('valueDescription').value.trim();
                 const icon = document.getElementById('valueIcon').value.trim();
                 const order = Number(document.getElementById('valueOrder').value || 1);
+                const isActive = document.getElementById('valueActive').checked ? 1 : 0;
 
-                if (!title) { alert('Title is required'); return; }
+                if (!title) { 
+                    alert('Title is required'); 
+                    return; 
+                }
 
                 const payload = {
                     action: id ? 'update' : 'create',
@@ -7251,7 +7312,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     title: title,
                     description: description,
                     icon_class: icon,
-                    display_order: order
+                    display_order: order,
+                    is_active: isActive
                 };
                 if (id) payload.value_id = id;
 
@@ -7265,12 +7327,15 @@ if ($_SESSION['role'] === 'Member Staff') {
                     if (j.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('newValueModal'));
                         if (modal) modal.hide();
-                        alert(j.message || 'Saved');
+                        alert(j.message || 'Saved successfully');
                         loadValues();
                     } else {
                         alert('Error: ' + (j.message || 'Failed to save'));
                     }
-                } catch (e) { console.error(e); alert('Request failed'); }
+                } catch (e) { 
+                    console.error('Save error:', e); 
+                    alert('Request failed: ' + e.message); 
+                }
             }
 
             // expose global functions used by inline handlers
