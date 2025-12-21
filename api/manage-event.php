@@ -150,6 +150,47 @@ try {
         }
         exit;
 
+    } elseif ($action === 'delete') {
+        $eventId = (int)($data['eventId'] ?? 0);
+
+        if ($eventId <= 0) throw new Exception('Invalid event ID');
+
+        // Get event and proposal details before deleting
+        $getEventStmt = $conn->prepare("SELECT ProposalID FROM event WHERE EventID = ?");
+        $getEventStmt->execute([$eventId]);
+        $eventRow = $getEventStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$eventRow) {
+            throw new Exception('Event not found');
+        }
+
+        $proposalId = $eventRow['ProposalID'];
+
+        // Delete registrations related to this event
+        $deleteRegStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
+        $deleteRegStmt->execute([$eventId]);
+
+        // Delete attendance records related to this event
+        $deleteAttendanceStmt = $conn->prepare("
+            DELETE FROM eventattendance 
+            WHERE RegistrationID IN (SELECT RegistrationID FROM registration WHERE EventID = ?)
+        ");
+        $deleteAttendanceStmt->execute([$eventId]);
+
+        // Delete feedback related to this event
+        $deleteFeedbackStmt = $conn->prepare("DELETE FROM feedback WHERE EventID = ?");
+        $deleteFeedbackStmt->execute([$eventId]);
+
+        // Delete the event itself
+        $deleteEventStmt = $conn->prepare("DELETE FROM event WHERE EventID = ?");
+        $deleteEventStmt->execute([$eventId]);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Event deleted successfully along with all related data'
+        ]);
+        exit;
+
     } else {
         throw new Exception('Unknown action: ' . $action);
     }
