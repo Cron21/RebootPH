@@ -5781,7 +5781,17 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Delete event from management modal
             async function deleteEventFromModal() {
                 const form = document.getElementById('eventManagementForm');
+                if (!form) {
+                    alert('Error: Form not found');
+                    return;
+                }
+                
                 const eventId = parseInt(form.dataset.eventId);
+                if (!eventId || isNaN(eventId)) {
+                    alert('Error: Event ID not found');
+                    return;
+                }
+                
                 const eventTitle = document.getElementById('emEventName').value;
                 
                 if (!confirm(`Are you sure you want to delete the event "${eventTitle}"? This action cannot be undone.`)) {
