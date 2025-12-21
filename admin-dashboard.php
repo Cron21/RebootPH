@@ -5400,7 +5400,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             tableRow.setAttribute('data-proposal-status', 'Postponed');
                         }
                         
-                        loadEventProposals();
+                        // Do NOT reload proposals - just update the table row
+                        // loadEventProposals();
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -5884,8 +5885,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                         // Close modal first if open
                         const modal = bootstrap.Modal.getInstance(document.getElementById('editEventManagementModal'));
                         if (modal) modal.hide();
-                        // Then reload events after a short delay to ensure full sync
-                        setTimeout(() => loadEvents(), 300);
+                        // Do NOT reload events - just update the table row
+                        // setTimeout(() => loadEvents(), 300);
                     } else {
                         alert('Error: ' + data.message);
                     }
