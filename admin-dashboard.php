@@ -2272,13 +2272,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Event Type</label>
-                                    <select name="eventType" class="form-select" required>
-                                        <option value="">Select event type</option>
-                                        <option value="workshop">Workshop/Seminar</option>
-                                        <option value="cleanup">Cleanup Drive</option>
-                                        <option value="forum">Forum/Conference</option>
-                                        <option value="tree-planting">Tree Planting</option>
-                                        <option value="other">Other</option>
+                                    <select name="eventType" id="eventTypeSelect" class="form-select" required>
+                                        <option value="">Select event category</option>
                                     </select>
                                 </div>
                             </div>
@@ -5291,12 +5286,21 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Initialize event proposals management
             document.addEventListener('DOMContentLoaded', function () {
                 loadEventProposals();
+                populateEventTypeDropdown();
 
                 // Reload when event proposals section is clicked
                 const proposalsLink = document.querySelector('a[href="#event-proposals"]');
                 if (proposalsLink) {
                     proposalsLink.addEventListener('click', function () {
                         setTimeout(() => loadEventProposals(), 100);
+                    });
+                }
+                
+                // Also populate event type when modal opens
+                const newEventModal = document.getElementById('newEventModal');
+                if (newEventModal) {
+                    newEventModal.addEventListener('show.bs.modal', function () {
+                        populateEventTypeDropdown();
                     });
                 }
             });
@@ -5691,6 +5695,32 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             // ===== CATEGORIES MANAGEMENT =====
+
+            // Populate event type dropdown with categories
+            async function populateEventTypeDropdown() {
+                try {
+                    const response = await fetch('api/get-categories.php');
+                    const data = await response.json();
+
+                    if (data.success && data.categories) {
+                        const eventTypeSelect = document.getElementById('eventTypeSelect');
+                        if (eventTypeSelect) {
+                            // Clear existing options except the default one
+                            eventTypeSelect.innerHTML = '<option value="">Select event type</option>';
+                            
+                            // Add category options
+                            data.categories.forEach(category => {
+                                const option = document.createElement('option');
+                                option.value = category.Type;
+                                option.textContent = category.Type;
+                                eventTypeSelect.appendChild(option);
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading event types:', error);
+                }
+            }
 
             // Load all categories
             async function loadCategories() {
