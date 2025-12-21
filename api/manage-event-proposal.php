@@ -277,9 +277,9 @@ try {
             throw new Exception('Proposal not found');
         }
 
-        // Check if proposal status is Rejected
-        if ($proposal['Status'] !== 'Rejected') {
-            throw new Exception('Proposals can only be deleted if they are Rejected');
+        // Check if proposal status is Rejected or Postponed
+        if ($proposal['Status'] !== 'Rejected' && $proposal['Status'] !== 'Postponed') {
+            throw new Exception('Proposals can only be deleted if they are Rejected or Postponed');
         }
 
         // Find if there's an event associated with this proposal
