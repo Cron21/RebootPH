@@ -1,17 +1,17 @@
 # Database Migration Required
 
 ## Issue Found
-The `proposal` table's `Status` column uses an ENUM type that only includes:
-- `Approved`
-- `Pending`  
-- `Rejected`
+The `proposal` table's `Status` column has two issues:
 
-But the application code tries to set it to `'Postponed'`, which causes a SQL error.
+1. **Missing ENUM value**: Only includes `Approved`, `Pending`, `Rejected` but code tries to use `Postponed`
+2. **Invalid data**: Some proposals have empty Status values instead of a valid enum value
 
 ## Solution
-You need to update the database schema to add `'Postponed'` as a valid status.
+You need to run TWO migrations in order:
 
-### Method 1: Using phpMyAdmin (Recommended)
+### Step 1: Add 'Postponed' to Status enum
+
+**Using phpMyAdmin (Recommended):**
 1. Open phpMyAdmin
 2. Select the `u569378998_rebootph` database
 3. Click on the `proposal` table
@@ -27,36 +27,52 @@ You need to update the database schema to add `'Postponed'` as a valid status.
    ```
 7. Click **Save**
 
-### Method 2: Using SQL Query
-Run this query in phpMyAdmin SQL tab:
-
+**Using SQL Query:**
 ```sql
 ALTER TABLE proposal 
 MODIFY COLUMN Status enum('Approved','Pending','Rejected','Postponed') NOT NULL DEFAULT 'Pending';
 ```
 
-### Method 3: Using MySQL Command Line
-```bash
-mysql -u [username] -p [database_name] < migrations/add-postponed-status.sql
-```
+### Step 2: Fix invalid empty statuses
 
-## Verification
-After running the migration, verify it worked by running:
+**Run this query in phpMyAdmin SQL tab:**
 
 ```sql
+UPDATE proposal 
+SET Status = 'Pending' 
+WHERE Status = '' OR Status IS NULL;
+```
+
+Or paste the entire contents of:
+`migrations/fix-invalid-statuses.sql`
+
+## Verification
+After running both migrations, run these verification queries:
+
+```sql
+-- Check 1: Verify enum includes 'Postponed'
 SELECT COLUMN_TYPE 
 FROM INFORMATION_SCHEMA.COLUMNS 
 WHERE TABLE_NAME = 'proposal' AND COLUMN_NAME = 'Status';
-```
 
-You should see: `enum('Approved','Pending','Rejected','Postponed')`
+-- Should show: enum('Approved','Pending','Rejected','Postponed')
+
+-- Check 2: Verify no empty statuses remain
+SELECT ProposalID, Title, Status 
+FROM proposal 
+WHERE Status = '' OR Status IS NULL;
+
+-- Should return: (empty result set)
+```
 
 ## What This Fixes
 ✅ Postpone event action will work correctly  
 ✅ Delete rejected proposals will work  
 ✅ Delete postponed events will work  
-✅ All cascading deletions will function properly
+✅ All cascading deletions will function properly  
+✅ No more "invalid enum value" errors  
 
-## Files Updated
-- `u569378998_rebootph.sql` - Schema dump updated with new enum
-- `migrations/add-postponed-status.sql` - Migration script ready to run
+## Files Created
+- `migrations/add-postponed-status.sql` - Adds Postponed to enum
+- `migrations/fix-invalid-statuses.sql` - Fixes empty status values
+

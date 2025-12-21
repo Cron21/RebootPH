@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 21, 2025 at 11:51 AM
+-- Generation Time: Dec 21, 2025 at 12:00 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -605,7 +605,7 @@ CREATE TABLE `proposal` (
 INSERT INTO `proposal` (`ProposalID`, `Title`, `ProposedDate`, `StartTime`, `EndTime`, `Venue`, `Description`, `TargetParticipants`, `EventType`, `BudgetEstimate`, `StaffRequired`, `EquipmentNeeded`, `Objectives`, `PartnersSponsor`, `SubmittedByMemberID`, `SubmissionDate`, `Status`, `ReviewByAdminID`, `ReviewDate`) VALUES
 (44, 'Training', '2024-02-07', '08:00:00', '17:00:00', 'CCMS Lab 1', 'training', 15, 'workshop', 1500.00, 5, 'laptop', 'testing', '', 1, '2025-12-18 09:59:17', 'Approved', 1, '2025-12-21 08:47:12'),
 (45, 'BAN PRIME WATER', '2025-12-21', '08:32:00', '20:31:00', 'IN FRONT OF PRIME WATER', 'RALLY PARA SA MAMAMAYAN', 1000, 'other', 5.00, 2, 'NONE', '1.\n2.\n3.\n4.', 'N/A', 1, '2025-12-20 12:33:37', 'Rejected', 1, '2025-12-21 11:10:07'),
-(46, 'BAN PRIME WATER', '2025-12-21', '08:32:00', '20:31:00', 'IN FRONT OF PRIME WATER', 'RALLY PARA SA MAMAMAYAN', 1000, 'other', 5.00, 2, 'NONE', '1.\n2.\n3.\n4.', 'N/A', 1, '2025-12-20 12:33:37', '', 1, '2025-12-21 09:37:10'),
+(46, 'BAN PRIME WATER', '2025-12-21', '08:32:00', '20:31:00', 'IN FRONT OF PRIME WATER', 'RALLY PARA SA MAMAMAYAN', 1000, 'other', 5.00, 2, 'NONE', '1.\n2.\n3.\n4.', 'N/A', 1, '2025-12-20 12:33:37', 'Postponed', 1, '2025-12-21 09:37:10'),
 (47, 'test', '2026-02-23', '04:44:00', '16:44:00', 'test', 'test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test', 50, 'YES (Youth Empowered Spaces)', 14998.00, 15, 'test', 'test', 'Daet Municipality', 1, '2025-12-21 08:46:04', 'Rejected', 1, '2025-12-21 11:10:08'),
 (48, 'test', '2025-12-23', '17:27:00', '23:33:00', 'sample', 'test', 100, 'YES (Youth Empowered Spaces)', 1000.00, 5, 'test', 'test', '', 1, '2025-12-21 09:34:48', 'Rejected', 1, '2025-12-21 11:10:10');
 
