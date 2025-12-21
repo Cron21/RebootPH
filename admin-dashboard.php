@@ -923,6 +923,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <li class="nav-item">
                                     <a class="nav-link" data-bs-toggle="tab" href="#about-us-content">About Us</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#socials-content">Social Links</a>
+                                </li>
                             </ul>
 
                             <div class="tab-content">
@@ -1229,6 +1232,37 @@ if ($_SESSION['role'] === 'Member Staff') {
                                                 </table>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+
+                                <!-- Social Links Content -->
+                                <div id="socials-content" class="tab-pane fade">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h3 class="h5 mb-0">Manage Social Media Links</h3>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Facebook URL</label>
+                                            <input id="socialFacebook" class="form-control" placeholder="https://www.facebook.com/...">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Instagram URL</label>
+                                            <input id="socialInstagram" class="form-control" placeholder="https://www.instagram.com/...">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">LinkedIn URL</label>
+                                            <input id="socialLinkedIn" class="form-control" placeholder="https://www.linkedin.com/...">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Contact Email</label>
+                                            <input id="socialEmail" class="form-control" placeholder="contact@your.org">
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <button class="btn btn-primary" onclick="saveSocialLinksAdmin()">Save Social Links</button>
+                                        <button class="btn btn-secondary" onclick="loadSocialLinksAdmin()">Reload</button>
                                     </div>
                                 </div>
                             </div>
@@ -2945,7 +2979,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <p class="mb-1">rebootphinstitute@gmail.com</p>
                             <p class="mb-3">info@reboot-philippines.org</p>
                             <div class="d-flex justify-content-start justify-content-md-end gap-3">
-                                <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
+                                <a id="footerFacebookLink" href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
                                     aria-label="Facebook" target="_blank" rel="noopener noreferrer">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -2954,7 +2988,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                             fill="currentColor" />
                                     </svg>
                                 </a>
-                                <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon"
+                                <a id="footerInstagramLink" href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon"
                                     aria-label="Instagram" target="_blank" rel="noopener noreferrer">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -2977,6 +3011,28 @@ if ($_SESSION['role'] === 'Member Staff') {
 
         <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="assets/js/member-dashboard-shared.js"></script>
+        <script>
+            (async function(){
+                try{
+                    const res = await fetch('api/manage-system-settings.php');
+                    const data = await res.json();
+                    if(!data.success) return;
+                    const s = data.settings || {};
+                    const email = s.social_email || 'rebootphinstitute@gmail.com';
+                    const fb = s.social_facebook || 'https://www.facebook.com/rebootphilippines';
+                    const ig = s.social_instagram || 'https://www.instagram.com/rebootphinstitute/';
+                    const li = s.social_linkedin || 'https://www.linkedin.com/company/reboot-philippines/';
+                    const emailEl = document.getElementById('footerEmailLink');
+                    const fbEl = document.getElementById('footerFacebookLink');
+                    const igEl = document.getElementById('footerInstagramLink');
+                    const liEl = document.getElementById('footerLinkedInLink');
+                    if(emailEl) emailEl.href = 'mailto:' + email;
+                    if(fbEl) fbEl.href = fb;
+                    if(igEl) igEl.href = ig;
+                    if(liEl) liEl.href = li;
+                } catch(e){ console.error('social links load error', e); }
+            })();
+        </script>
         <script>
 
             // Get current user's role from PHP session
@@ -6769,6 +6825,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             loadNewsletters();
                             loadValues();
                             initializeIconPicker();
+                            // load social links admin pane when content tab opens
+                            if (typeof loadSocialLinksAdmin === 'function') loadSocialLinksAdmin();
                         }, 100);
                     });
                 }
@@ -7146,6 +7204,56 @@ if ($_SESSION['role'] === 'Member Staff') {
                     console.error('Error setting active hero:', error);
                     alert('Error setting active hero section');
                     loadHeroSections();
+                }
+            }
+
+            // ========== SOCIAL LINKS MANAGEMENT (Admin) ==========
+
+            async function loadSocialLinksAdmin() {
+                try {
+                    const res = await fetch('api/manage-system-settings.php');
+                    const data = await res.json();
+                    if (!data.success) return;
+                    const s = data.settings || {};
+
+                    document.getElementById('socialFacebook').value = s.social_facebook || '';
+                    document.getElementById('socialInstagram').value = s.social_instagram || '';
+                    document.getElementById('socialLinkedIn').value = s.social_linkedin || '';
+                    document.getElementById('socialEmail').value = s.social_email || '';
+                } catch (e) {
+                    console.error('Error loading social settings:', e);
+                    alert('Error loading social links');
+                }
+            }
+
+            async function saveSocialLinksAdmin() {
+                const facebook = document.getElementById('socialFacebook').value.trim();
+                const instagram = document.getElementById('socialInstagram').value.trim();
+                const linkedin = document.getElementById('socialLinkedIn').value.trim();
+                const email = document.getElementById('socialEmail').value.trim();
+
+                const updates = [
+                    { key: 'social_facebook', value: facebook },
+                    { key: 'social_instagram', value: instagram },
+                    { key: 'social_linkedin', value: linkedin },
+                    { key: 'social_email', value: email }
+                ];
+
+                try {
+                    for (const u of updates) {
+                        await fetch('api/manage-system-settings.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ action: 'update', settingKey: u.key, settingValue: u.value, dataType: 'string' })
+                        });
+                    }
+                    alert('Social links updated');
+                    // refresh values in admin and front-end if necessary
+                    loadSocialLinksAdmin();
+                } catch (e) {
+                    console.error('Error saving social links:', e);
+                    alert('Error saving social links');
                 }
             }
 
