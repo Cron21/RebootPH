@@ -8,9 +8,62 @@
     <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./assets/bootstrap-icons-1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="./assets/css/style.css">
+
+    <style>
+        h1.font-size-responsive {
+            font-size: clamp(2rem, 5vw, 3.5rem) !important;
+            color: #2B702A !important;
+            font-weight: 800 !important;
+            text-align: center;
+            -webkit-text-stroke: 0px !important;
+
+        }
+
+        .font-size-for-subtitle {
+            font-size: clamp(1rem, 1.8vw, 1.3rem) !important;
+            color: #02457A !important;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            -webkit-text-stroke: 0px !important;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .social-icon-circle {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .social-icon-circle:hover {
+            background-color: #2B702A;
+            color: white;
+        }
+
+        @media (min-width: 992px) {
+            h1.font-size-responsive {
+                color: #2B702A !important;
+                -webkit-text-stroke: 1.5px #FFFFFF;
+
+            }
+
+            .font-size-for-subtitle {
+                color: #FFFFFF !important;
+            }
+
+        }
+    </style>
 </head>
 
-<body class="bg-light d-flex flex-column min-vh-100" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+<body class="bg-light d-flex flex-column min-vh-100"
+    style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg">
@@ -49,45 +102,65 @@
     <main>
         <!-- HERO SECTION - Dynamic -->
         <section class="position-relative bg-dark text-white hero-section" style="height: 75vh;">
-            
+
             <!-- Video background (autoplay, muted, loop). Poster image fallback provided. -->
-            <video class="position-absolute top-0 start-0 w-100 h-100" autoplay muted loop playsinline poster="assets/video/landingpage-vid.mp4" style="object-fit: cover; width:100%; height:100%;">
+            <video class="position-absolute top-0 start-0 w-100 h-100" autoplay muted loop playsinline
+                poster="assets/video/landingpage-vid.mp4" style="object-fit: cover; width:100%; height:100%;">
                 <source src="assets/video/landingpage-vid.mp4" type="video/mp4">
                 <!-- Fallback content: background image will be visible via poster or this message -->
                 Your browser does not support the video tag.
             </video>
-            
+
             <div class="position-relative h-100 d-flex align-items-center">
                 <div class="container text-white">
                     <div class="col-md-10" id="heroContent">
                         <div class="hero-intro py-5">
-                            <h1 class="display-4 fw-bold" style="color: #2B702A;">Lead the Charge for a Greener Philippines.</h1>
-                            <p class="lead mt-3" style="color: #02457A;">Welcome, future leader! Join the community of youth-led energy advocates transitioning the nation to a sustainable future.</p>
+                            <h1 class="display-4 fw-bold" style="color: #2B702A;">Lead the Charge for a Greener
+                                Philippines.</h1>
+                            <p class="lead mt-3" style="color: #02457A;">Welcome, future leader! Join the community of
+                                youth-led energy advocates transitioning the nation to a sustainable future.</p>
 
                             <div class="mt-4 d-flex gap-3">
-                                <a href="register.html" class="btn btn-success rounded-pill px-4 hero-cta">Be a Member Now</a>
-                                <a href="initiatives.html" class="btn btn-primary rounded-pill px-4 hero-cta">Explore Our Initiatives</a>
+                                <a href="register.html" class="btn btn-success rounded-pill px-4 hero-cta">Be a Member
+                                    Now</a>
+                                <a href="initiatives.html" class="btn btn-primary rounded-pill px-4 hero-cta">Explore
+                                    Our Initiatives</a>
                             </div>
 
                             <div class="mt-4 d-flex gap-4 align-items-center">
                                 <a href="mailto:rebootphinstitute@gmail.com" aria-label="Email">
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M0 3v18h24v-18h-24zm6.623 7.929l-4.623 5.712v-9.458l4.623 3.746zm-4.141-5.929h19.035l-9.517 7.713-9.518-7.713zm5.694 7.188l3.824 3.099l3.83-3.104 5.612 8.139h-18.74l5.474-8.134zm9.201-1.259l4.623-3.746v9.458l-4.623-5.712z" fill="currentColor"/>
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M0 3v18h24v-18h-24zm6.623 7.929l-4.623 5.712v-9.458l4.623 3.746zm-4.141-5.929h19.035l-9.517 7.713-9.518-7.713zm5.694 7.188l3.824 3.099l3.83-3.104 5.612 8.139h-18.74l5.474-8.134zm9.201-1.259l4.623-3.746v9.458l-4.623-5.712z"
+                                            fill="currentColor" />
                                     </svg>
                                 </a>
-                                <a href="https://www.facebook.com/rebootphilippines" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
-                                </svg>
+                                <a href="https://www.facebook.com/rebootphilippines" aria-label="Facebook"
+                                    target="_blank" rel="noopener noreferrer">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                                            fill="currentColor" />
+                                    </svg>
                                 </a>
-                                <a href="https://www.instagram.com/rebootphinstitute/" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
-                                </svg>
+                                <a href="https://www.instagram.com/rebootphinstitute/" aria-label="Instagram"
+                                    target="_blank" rel="noopener noreferrer">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                                            fill="currentColor" />
+                                    </svg>
                                 </a>
-                                <a href="https://www.linkedin.com/company/reboot-philippines/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" fill="currentColor"/>
+                                <a href="https://www.linkedin.com/company/reboot-philippines/" target="_blank"
+                                    rel="noopener noreferrer" aria-label="LinkedIn">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+                                            fill="currentColor" />
                                     </svg>
                                 </a>
                             </div>
@@ -95,15 +168,15 @@
                     </div>
                 </div>
             </div>
-            
-            
+
+
             <!--<div class="position-absolute top-0 start-0 w-100 h-100"-->
             <!--    style="background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%), url('./assets/image/reboot-bg.jpg') no-repeat center/cover;">-->
             <!--</div>-->
-            
-            
+
+
         </section>
-        
+
         <!-- WHY JOIN REBOOT PH -->
         <section id="whyJoinReboot" class="py-5 highlight-section">
             <div class="container">
@@ -124,28 +197,36 @@
 
             </div>
         </section>
-        
+
         <!-- outstanding member of the month -->
-        <section class="outstanding-section position-relative" style="background-image: url('assets/image/outstanding-bg.png'); background-size: cover; background-position: center;">
+        <section class="outstanding-section position-relative"
+            style="background-image: url('assets/image/outstanding-bg.png'); background-size: cover; background-position: center;">
             <div class="container py-5">
                 <div class="d-flex align-items-center justify-content-center mb-4">
-                    <h2 class="mb-0 text-center display-6 fw-bold" style="color: #02457A;">Outstanding Member of the Month</h2>
+                    <h2 class="mb-0 text-center display-6 fw-bold" style="color: #02457A;">Outstanding Member of the
+                        Month</h2>
                 </div>
 
                 <div class="card mx-auto shadow-lg rounded-4" style="max-width: 1100px;">
                     <div class="row g-0 align-items-center">
                         <div class="col-12 col-md-5 p-4">
                             <div class="member-photo-wrapper p-3 bg-white rounded-3 border" style="height:100%;">
-                                <img src="assets/image/default-avatar.png" alt="Member photo" class="img-fluid rounded" style="object-fit:cover; width:100%; height:100%; max-height:380px;">
+                                <img src="assets/image/default-avatar.png" alt="Member photo" class="img-fluid rounded"
+                                    style="object-fit:cover; width:100%; height:100%; max-height:380px;">
                             </div>
                         </div>
                         <div class="col-12 col-md-7 p-4">
                             <h3 class="fw-bold mb-1" style="color:#0b5394; font-size:1.8rem;">Adonis Salen</h3>
                             <p class="mb-3" style="color:#28a745; font-weight:600;">Local Coordinator, Reboot PH</p>
-                            <p class="text-muted" style="line-height:1.6;">Meet Adonis Salen, the Local Coordinator of Reboot PH, who leads and organizes youth-driven initiatives at the community level. Through coordination with students, local partners, and volunteers, he helps turn sustainability advocacy into concrete action across local projects and activities.</p>
+                            <p class="text-muted" style="line-height:1.6;">Meet Adonis Salen, the Local Coordinator of
+                                Reboot PH, who leads and organizes youth-driven initiatives at the community level.
+                                Through coordination with students, local partners, and volunteers, he helps turn
+                                sustainability advocacy into concrete action across local projects and activities.</p>
                             <ul class="list-unstyled mt-3">
-                                <li class="mb-2"><i class="bi bi-geo-fill text-danger me-2"></i><span class="text-success fw-semibold">Camarines Norte</span></li>
-                                <li><i class="bi bi-mortarboard-fill text-dark me-2"></i><span class="text-success fw-semibold">Reboot PH Member since 2023</span></li>
+                                <li class="mb-2"><i class="bi bi-geo-fill text-danger me-2"></i><span
+                                        class="text-success fw-semibold">Camarines Norte</span></li>
+                                <li><i class="bi bi-mortarboard-fill text-dark me-2"></i><span
+                                        class="text-success fw-semibold">Reboot PH Member since 2023</span></li>
                             </ul>
                         </div>
                     </div>
@@ -223,7 +304,7 @@
         </div>
     </div>
 
-   <!-- Announcement Details Modal -->
+    <!-- Announcement Details Modal -->
     <div class="modal fade" id="announcementDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -233,75 +314,87 @@
                         <hr style="border-top:2px solid #90EE90; width:80px; margin:0.5rem auto 0;">
                     </div>
                     <div class="modal-body">
-                   
-                    
-                    <div class="mb-3">
-                        <input type="text" id="announcementModalTitle" class="form-control-plaintext fw-bold mb-1 px-2" readonly style="background-color: #FFFFFF; font-size: 1.5rem;">
-                    </div>
-                    
-                     <div class="row g-3 align-items-center">
-                        <div class="col-md-5">
-                              <div class="d-flex align-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#4CAF50" class="bi bi-calendar3 me-2" viewBox="0 0 16 16">
-                                        <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
-                                        <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+
+
+                        <div class="mb-3">
+                            <input type="text" id="announcementModalTitle"
+                                class="form-control-plaintext fw-bold mb-1 px-2" readonly
+                                style="background-color: #FFFFFF; font-size: 1.5rem;">
+                        </div>
+
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-5">
+                                <div class="d-flex align-items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#4CAF50"
+                                        class="bi bi-calendar3 me-2" viewBox="0 0 16 16">
+                                        <path
+                                            d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z" />
+                                        <path
+                                            d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
                                     </svg>
-                                    <input type="text" id="announcementModalDate" class="form-control-plaintext fw-bold" readonly style="background-color: #FFFFFF;" value="October 25, 2025">
+                                    <input type="text" id="announcementModalDate" class="form-control-plaintext fw-bold"
+                                        readonly style="background-color: #FFFFFF;" value="October 25, 2025">
                                 </div>
                                 <!--pagtatabihin and start time and end time-->
                                 <div class="col-md-4">
-                                    <input type="text" id="announcementModalStartTime" class="form-control-plaintext" readonly style="background-color: #FFFFFF;">
+                                    <input type="text" id="announcementModalStartTime" class="form-control-plaintext"
+                                        readonly style="background-color: #FFFFFF;">
                                 </div>
                                 <div class="col-md-4">
-                                    <input type="text" id="announcementModalEndTime" class="form-control-plaintext" readonly style="background-color: #FFFFFF;">
+                                    <input type="text" id="announcementModalEndTime" class="form-control-plaintext"
+                                        readonly style="background-color: #FFFFFF;">
                                 </div>
-                         </div>
-                    </div>
+                            </div>
+                        </div>
 
                         <div class="mb-4">
                             <div class="row g-3">
                                 <div class="col-md-8">
                                     <h6>Venue</h6>
-                                    <input type="text" id="announcementModalVenue" class="form-control-plaintext" readonly style="background-color: #FFFFFF;">
+                                    <input type="text" id="announcementModalVenue" class="form-control-plaintext"
+                                        readonly style="background-color: #FFFFFF;">
                                 </div>
                                 <div class="col-md-4">
                                     <h6>Slot Left</h6>
-                                    <input type="text" id="announcementModalCapacity" class="form-control-plaintext" readonly style="background-color: #FFFFFF;">
+                                    <input type="text" id="announcementModalCapacity" class="form-control-plaintext"
+                                        readonly style="background-color: #FFFFFF;">
                                 </div>
-                                
+
                             </div>
                         </div>
-    
+
                         <div class="mb-4">
                             <h6>Event Description</h6>
-                            <input type id="announcementModalDescription" class="form-control-plaintext mb-1 px-2" readonly style="background-color: #FFFFFF;">
+                            <input type id="announcementModalDescription" class="form-control-plaintext mb-1 px-2"
+                                readonly style="background-color: #FFFFFF;">
                         </div>
-    
+
                         <div class="mb-3">
                             <div class="mt-3">
                                 <span id="announcementModalPriority"></span>
                             </div>
                         </div>
-            
+
                     </div>
-                    
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
     </div>
-    
-    
+
+
     <!--footer-->
     <footer class="site-footer mt-auto">
         <div class="footer-top py-5">
             <div class="container">
                 <div class="row align-items-start gy-4 justify-content-between">
                     <div class="col-12 col-md-4 d-flex align-items-center gap-3">
-                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center" href="index.html">
+                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center"
+                            href="index.html">
                             <img src="assets/image/reboot-logo.png" alt="Reboot PH" class="img-fluid">
                         </a>
                         <div class="text-white small">
@@ -322,14 +415,22 @@
                         <p class="mb-1">rebootphinstitute@gmail.com</p>
                         <p class="mb-3">info@reboot-philippines.org</p>
                         <div class="d-flex justify-content-start justify-content-md-end gap-3">
-                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
+                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
+                                aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                                        fill="currentColor" />
                                 </svg>
                             </a>
-                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
+                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon"
+                                aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                                        fill="currentColor" />
                                 </svg>
                             </a>
                         </div>
@@ -351,10 +452,10 @@
             try {
                 const response = await fetch('api/get-hero-section.php');
                 const data = await response.json();
-                
+
                 if (data.success && data.heroSections && data.heroSections.length > 0) {
                     const hero = data.heroSections.find(h => h.isActive == 1) || data.heroSections[0];
-                    
+
                     const heroContent = document.getElementById('heroContent');
                     heroContent.innerHTML = `
                         <h1 class="display-6 fw-bold">${escapeHtml(hero.Title)}</h1>
@@ -374,20 +475,20 @@
             try {
                 const response = await fetch('/api/get-initiatives.php');
                 const data = await response.json();
-                
+
                 if (data.success && data.initiatives) {
                     highlightedInitiatives = data.initiatives.filter(i => i.isHighlighted == 1).slice(0, 3);
-                    
+
                     if (highlightedInitiatives.length === 0) {
                         document.getElementById('highlightsContainer').innerHTML = '<p class="text-muted col-12">No highlighted initiatives available.</p>';
                         return;
                     }
-                    
+
                     const highlightsHtml = highlightedInitiatives.map((initiative, index) => {
                         const images = initiative.images && initiative.images.length > 0
                             ? initiative.images
                             : ['assets/image/placeholder.jpg'];
-                        
+
                         const carouselId = `highlight-carousel-${initiative.InitiativeID}`;
                         let imageHtml = '';
 
@@ -437,7 +538,7 @@
                             </div>
                         `;
                     }).join('');
-                    
+
                     document.getElementById('highlightsContainer').innerHTML = highlightsHtml;
                 }
             } catch (error) {
@@ -446,76 +547,76 @@
         }
 
         // Render member benefits as a Bootstrap carousel with uniform card height
-async function loadMemberBenefits() {
-    try {
-        const res = await fetch('api/get-member-benefits.php');
-        const data = await res.json();
-        const container = document.getElementById('memberBenefitsContainer');
+        async function loadMemberBenefits() {
+            try {
+                const res = await fetch('api/get-member-benefits.php');
+                const data = await res.json();
+                const container = document.getElementById('memberBenefitsContainer');
 
-        if (!data.success || !Array.isArray(data.benefits) || data.benefits.length === 0) {
-            container.innerHTML = '<p class="text-muted col-12 text-center">No member benefits available.</p>';
-            return;
-        }
+                if (!data.success || !Array.isArray(data.benefits) || data.benefits.length === 0) {
+                    container.innerHTML = '<p class="text-muted col-12 text-center">No member benefits available.</p>';
+                    return;
+                }
 
-        const benefits = data.benefits;
+                const benefits = data.benefits;
 
-        // Measure longest card height by creating off-screen element with same card markup
-        const measurer = document.createElement('div');
-        measurer.style.position = 'absolute';
-        measurer.style.left = '-9999px';
-        measurer.style.top = '-9999px';
-        measurer.style.width = '320px'; // approximate card width for measurement (adjust if needed)
-        document.body.appendChild(measurer);
+                // Measure longest card height by creating off-screen element with same card markup
+                const measurer = document.createElement('div');
+                measurer.style.position = 'absolute';
+                measurer.style.left = '-9999px';
+                measurer.style.top = '-9999px';
+                measurer.style.width = '320px'; // approximate card width for measurement (adjust if needed)
+                document.body.appendChild(measurer);
 
-        let maxHeight = 0;
-        benefits.forEach(b => {
-            const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
-            measurer.innerHTML = `
+                let maxHeight = 0;
+                benefits.forEach(b => {
+                    const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
+                    measurer.innerHTML = `
                 <div class="card p-4 rounded-4 shadow-sm text-center">
                     <div class="mb-3">${iconHtml}</div>
                     <h3 class="h6 fw-bold mb-2" style="color:#02457A;">${escapeHtml(b.Title)}</h3>
                     <p class="text-muted">${escapeHtml(b.Description || '')}</p>
                 </div>`;
-            const h = measurer.offsetHeight;
-            if (h > maxHeight) maxHeight = h;
-        });
+                    const h = measurer.offsetHeight;
+                    if (h > maxHeight) maxHeight = h;
+                });
 
-        document.body.removeChild(measurer);
+                document.body.removeChild(measurer);
 
-        // Build carousel (3 cards per slide)
-        const perSlide = 3;
-        const slides = [];
-        for (let i = 0; i < benefits.length; i += perSlide) {
-            const group = benefits.slice(i, i + perSlide);
-            const cards = group.map(b => {
-                const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
-                return `
+                // Build carousel (3 cards per slide)
+                const perSlide = 3;
+                const slides = [];
+                for (let i = 0; i < benefits.length; i += perSlide) {
+                    const group = benefits.slice(i, i + perSlide);
+                    const cards = group.map(b => {
+                        const iconHtml = b.IconClass ? `<i class="${escapeHtml(b.IconClass)}" style="font-size:2.2rem;color:#0b4f86"></i>` : '';
+                        return `
                     <div class="col-12 col-md-4">
                         <div class="card h-100 p-4 rounded-4 shadow-sm text-center" style="min-height:${maxHeight}px; display:flex; flex-direction:column;">
                             <div class="mb-3">${iconHtml}</div>
                             <h3 class="h6 fw-bold mb-2" style="color:#02457A;">${escapeHtml(b.Title)}</h3>
-                            <p class="text-muted mb-0" style="flex:1;">${escapeHtml((b.Description||'').substring(0, 500))}</p>
+                            <p class="text-muted mb-0" style="flex:1;">${escapeHtml((b.Description || '').substring(0, 500))}</p>
                         </div>
                     </div>`;
-            }).join('');
+                    }).join('');
 
-            slides.push(`<div class="carousel-item">
+                    slides.push(`<div class="carousel-item">
                 <div class="row g-4 align-items-stretch">
                     ${cards}
                 </div>
             </div>`);
-        }
+                }
 
-        const carouselId = `memberBenefitsCarousel`;
-        const indicators = benefits.length > perSlide
-            ? `<div class="carousel-indicators">
-                ${slides.map((_, idx) => `<button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${idx}" ${idx===0?'class="active" aria-current="true"':''} aria-label="Slide ${idx+1}"></button>`).join('')}
+                const carouselId = `memberBenefitsCarousel`;
+                const indicators = benefits.length > perSlide
+                    ? `<div class="carousel-indicators">
+                ${slides.map((_, idx) => `<button type="button" data-bs-target="#${carouselId}" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active" aria-current="true"' : ''} aria-label="Slide ${idx + 1}"></button>`).join('')}
               </div>`
-            : '';
+                    : '';
 
-        const inner = slides.map((s, idx) => s.replace('carousel-item', `carousel-item ${idx===0?'active':''}`)).join('');
+                const inner = slides.map((s, idx) => s.replace('carousel-item', `carousel-item ${idx === 0 ? 'active' : ''}`)).join('');
 
-        container.innerHTML = `
+                container.innerHTML = `
             <div id="${carouselId}" class="carousel slide" data-bs-ride="carousel">
                 ${indicators}
                 <div class="carousel-inner py-3">
@@ -536,7 +637,7 @@ async function loadMemberBenefits() {
         }
 
         // call it on load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             if (typeof loadMemberBenefits === 'function') loadMemberBenefits();
         });
 
@@ -547,7 +648,7 @@ async function loadMemberBenefits() {
 
             document.getElementById('initiativeModalTitle').textContent = escapeHtml(initiative.Title);
             document.getElementById('initiativeModalDescription').textContent = escapeHtml(initiative.Description);
-            
+
             // Set category badge
             const categoryBadge = document.getElementById('initiativeModalCategory');
             if (initiative.Category) {
@@ -608,22 +709,22 @@ async function loadMemberBenefits() {
                     fetch('api/get-newsletters.php'),
                     fetch('api/get-announcements.php')
                 ]);
-                
+
                 const newsletterData = await newsletterRes.json();
                 const announcementData = await announcementRes.json();
-                
+
                 let html = '';
-                
+
                 // Featured Newsletter
                 if (newsletterData.success && newsletterData.newsletters && newsletterData.newsletters.length > 0) {
                     featuredNewsletter = newsletterData.newsletters[0];
                     const images = featuredNewsletter.images && featuredNewsletter.images.length > 0
                         ? featuredNewsletter.images
                         : ['assets/image/placeholder.jpg'];
-                    
+
                     const carouselId = `newsletter-carousel-${Date.now()}`;
                     let imageHtml = '';
-                    
+
                     if (images.length > 1) {
                         // Multiple images - carousel
                         imageHtml = `
@@ -654,7 +755,7 @@ async function loadMemberBenefits() {
                             <img src="${images[0]}" class="img-fluid rounded-4" style="max-height: 250px; object-fit: cover; width: 100%;" alt="Newsletter" onerror="this.src='assets/image/placeholder.jpg'">
                         `;
                     }
-                    
+
                     html += `
                         <div class="col-12 col-lg-7">
                             <div class="newsletter-feature card border-0 shadow-lg h-100 p-4">
@@ -670,14 +771,14 @@ async function loadMemberBenefits() {
                         </div>
                     `;
                 }
-                
+
                 // Announcements Column
                 html += `<div class="col-12 col-lg-5">`;
-                
+
                 if (announcementData.success && announcementData.announcements && announcementData.announcements.length > 0) {
                     featuredAnnouncements = announcementData.announcements.slice(0, 2);
                     html += `<div class="announcements-wrapper card border-0 shadow-lg h-100 p-4">`;
-                    
+
                     featuredAnnouncements.forEach((announcement, idx) => {
                         html += `
                             <div class="announcement-card ${idx < featuredAnnouncements.length - 1 ? 'mb-4 pb-3 border-bottom' : ''}">
@@ -692,14 +793,14 @@ async function loadMemberBenefits() {
                             </div>
                         `;
                     });
-                    
+
                     html += `</div>`;
                 } else {
                     html += `<p class="text-muted text-center">No announcements available</p>`;
                 }
-                
+
                 html += `</div>`;
-                
+
                 document.getElementById('newslettersContainer').innerHTML = html;
             } catch (error) {
                 console.error('Error loading newsletters section:', error);
@@ -760,13 +861,13 @@ async function loadMemberBenefits() {
 
             // Set title
             document.getElementById('announcementModalTitle').value = escapeHtml(announcement.Title || 'N/A');
-            
+
             // Set description
             document.getElementById('announcementModalDescription').value = escapeHtml(announcement.Description || 'N/A');
-            
+
             // Set author
             // document.getElementById('announcementModalAuthor').value = escapeHtml((announcement.FName || '') + ' ' + (announcement.LName || '') || 'N/A');
-            
+
             // Set status with badge
             const statusText = announcement.Status || 'N/A';
             let statusClass = 'bg-secondary';
@@ -804,7 +905,7 @@ async function loadMemberBenefits() {
             const staffRequired = parseInt(announcement.StaffRequired) || 0;
             const staffRegistered = parseInt(announcement.StaffRegistered) || 0;
             const staffSlotsLeft = Math.max(0, staffRequired - staffRegistered);
-            const staffSlotsText = staffRequired > 0 
+            const staffSlotsText = staffRequired > 0
                 ? `${staffSlotsLeft} (${staffRequired} required, ${staffRegistered} registered)`
                 : 'N/A';
             // document.getElementById('announcementModalStaffSlots').value = staffSlotsText;
@@ -844,19 +945,19 @@ async function loadMemberBenefits() {
                     fetch('api/manage-about-us.php?type=mission'),
                     fetch('api/manage-about-us.php?type=vision')
                 ]);
-                
+
                 const missionData = await missionRes.json();
                 const visionData = await visionRes.json();
-                
+
                 let html = '';
-                
+
                 // Mission Card
                 if (missionData.success && missionData.content) {
                     const mission = missionData.content;
-                    const bullets = mission.bullets && mission.bullets.length > 0 
-                        ? mission.bullets 
+                    const bullets = mission.bullets && mission.bullets.length > 0
+                        ? mission.bullets
                         : [];
-                    
+
                     html += `
                         <div class="col-12 col-md-6">
                             <div class="card h-100 p-4 rounded-4 shadow-sm" style="min-height: 280px;">
@@ -874,14 +975,14 @@ async function loadMemberBenefits() {
                         </div>
                     `;
                 }
-                
+
                 // Vision Card
                 if (visionData.success && visionData.content) {
                     const vision = visionData.content;
-                    const bullets = vision.bullets && vision.bullets.length > 0 
-                        ? vision.bullets 
+                    const bullets = vision.bullets && vision.bullets.length > 0
+                        ? vision.bullets
                         : [];
-                    
+
                     html += `
                         <div class="col-12 col-md-6">
                             <div class="card h-100 p-4 rounded-4 shadow-sm d-flex align-items-center justify-content-center" style="min-height: 280px;">
@@ -900,7 +1001,7 @@ async function loadMemberBenefits() {
                         </div>
                     `;
                 }
-                
+
                 if (html) {
                     document.getElementById('missionVisionContainer').innerHTML = html;
                 } else {
@@ -925,7 +1026,7 @@ async function loadMemberBenefits() {
         }
 
         // Load all on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadHeroSection();
             loadHighlights();
             loadNewslettersSection();
