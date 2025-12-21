@@ -2473,10 +2473,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <input type="text" id="emEventPartners" class="form-control" readonly>
                                 </div>
                             </div>
-                            <div class="mt-3">
-                                <label class="form-label">Additional Notes</label>
-                                <textarea id="emEventNotes" class="form-control" rows="2" readonly></textarea>
-                            </div>
                         </div>
                     </form>
                 </div>
