@@ -63,7 +63,7 @@ async function loadMemberProfile() {
                 // Update ID preview logic
                 const idPreview = document.getElementById('idPreview');
                 if (idPreview) {
-                    // 1. FORCE LANDSCAPE RESET (Para hindi mag-stack nang patayo)
+                    // 1. FORCE LANDSCAPE RESET
                     Object.assign(idPreview.style, {
                         width: "500px",
                         height: "300px",
@@ -80,10 +80,12 @@ async function loadMemberProfile() {
                     });
 
                     let photoHtml = '';
+                    // Chine-check kung may valid na image URL ang member
                     if (currentMember.ProfileImage && currentMember.ProfileImage !== 'null' && currentMember.ProfileImage !== '') {
                         photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: 125px; height: 125px; border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block;">`;
                     } else {
-                        photoHtml = `<div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted shadow-sm" style="width: 125px; height: 125px; border: 2px dashed #ccc;">2x2 Photo</div>`;
+                        // HETO ANG PAGBABAGO: Default avatar ang lalabas kapag walang pic
+                        photoHtml = `<img src="assets/image/default-avatar.png" alt="Default Profile" style="width: 125px; height: 125px; border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; background: #f8f9fa;">`;
                     }
 
                     idPreview.innerHTML = `
