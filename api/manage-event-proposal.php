@@ -253,6 +253,60 @@ try {
 
         echo json_encode(['success' => true, 'message' => 'Proposal date updated successfully']);
 
+    } elseif ($action === 'delete') {
+        // --- DELETE PROPOSAL AND RELATED DATA ---
+        $proposalId = (int)($data['proposalId'] ?? 0);
+
+        if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
+
+        // Only admins can delete proposals
+        $rolesCanDelete = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator'];
+        if (!in_array($userRole, $rolesCanDelete)) {
+            throw new Exception('Unauthorized: Cannot delete proposal');
+        }
+
+        // Get proposal details
+        $propStmt = $conn->prepare("SELECT EventID FROM proposal WHERE ProposalID = ?");
+        $propStmt->execute([$proposalId]);
+        $proposal = $propStmt->fetch();
+
+        if (!$proposal) {
+            throw new Exception('Proposal not found');
+        }
+
+        // If event exists, delete cascade (registrations, attendance, feedback, event)
+        if ($proposal['EventID']) {
+            // Delete registrations and attendance
+            $delRegStmt = $conn->prepare("
+                DELETE FROM eventattendance 
+                WHERE RegistrationID IN (
+                    SELECT RegistrationID FROM registration WHERE EventID = ?
+                )
+            ");
+            $delRegStmt->execute([$proposal['EventID']]);
+
+            $delAttStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
+            $delAttStmt->execute([$proposal['EventID']]);
+
+            // Delete feedback
+            $delFeedStmt = $conn->prepare("DELETE FROM feedback WHERE EventID = ?");
+            $delFeedStmt->execute([$proposal['EventID']]);
+
+            // Delete event
+            $delEventStmt = $conn->prepare("DELETE FROM event WHERE EventID = ?");
+            $delEventStmt->execute([$proposal['EventID']]);
+        }
+
+        // Delete related announcements
+        $delAnnStmt = $conn->prepare("DELETE FROM announcement WHERE ProposalID = ?");
+        $delAnnStmt->execute([$proposalId]);
+
+        // Delete proposal
+        $delPropStmt = $conn->prepare("DELETE FROM proposal WHERE ProposalID = ?");
+        $delPropStmt->execute([$proposalId]);
+
+        echo json_encode(['success' => true, 'message' => 'Proposal deleted successfully']);
+
     } else {
         throw new Exception('Unknown action: ' . $action);
     }
