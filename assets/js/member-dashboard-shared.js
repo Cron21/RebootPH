@@ -71,7 +71,7 @@ async function loadMemberProfile() {
                         photoHtml = `<div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted shadow-sm" style="width: 110px; height: 110px; border: 2px dashed #ccc;">2x2 Photo</div>`;
                     }
 
-                    // FORCE LANDSCAPE RESET (Para hindi ma-override ng hosting CSS)
+                    // FORCE LANDSCAPE RESET
                     Object.assign(idPreview.style, {
                         width: "500px",
                         height: "300px",
@@ -82,7 +82,7 @@ async function loadMemberProfile() {
                         backgroundColor: "white",
                         borderRadius: "20px",
                         border: "1px solid #ddd",
-                        display: "block", // Sinisiguro na hindi ito magiging flex container sa labas
+                        display: "block",
                         margin: "0 auto"
                     });
 
@@ -114,7 +114,7 @@ async function loadMemberProfile() {
                              style="position: absolute; bottom: 20px; width: 100%; display: flex !important;">
                             <div style="font-size: 0.85rem; color: #035996 !important; text-align: left;">
                                 <p class="mb-1"><strong>Member Since:</strong> ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
-                                <p class="mb-0"><strong>Status:</strong> <span style="font-weight: bold; color: ${currentMember.isActive ? '#198754' : '#dc3545'} !important;">${currentMember.isActive ? 'Active' : 'Inactive'}</span></p>
+                                // <p class="mb-0"><strong>Status:</strong> <span style="font-weight: bold; color: ${currentMember.isActive ? '#198754' : '#dc3545'} !important;">${currentMember.isActive ? 'Active' : 'Inactive'}</span></p>
                             </div>
                             <div id="idPreviewQR" style="background: white !important; padding: 5px; border-radius: 5px; border: 1px solid #eee;">
                                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
