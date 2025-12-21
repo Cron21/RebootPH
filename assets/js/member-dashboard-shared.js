@@ -94,30 +94,30 @@ async function loadMemberProfile() {
                             </div>
                             <div class="text-end" style="color: white !important;">
                                 <h4 class="mb-0 fw-bold" style="font-size: 1.4rem; color: white !important;">Reboot Philippines</h4>
-                                <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">2804, Discovery Centre, 25 ADB Ave, Ortigas Center, Pasig, Philippines</p>
+                                <p class="mb-0" style="font-size: 0.8rem; opacity: 0.9; color: white !important; max-width: 300px; line-height: 1.1;">2804, Discovery Centre, 25 ADB Ave, Ortigas Center, Pasig, Philippines</p>
                             </div>
                         </div>
-                
-                        <div style="display: flex !important; align-items: center; padding: 20px; height: 150px;">
-                            <div style="flex: 1; text-center;">
+                    
+                        <div style="display: flex !important; align-items: center; padding: 20px 15px; height: 150px;">
+                            <div style="flex: 0.8; text-align: center;">
                                 ${photoHtml}
                             </div>
                             
-                            <div style="flex: 1.5; padding-left: 20px; text-align: left;">
-                                <h5 class="mb-1" style="color: #333 !important; font-size: 1.1rem;">Name: <span style="font-weight: bold; font-size: 1.4rem;">${window.currentMemberName}</span></h5>
+                            <div style="flex: 2; padding-left: 10px; text-align: left;">
+                                <h5 class="mb-1" style="color: #333 !important; font-size: 1.1rem;">Name: <span style="font-weight: bold; font-size: 1.3rem;">${window.currentMemberName}</span></h5>
                                 <h5 class="mb-1" style="color: #333 !important; font-size: 1.1rem;">Role: <span style="font-weight: bold;">${currentMember.Role || 'Member'}</span></h5>
                                 <h5 class="mb-0" style="color: #035996 !important; font-size: 1.1rem;">ID: <span style="font-weight: bold;">RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span></h5>
                             </div>
                         </div>
-                
+                    
                         <div class="px-4 d-flex justify-content-between align-items-end" 
-                             style="position: absolute; bottom: 20px; width: 100%; display: flex !important;">
-                            <div style="font-size: 0.85rem; color: #035996 !important; text-align: left;">
-                                <p class="mb-1"><strong>Member Since:</strong> ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
+                             style="position: absolute; bottom: 25px; width: 100%; display: flex !important;">
+                            <div style="font-size: 0.85rem; color: #035996 !important; text-align: left; margin-bottom: 5px;">
+                                <p class="mb-0"><strong>Member Since:</strong><br>${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
                             </div>
                             <div id="idPreviewQR" style="background: white !important; padding: 5px; border-radius: 5px; border: 1px solid #eee;">
                                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
-                                     alt="QR" style="width: 85px; height: 85px;">
+                                     alt="QR" style="width: 80px; height: 80px;">
                             </div>
                         </div>
                     `;
