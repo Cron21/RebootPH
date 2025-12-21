@@ -52,18 +52,26 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
                     <p><strong>Temporary Password:</strong> <code>' . htmlspecialchars($tempPassword, ENT_QUOTES, 'UTF-8') . '</code></p>
                 </div>
                 
-                <p><strong>Important:</strong> For security purposes, this is a temporary password. You must change it immediately upon your first login.</p>
+                <h3>You Have Two Options:</h3>
                 
-                <p>Click the button below to set your own password:</p>
-                <a href='$changePasswordUrl' class='button'>Change Your Password</a>
+                <h4 style='color: #035996;'>Option 1: Use Your Temporary Password (Direct Login)</h4>
+                <p>You can immediately log in to the dashboard using the temporary password provided above:</p>
+                <ul>
+                    <li>Visit: <strong>https://springgreen-walrus-657527.hostingersite.com</strong></li>
+                    <li>Email: <code>' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</code></li>
+                    <li>Password: <code>' . htmlspecialchars($tempPassword, ENT_QUOTES, 'UTF-8') . '</code></li>
+                </ul>
                 
-                <p style='margin-top: 30px;'>Or copy this link in your browser:</p>
-                <p style='word-break: break-all; color: #0b4f86;'>$changePasswordUrl</p>
+                <h4 style='color: #035996;'>Option 2: Set Your Own Password First (Recommended)</h4>
+                <p>For better security, we recommend setting your own password before logging in. Click the button below:</p>
+                <a href='$changePasswordUrl' class='button'>Set Your Password</a>
+                
+                <p style='margin-top: 20px; word-break: break-all; color: #0b4f86;'><small>Or copy this link: $changePasswordUrl</small></p>
                 
                 <h3>Next Steps:</h3>
                 <ol>
-                    <li>Visit our website and log in with the credentials above</li>
-                    <li>Change your temporary password to a secure password of your choice</li>
+                    <li><strong>If using the temporary password:</strong> Log in directly, then go to your profile settings to change your password</li>
+                    <li><strong>If setting a new password:</strong> Use the link above to set your password, then log in with your new credentials</li>
                     <li>Complete your member profile</li>
                     <li>Start participating in our initiatives and events!</li>
                 </ol>
@@ -92,14 +100,20 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
     Email: $email
     Temporary Password: $tempPassword
     
-    IMPORTANT: This is a temporary password. You must change it immediately upon your first login.
+    YOU HAVE TWO OPTIONS:
     
-    Please visit this link to set your own password:
-    $changePasswordUrl
+    OPTION 1: Use Your Temporary Password (Direct Login)
+    - Visit: https://springgreen-walrus-657527.hostingersite.com
+    - Use the email and temporary password above to log in immediately
+    - You can change your password anytime in your profile settings
+    
+    OPTION 2: Set Your Own Password First (Recommended)
+    - Visit this link to set your own password: $changePasswordUrl
+    - Then log in with your new credentials
     
     Next Steps:
-    1. Visit our website and log in with the credentials above
-    2. Change your temporary password to a secure password
+    1. Choose one of the options above
+    2. Log in to the dashboard
     3. Complete your member profile
     4. Start participating in our initiatives!
     
