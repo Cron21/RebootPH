@@ -60,18 +60,10 @@ async function loadMemberProfile() {
                     }
                 }
 
-                // Update ID preview
+                // Update ID preview logic
                 const idPreview = document.getElementById('idPreview');
                 if (idPreview) {
-                    // Build ID preview photo HTML
-                    let photoHtml = '';
-                    if (currentMember.ProfileImage && currentMember.ProfileImage !== 'null' && currentMember.ProfileImage !== '' && currentMember.ProfileImage !== undefined) {
-                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 2px solid #035996;">`;
-                    } else {
-                        photoHtml = `<div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted shadow-sm" style="width: 110px; height: 110px; border: 2px dashed #ccc;">2x2 Photo</div>`;
-                    }
-
-                    // FORCE LANDSCAPE RESET
+                    // 1. FORCE LANDSCAPE RESET (Para hindi mag-stack nang patayo)
                     Object.assign(idPreview.style, {
                         width: "500px",
                         height: "300px",
@@ -83,41 +75,58 @@ async function loadMemberProfile() {
                         borderRadius: "20px",
                         border: "1px solid #ddd",
                         display: "block",
-                        margin: "0 auto"
+                        margin: "0 auto",
+                        textAlign: "left" 
                     });
 
+                    let photoHtml = '';
+                    if (currentMember.ProfileImage && currentMember.ProfileImage !== 'null' && currentMember.ProfileImage !== '') {
+                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: 125px; height: 125px; border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block;">`;
+                    } else {
+                        photoHtml = `<div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted shadow-sm" style="width: 125px; height: 125px; border: 2px dashed #ccc;">2x2 Photo</div>`;
+                    }
+
                     idPreview.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center px-3" 
-                             style="background-color: #035996 !important; height: 75px; color: white !important; width: 100%; display: flex !important;">
-                            <div style="background: white !important; border-radius: 50%; padding: 5px; width: 55px; height: 55px; display: flex !important; align-items: center; justify-content: center;">
+                        <div style="background-color: #035996 !important; height: 75px; width: 100%; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: 0 20px !important; box-sizing: border-box !important;">
+                            <div style="background: white !important; border-radius: 50%; width: 55px; height: 55px; display: flex !important; align-items: center !important; justify-content: center !important; padding: 5px;">
                                 <img src="assets/image/reboot2-logo.png" style="width: 45px;" alt="Logo">
                             </div>
-                            <div class="text-end" style="color: white !important;">
-                                <h4 class="mb-0 fw-bold" style="font-size: 1.4rem; color: white !important;">Reboot Philippines</h4>
-                                <p class="mb-0" style="font-size: 0.8rem; opacity: 0.9; color: white !important; max-width: 300px; line-height: 1.1;">2804, Discovery Centre, 25 ADB Ave, Ortigas Center, Pasig, Philippines</p>
+                            <div style="text-align: right !important; color: white !important;">
+                                <h4 style="margin: 0; font-weight: bold; font-size: 1.4rem; color: white !important;">Reboot Philippines</h4>
+                                <p style="margin: 0; font-size: 0.75rem; opacity: 0.9; color: white !important; line-height: 1.1;">2804, Discovery Centre, Pasig City</p>
                             </div>
                         </div>
-                    
-                        <div style="display: flex !important; align-items: center; padding: 20px 15px; height: 150px;">
-                            <div style="flex: 0.8; text-align: center;">
+
+                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; padding: 20px 25px !important; height: 150px; box-sizing: border-box !important;">
+                            <div style="flex: 0 0 130px !important; display: flex !important; justify-content: flex-start !important;">
                                 ${photoHtml}
                             </div>
-                            
-                            <div style="flex: 2; padding-left: 10px; text-align: left;">
-                                <h5 class="mb-1" style="color: #333 !important; font-size: 1.1rem;">Name: <span style="font-weight: bold; font-size: 1.3rem;">${window.currentMemberName}</span></h5>
-                                <h5 class="mb-1" style="color: #333 !important; font-size: 1.1rem;">Role: <span style="font-weight: bold;">${currentMember.Role || 'Member'}</span></h5>
-                                <h5 class="mb-0" style="color: #035996 !important; font-size: 1.1rem;">ID: <span style="font-weight: bold;">RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span></h5>
+
+                            <div style="flex: 1 !important; padding-left: 15px !important; text-align: left !important;">
+                                <div style="margin-bottom: 5px;">
+                                    <small style="color: #666; font-size: 0.8rem; display: block;">Name:</small>
+                                    <span style="font-weight: bold; font-size: 1.4rem; color: #333 !important; display: block; line-height: 1;">${window.currentMemberName}</span>
+                                </div>
+                                <div style="margin-bottom: 5px;">
+                                    <small style="color: #666; font-size: 0.8rem; display: block;">Role:</small>
+                                    <span style="font-weight: bold; font-size: 1.1rem; color: #035996 !important; display: block;">${currentMember.Role || 'Member'}</span>
+                                </div>
+                                <div>
+                                    <span style="font-weight: 800; color: #035996 !important; font-size: 1.1rem;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span>
+                                </div>
                             </div>
                         </div>
-                    
-                        <div class="px-4 d-flex justify-content-between align-items-end" 
-                             style="position: absolute; bottom: 25px; width: 100%; display: flex !important;">
-                            <div style="font-size: 0.85rem; color: #035996 !important; text-align: left; margin-bottom: 5px;">
-                                <p class="mb-0"><strong>Member Since:</strong><br>${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
+
+                        <div style="position: absolute; bottom: 30px !important; width: 100%; padding: 0 25px !important; display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; box-sizing: border-box !important;">
+                            <div style="font-size: 0.85rem; color: #035996 !important; text-align: left !important;">
+                                <p style="margin: 0 !important; line-height: 1.3 !important;">
+                                    <strong style="display: block;">Member Since:</strong>
+                                    <span style="font-weight: bold;">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
+                                </p>
                             </div>
-                            <div id="idPreviewQR" style="background: white !important; padding: 5px; border-radius: 5px; border: 1px solid #eee;">
+                            <div id="idPreviewQR" style="background: white !important; padding: 4px; border-radius: 5px; border: 1px solid #eee;">
                                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
-                                     alt="QR" style="width: 80px; height: 80px;">
+                                    style="width: 75px; height: 75px; display: block !important;">
                             </div>
                         </div>
                     `;
