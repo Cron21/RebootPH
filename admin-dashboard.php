@@ -4122,17 +4122,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                         <td>
                             ${isCurrentUser ? (
                                 '<span class="text-muted small">Cannot change own role</span>'
-                            ) : member.Role === 'Executive Director' ? (
-                                '<span class="text-muted small">Executive Director</span>'
                             ) : window.currentUserRole !== 'Executive Director' ? (
-                                `<select class="form-select" data-role-select title="Promote or demote member" onchange="updateMemberRole(${member.MemberID}, this.value)">
-                                    <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
-                                    <option value="Program Officer" ${member.Role === 'Program Officer' ? 'selected' : ''}>Program Officer</option>
-                                    <option value="Regional Convenor" ${member.Role === 'Regional Convenor' ? 'selected' : ''}>Regional Convenor</option>
-                                    <option value="Local Coordinator" ${member.Role === 'Local Coordinator' ? 'selected' : ''}>Local Coordinator</option>
-                                    <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
-                                    <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
-                                </select>`
+                                '<span class="text-muted small">' + member.Role + '</span>'
+                            ) : member.Role === 'Executive Director' ? (
+                                '<span class="text-muted small">Executive Director (Cannot change peers)</span>'
                             ) : (
                                 `<select class="form-select" data-role-select title="Change member role" onchange="updateMemberRole(${member.MemberID}, this.value)">
                                     <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
@@ -4220,9 +4213,20 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Update member role
             async function updateMemberRole(memberId, newRole) {
-                // Non-Executive Director users cannot assign Executive Director role
-                if (window.currentUserRole !== 'Executive Director' && newRole === 'Executive Director') {
-                    alert('You do not have authority to assign the Executive Director role. Only Executive Director can assign that role.');
+                // Only Executive Director can change roles
+                if (window.currentUserRole !== 'Executive Director') {
+                    alert('You do not have authority to change member roles. Only Executive Director can change roles.');
+                    loadMembers();
+                    return;
+                }
+
+                // Get the member's current role to check if they are an Executive Director peer
+                const memberRow = document.querySelector(`[data-member-id="${memberId}"]`);
+                const memberCurrentRole = memberRow ? memberRow.getAttribute('data-member-role') : null;
+
+                // Executive Director cannot change other Executive Directors' roles
+                if (memberCurrentRole === 'Executive Director') {
+                    alert('You cannot change the role of another Executive Director. Executive Directors cannot change roles for their peers.');
                     loadMembers();
                     return;
                 }
