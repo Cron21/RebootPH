@@ -94,7 +94,7 @@ async function loadMemberProfile() {
                             </div>
                             <div class="text-end" style="color: white !important;">
                                 <h4 class="mb-0 fw-bold" style="font-size: 1.4rem; color: white !important;">Reboot Philippines</h4>
-                                <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Environmental Organization</p>
+                                <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">2804, Discovery Centre, 25 ADB Ave, Ortigas Center, Pasig, Philippines</p>
                             </div>
                         </div>
                 
@@ -114,7 +114,6 @@ async function loadMemberProfile() {
                              style="position: absolute; bottom: 20px; width: 100%; display: flex !important;">
                             <div style="font-size: 0.85rem; color: #035996 !important; text-align: left;">
                                 <p class="mb-1"><strong>Member Since:</strong> ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
-                                // <p class="mb-0"><strong>Status:</strong> <span style="font-weight: bold; color: ${currentMember.isActive ? '#198754' : '#dc3545'} !important;">${currentMember.isActive ? 'Active' : 'Inactive'}</span></p>
                             </div>
                             <div id="idPreviewQR" style="background: white !important; padding: 5px; border-radius: 5px; border: 1px solid #eee;">
                                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
