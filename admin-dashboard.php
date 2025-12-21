@@ -5777,6 +5777,25 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                     if (data.success) {
                         alert('Event postponed successfully! All registered members have been removed. Delete button is now available.');
+                        
+                        // Update the status field in the modal
+                        const emEventStatus = document.getElementById('emEventStatus');
+                        if (emEventStatus) {
+                            emEventStatus.textContent = 'Postponed';
+                        }
+                        
+                        // Update the form dataset
+                        const form = document.getElementById('eventManagementForm');
+                        if (form) {
+                            form.dataset.originalStatus = 'Postponed';
+                        }
+                        
+                        // Show delete button
+                        const deleteBtn = document.getElementById('emDeleteEventBtn');
+                        if (deleteBtn) {
+                            deleteBtn.style.display = 'block';
+                        }
+                        
                         // Close modal first if open
                         const modal = bootstrap.Modal.getInstance(document.getElementById('editEventManagementModal'));
                         if (modal) modal.hide();
