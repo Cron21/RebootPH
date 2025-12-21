@@ -1278,7 +1278,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Total Events</h6>
                                             <h2 class="display-6 mb-0" id="totalEventsCard">-</h2>
-                                            <small id="eventsChangeCard" class="text-success">-</small>
+                                            <small id="eventsChangeCard">-</small>
                                         </div>
                                     </div>
                                 </div>
@@ -1287,7 +1287,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Total Participants</h6>
                                             <h2 class="display-6 mb-0" id="totalParticipantsCard">-</h2>
-                                            <small id="participantsChangeCard" class="text-success">-</small>
+                                            <small id="participantsChangeCard">-</small>
                                         </div>
                                     </div>
                                 </div>
@@ -8230,8 +8230,17 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Update summary cards
             function updateSummaryCards(summary) {
                 const formatChange = (value) => {
-                    const symbol = value >= 0 ? '↑' : '↓';
-                    const color = value >= 0 ? 'success' : 'danger';
+                    let symbol, color;
+                    if (value > 0) {
+                        symbol = '↑';
+                        color = 'success'; // Green for increase
+                    } else if (value < 0) {
+                        symbol = '↓';
+                        color = 'danger'; // Red for decrease
+                    } else {
+                        symbol = '→';
+                        color = 'muted'; // Grey for stagnant
+                    }
                     return `<small class="text-${color}">${symbol} ${Math.abs(value)}% vs last period</small>`;
                 };
 
