@@ -31,6 +31,14 @@ try {
         throw new Exception('Not authenticated - no member ID in session');
     }
 
+    // For delete/approve/reject, ensure user has proper role
+    if (in_array($action, ['delete', 'approve', 'reject'])) {
+        $rolesCanManage = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator'];
+        if (!in_array($userRole, $rolesCanManage)) {
+            throw new Exception('Unauthorized: Insufficient permissions for this action');
+        }
+    }
+
     if ($action === 'create') {
         // --- CREATE PROPOSAL LOGIC ---
         $title = trim($data['title'] ?? '');
@@ -259,12 +267,6 @@ try {
         $proposalId = (int)($data['proposalId'] ?? 0);
 
         if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
-
-        // Only admins can delete proposals
-        $rolesCanDelete = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator'];
-        if (!in_array($userRole, $rolesCanDelete)) {
-            throw new Exception('Unauthorized: Cannot delete proposal');
-        }
 
         // Get proposal details and status
         $propStmt = $conn->prepare("SELECT EventID, Status FROM proposal WHERE ProposalID = ?");
