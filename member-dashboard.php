@@ -647,7 +647,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                         <p class="mb-1">rebootphinstitute@gmail.com</p>
                         <p class="mb-3">info@reboot-philippines.org</p>
                         <div class="d-flex justify-content-start justify-content-md-end gap-3">
-                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
+                            <a id="footerFacebookLink" href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
                                 aria-label="Facebook" target="_blank" rel="noopener noreferrer">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -656,7 +656,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                                         fill="currentColor" />
                                 </svg>
                             </a>
-                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon"
+                            <a id="footerInstagramLink" href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon"
                                 aria-label="Instagram" target="_blank" rel="noopener noreferrer">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -676,6 +676,28 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             </div>
         </div>
     </footer>
+    <script>
+        (async function(){
+            try{
+                const res = await fetch('api/manage-system-settings.php');
+                const data = await res.json();
+                if(!data.success) return;
+                const s = data.settings || {};
+                const email = s.social_email || 'rebootphinstitute@gmail.com';
+                const fb = s.social_facebook || 'https://www.facebook.com/rebootphilippines';
+                const ig = s.social_instagram || 'https://www.instagram.com/rebootphinstitute/';
+                const li = s.social_linkedin || 'https://www.linkedin.com/company/reboot-philippines/';
+                const emailEl = document.getElementById('footerEmailLink');
+                const fbEl = document.getElementById('footerFacebookLink');
+                const igEl = document.getElementById('footerInstagramLink');
+                const liEl = document.getElementById('footerLinkedInLink');
+                if(emailEl) emailEl.href = 'mailto:' + email;
+                if(fbEl) fbEl.href = fb;
+                if(igEl) igEl.href = ig;
+                if(liEl) liEl.href = li;
+            } catch(e){ console.error('social links load error', e); }
+        })();
+    </script>
 
     <!-- Add Attendance Modal -->
     <div class="modal fade" id="attendanceModal" tabindex="-1">
