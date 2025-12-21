@@ -5780,7 +5780,6 @@ if ($_SESSION['role'] === 'Member Staff') {
             function openAddCategoryModal() {
                 document.getElementById('categoryId').value = '';
                 document.getElementById('categoryName').value = '';
-                document.getElementById('categoryType').value = '';
                 document.getElementById('categoryModalTitle').textContent = 'Add Category';
                 const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
                 modal.show();
