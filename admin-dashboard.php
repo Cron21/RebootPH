@@ -4896,6 +4896,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <button class="btn btn-outline-success" onclick="approveProposalFromTable(${prop.ProposalID})">Approve</button>
                                     <button class="btn btn-outline-danger" onclick="rejectProposalFromTable(${prop.ProposalID})">Reject</button>
                                 ` : ''}
+                                ${prop.Status === 'Rejected' ? `
+                                    <button class="btn btn-danger" onclick="deleteProposalFromTable(${prop.ProposalID}, '${prop.Title.replace(/'/g, "\\'")}')">Delete</button>
+                                ` : ''}
                             </div>
                         </td>
                     </tr>
@@ -5754,7 +5757,7 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Postpone event
             async function postponeEvent(eventId) {
-                if (!confirm('Are you sure you want to postpone this event?')) {
+                if (!confirm('Are you sure you want to postpone this event? All registered members will be removed.')) {
                     return;
                 }
 
@@ -5771,11 +5774,12 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const data = await response.json();
 
                     if (data.success) {
-                        alert('Event postponed successfully! All registered members have been removed.');
-                        loadEvents();
-                        // Close modal if open
+                        alert('Event postponed successfully! All registered members have been removed. Delete button is now available.');
+                        // Close modal first if open
                         const modal = bootstrap.Modal.getInstance(document.getElementById('editEventManagementModal'));
                         if (modal) modal.hide();
+                        // Then reload events after a short delay
+                        setTimeout(() => loadEvents(), 300);
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -5870,6 +5874,36 @@ if ($_SESSION['role'] === 'Member Staff') {
                     if (data.success) {
                         alert('Proposal deleted successfully!');
                         bootstrap.Modal.getInstance(document.getElementById('viewProposalModal')).hide();
+                        loadEventProposals();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error deleting proposal');
+                }
+            }
+
+            // Delete proposal from table
+            async function deleteProposalFromTable(proposalId, proposalTitle) {
+                if (!confirm(`Are you sure you want to delete the proposal "${proposalTitle}"? This action cannot be undone.`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('api/manage-event-proposal.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'delete',
+                            proposalId: parseInt(proposalId)
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('Proposal deleted successfully!');
                         loadEventProposals();
                     } else {
                         alert('Error: ' + data.message);
