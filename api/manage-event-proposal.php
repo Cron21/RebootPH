@@ -269,7 +269,7 @@ try {
         if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
 
         // Get proposal details and status
-        $propStmt = $conn->prepare("SELECT EventID, Status FROM proposal WHERE ProposalID = ?");
+        $propStmt = $conn->prepare("SELECT Status FROM proposal WHERE ProposalID = ?");
         $propStmt->execute([$proposalId]);
         $proposal = $propStmt->fetch();
 
@@ -282,8 +282,15 @@ try {
             throw new Exception('Proposals can only be deleted if they are Rejected');
         }
 
+        // Find if there's an event associated with this proposal
+        $eventStmt = $conn->prepare("SELECT EventID FROM event WHERE ProposalID = ?");
+        $eventStmt->execute([$proposalId]);
+        $eventResult = $eventStmt->fetch();
+        
         // If event exists, delete cascade (registrations, attendance, feedback, event)
-        if ($proposal['EventID']) {
+        if ($eventResult && isset($eventResult['EventID'])) {
+            $eventId = $eventResult['EventID'];
+            
             // Delete registrations and attendance
             $delRegStmt = $conn->prepare("
                 DELETE FROM eventattendance 
@@ -291,18 +298,18 @@ try {
                     SELECT RegistrationID FROM registration WHERE EventID = ?
                 )
             ");
-            $delRegStmt->execute([$proposal['EventID']]);
+            $delRegStmt->execute([$eventId]);
 
             $delAttStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
-            $delAttStmt->execute([$proposal['EventID']]);
+            $delAttStmt->execute([$eventId]);
 
             // Delete feedback
             $delFeedStmt = $conn->prepare("DELETE FROM feedback WHERE EventID = ?");
-            $delFeedStmt->execute([$proposal['EventID']]);
+            $delFeedStmt->execute([$eventId]);
 
             // Delete event
             $delEventStmt = $conn->prepare("DELETE FROM event WHERE EventID = ?");
-            $delEventStmt->execute([$proposal['EventID']]);
+            $delEventStmt->execute([$eventId]);
         }
 
         // Delete related announcements
