@@ -124,6 +124,54 @@ try {
                 ");
                 $annStmt->execute([$proposalId, $memberId, $memberId]);
             }
+
+            // 5. Automatically create event from approved proposal
+            $eventCheck = $conn->prepare("SELECT EventID FROM event WHERE ProposalID = ?");
+            $eventCheck->execute([$proposalId]);
+            
+            if ($eventCheck->rowCount() === 0) {
+                // Get proposal details
+                $propStmt = $conn->prepare("
+                    SELECT Title, ProposedDate, StartTime, EndTime, Venue, 
+                           StaffRequired, TargetParticipants
+                    FROM proposal
+                    WHERE ProposalID = ?
+                ");
+                $propStmt->execute([$proposalId]);
+                $proposal = $propStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($proposal) {
+                    // Calculate registration deadline (12 hours before event start)
+                    try {
+                        $eventDateTime = $proposal['ProposedDate'] . ' ' . $proposal['StartTime'];
+                        $deadline = new DateTime($eventDateTime);
+                        $deadline->modify('-12 hours');
+                        $registrationDeadline = $deadline->format('Y-m-d');
+                    } catch (Exception $e) {
+                        $registrationDeadline = date('Y-m-d', strtotime('-12 hours'));
+                    }
+
+                    // Generate serial number - simple unique number
+                    $serialNumber = mt_rand(100000, 999999);
+                    $qrData = "EVENT-{$proposalId}-{$serialNumber}";
+
+                    // Create event
+                    $eventStmt = $conn->prepare("
+                        INSERT INTO event 
+                        (ProposalID, CreatedByAdminID, RegistrationDeadline, SerialNumber, QRCode, LastModifiedBy, LastModifiedDate)
+                        VALUES (?, ?, ?, ?, ?, ?, NOW())
+                    ");
+
+                    $eventStmt->execute([
+                        $proposalId,
+                        $memberId,
+                        $registrationDeadline,
+                        $serialNumber,
+                        $qrData,
+                        $memberId
+                    ]);
+                }
+            }
         }
 
         echo json_encode(['success' => true, 'message' => $message]);
