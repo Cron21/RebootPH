@@ -252,6 +252,7 @@ try {
         $updateStmt->execute([$newDate, $proposalId]);
 
         echo json_encode(['success' => true, 'message' => 'Proposal date updated successfully']);
+        exit;
 
     } elseif ($action === 'delete') {
         // --- DELETE PROPOSAL AND RELATED DATA ---
@@ -311,6 +312,7 @@ try {
         $delPropStmt->execute([$proposalId]);
 
         echo json_encode(['success' => true, 'message' => 'Proposal deleted successfully']);
+        exit;
 
     } else {
         throw new Exception('Unknown action: ' . $action);
@@ -319,5 +321,6 @@ try {
 } catch (Exception $e) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    exit;
 }
 ?>
