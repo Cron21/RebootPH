@@ -2318,19 +2318,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                         <div class="mb-4">
                             <h6 class="border-bottom pb-2">Additional Information</h6>
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Department</label>
-                                    <input type="text" name="department" class="form-control" required>
-                                </div>
                                 <div class="col-12">
                                     <label class="form-label">Partners/Sponsors</label>
                                     <input type="text" name="partnersSponsor" class="form-control"
                                         placeholder="List potential partners or sponsors (optional)">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">Additional Notes</label>
-                                    <textarea name="additionalNotes" class="form-control" rows="2"
-                                        placeholder="Any additional information..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -4973,9 +4964,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         setField('staffRequired', prop.StaffRequired || '');
                         setField('equipmentNeeded', prop.EquipmentNeeded || '');
                         setField('objectives', prop.Objectives || '');
-                        setField('department', prop.Department || '');
                         setField('partnersSponsor', prop.PartnersSponsor || '');
-                        setField('additionalNotes', prop.AdditionalNotes || '');
 
                         // Store proposal ID for submission
                         form.dataset.proposalId = proposalId;
@@ -5032,8 +5021,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     { name: 'budgetEstimate', label: 'Budget Estimate' },
                     { name: 'staffRequired', label: 'Staff Required' },
                     { name: 'equipmentNeeded', label: 'Equipment Needed' },
-                    { name: 'objectives', label: 'Objectives' },
-                    { name: 'department', label: 'Department' }
+                    { name: 'objectives', label: 'Objectives' }
                 ];
 
                 // Check for empty required fields
@@ -5111,9 +5099,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     staffRequired: formData.get('staffRequired'),
                     equipmentNeeded: formData.get('equipmentNeeded'),
                     objectives: formData.get('objectives'),
-                    department: formData.get('department'),
-                    partnersSponsor: formData.get('partnersSponsor'),
-                    additionalNotes: formData.get('additionalNotes')
+                    partnersSponsor: formData.get('partnersSponsor')
                 };
 
                 try {
