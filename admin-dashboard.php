@@ -2213,17 +2213,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <label class="form-label">Proposed By</label>
                                 <input type="text" id="propProposer" class="form-control" readonly>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Department</label>
-                                <input type="text" id="propDepartment" class="form-control" readonly>
-                            </div>
                             <div class="col-12">
                                 <label class="form-label">Partners/Sponsors</label>
                                 <input type="text" id="propPartners" class="form-control" readonly>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Additional Notes</label>
-                                <textarea id="propNotes" class="form-control" rows="2" readonly></textarea>
                             </div>
                         </div>
                     </div>
@@ -2476,11 +2468,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         <div class="mb-4">
                             <h6 class="border-bottom pb-2">Additional Information (Read-Only)</h6>
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Department</label>
-                                    <input type="text" id="emEventDepartment" class="form-control" readonly>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <label class="form-label">Partners/Sponsors</label>
                                     <input type="text" id="emEventPartners" class="form-control" readonly>
                                 </div>
@@ -4927,9 +4915,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         document.getElementById('propEquipment').value = prop.EquipmentNeeded || '-';
                         document.getElementById('propObjectives').value = prop.Objectives || '-';
                         document.getElementById('propProposer').value = `${prop.FName || '-'} ${prop.LName || '-'}`;
-                        document.getElementById('propDepartment').value = prop.Department || '-';
                         document.getElementById('propPartners').value = prop.PartnersSponsor || '-';
-                        document.getElementById('propNotes').value = prop.AdditionalNotes || '-';
 
                         // Set status
                         const statusAlert = document.getElementById('propStatusAlert');
@@ -5477,9 +5463,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         setField('emEventBudget', event.BudgetEstimate);
                         setField('emEventEquipment', event.EquipmentNeeded);
                         setField('emEventObjectives', event.Objectives);
-                        setField('emEventDepartment', event.Department);
                         setField('emEventPartners', event.PartnersSponsor);
-                        setField('emEventNotes', event.AdditionalNotes);
                         setField('emEventStatus', event.Status);
 
                         // Editable fields
@@ -5528,8 +5512,8 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                 const readOnlyFields = [
                     'emEventName', 'emEventType', 'emEventDescription', 'emEventBudget',
-                    'emEventEquipment', 'emEventObjectives', 'emEventDepartment',
-                    'emEventPartners', 'emEventNotes', 'emEventStatus'
+                    'emEventEquipment', 'emEventObjectives',
+                    'emEventPartners', 'emEventStatus'
                 ];
 
                 const editableFields = [

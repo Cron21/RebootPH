@@ -34,9 +34,7 @@ try {
             p.BudgetEstimate,
             p.EquipmentNeeded,
             p.Objectives,
-            p.Department,
             p.PartnersSponsor,
-            p.AdditionalNotes,
             (SELECT COUNT(DISTINCT r2.RegistrationID)
              FROM registration r2
              WHERE r2.EventID = e.EventID) as StaffRegistered,
