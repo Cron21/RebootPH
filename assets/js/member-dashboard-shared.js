@@ -8,7 +8,7 @@ async function loadMemberProfile() {
     try {
         // Check if we're in admin view - if so, skip member profile loading
         const isAdminView = document.body.classList.contains('admin-view') || window.isAdminView === true;
-        
+
         if (isAdminView) {
             console.log('Admin view detected - skipping member profile load');
             // Just load the dashboard data without profile
@@ -44,7 +44,7 @@ async function loadMemberProfile() {
                 if (displayEmail) displayEmail.value = currentMember.ApplicantEmail;
                 if (displayPhone) displayPhone.value = currentMember.Phone || '';
                 if (displayRole) displayRole.value = currentMember.Role || 'Member';
-                
+
                 const joinDate = new Date(currentMember.JoinDate);
                 if (displayMemberSince) displayMemberSince.value = joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
                 if (displayStatus) displayStatus.value = currentMember.isActive ? 'Active' : 'Inactive';
@@ -66,50 +66,72 @@ async function loadMemberProfile() {
                     // Build ID preview photo HTML
                     let photoHtml = '';
                     if (currentMember.ProfileImage && currentMember.ProfileImage !== 'null' && currentMember.ProfileImage !== '' && currentMember.ProfileImage !== undefined) {
-                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 2px solid #035996;">`;
                     } else {
-                        photoHtml = `<div class="h-100 d-flex align-items-center justify-content-center text-muted">2x2 Photo</div>`;
+                        photoHtml = `<div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-muted shadow-sm" style="width: 110px; height: 110px; border: 2px dashed #ccc;">2x2 Photo</div>`;
                     }
 
+                    // FORCE LANDSCAPE RESET (Para hindi ma-override ng hosting CSS)
+                    Object.assign(idPreview.style, {
+                        width: "500px",
+                        height: "300px",
+                        maxWidth: "100%",
+                        padding: "0",
+                        position: "relative",
+                        overflow: "hidden",
+                        backgroundColor: "white",
+                        borderRadius: "20px",
+                        border: "1px solid #ddd",
+                        display: "block", // Sinisiguro na hindi ito magiging flex container sa labas
+                        margin: "0 auto"
+                    });
+
                     idPreview.innerHTML = `
-                        <div class="text-center mb-3">
-                            <img src="assets/image/reboot-logo.png" alt="Reboot PH Logo" style="height: 60px;">
-                            <h4 class="mt-2 mb-0">Reboot Philippines</h4>
-                            <small class="text-muted">Environmental Organization</small>
+                        <div class="d-flex justify-content-between align-items-center px-3" 
+                             style="background-color: #035996 !important; height: 75px; color: white !important; width: 100%; display: flex !important;">
+                            <div style="background: white !important; border-radius: 50%; padding: 5px; width: 55px; height: 55px; display: flex !important; align-items: center; justify-content: center;">
+                                <img src="assets/image/reboot2-logo.png" style="width: 45px;" alt="Logo">
+                            </div>
+                            <div class="text-end" style="color: white !important;">
+                                <h4 class="mb-0 fw-bold" style="font-size: 1.4rem; color: white !important;">Reboot Philippines</h4>
+                                <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9; color: white !important;">Environmental Organization</p>
+                            </div>
                         </div>
-                        <div class="text-center mb-3">
-                            <div class="rounded-circle bg-light mx-auto mb-2" style="width: 120px; height: 120px; border: 2px dashed #ccc;">
+                
+                        <div style="display: flex !important; align-items: center; padding: 20px; height: 150px;">
+                            <div style="flex: 1; text-center;">
                                 ${photoHtml}
                             </div>
-                        </div>
-                        <div class="text-center mb-4">
-                            <h5 class="mb-1">${window.currentMemberName}</h5>
-                            <p class="mb-1 text-primary">${currentMember.Role || 'Member'}</p>
-                            <small class="text-muted">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</small>
-                        </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-12">
-                                <small class="text-muted d-block">Member Since: ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</small>
-                                <small class="text-muted d-block">Status: ${currentMember.isActive ? 'Active' : 'Inactive'}</small>
+                            
+                            <div style="flex: 1.5; padding-left: 20px; text-align: left;">
+                                <h5 class="mb-1" style="color: #333 !important; font-size: 1.1rem;">Name: <span style="font-weight: bold; font-size: 1.4rem;">${window.currentMemberName}</span></h5>
+                                <h5 class="mb-1" style="color: #333 !important; font-size: 1.1rem;">Role: <span style="font-weight: bold;">${currentMember.Role || 'Member'}</span></h5>
+                                <h5 class="mb-0" style="color: #035996 !important; font-size: 1.1rem;">ID: <span style="font-weight: bold;">RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span></h5>
                             </div>
                         </div>
-                        <div class="text-center mt-3" id="idPreviewQR">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
-                                 alt="Member QR Code" 
-                                 class="img-fluid"
-                                 style="width: 100px;">
+                
+                        <div class="px-4 d-flex justify-content-between align-items-end" 
+                             style="position: absolute; bottom: 20px; width: 100%; display: flex !important;">
+                            <div style="font-size: 0.85rem; color: #035996 !important; text-align: left;">
+                                <p class="mb-1"><strong>Member Since:</strong> ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</p>
+                                <p class="mb-0"><strong>Status:</strong> <span style="font-weight: bold; color: ${currentMember.isActive ? '#198754' : '#dc3545'} !important;">${currentMember.isActive ? 'Active' : 'Inactive'}</span></p>
+                            </div>
+                            <div id="idPreviewQR" style="background: white !important; padding: 5px; border-radius: 5px; border: 1px solid #eee;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
+                                     alt="QR" style="width: 85px; height: 85px;">
+                            </div>
                         </div>
                     `;
                 }
             }
         }
-        
+
         // Always load dashboard stats and upcoming events
         await Promise.all([
             loadDashboardStats(),
             loadUpcomingEvents()
         ]);
-        
+
     } catch (error) {
         console.error('Error loading member profile:', error);
         try {
@@ -128,21 +150,21 @@ async function loadMemberProfile() {
 async function loadDashboardStats() {
     try {
         console.log('loadDashboardStats() called');
-        
+
         let totalActivities = 0;
         let upcomingActivities = 0;
         let attendedCount = 0;
-        
+
         let registeredData = { success: false, events: [] };
         let upcomingData = { success: false, events: [] };
-        
+
         try {
             const registeredResponse = await fetch(`api/get-member-events.php?type=registered`);
             registeredData = await registeredResponse.json();
         } catch (error) {
             console.error('Error fetching registered events:', error);
         }
-        
+
         try {
             const upcomingResponse = await fetch('api/get-member-events.php?type=upcoming');
             upcomingData = await upcomingResponse.json();
@@ -152,14 +174,14 @@ async function loadDashboardStats() {
 
         if (registeredData.success || upcomingData.success) {
             totalActivities = registeredData.events ? registeredData.events.length : 0;
-            upcomingActivities = upcomingData.success && upcomingData.events 
-                ? upcomingData.events.length 
+            upcomingActivities = upcomingData.success && upcomingData.events
+                ? upcomingData.events.length
                 : 0;
-            attendedCount = registeredData.events 
-                ? registeredData.events.filter(e => e.AttendanceCount > 0).length 
+            attendedCount = registeredData.events
+                ? registeredData.events.filter(e => e.AttendanceCount > 0).length
                 : 0;
         }
-        
+
         console.log('Dashboard stats calculated:', { totalActivities, upcomingActivities, attendedCount });
 
         // Try to find dashboard section - check BOTH member-dashboard and dashboard IDs
@@ -167,10 +189,10 @@ async function loadDashboardStats() {
         if (!dashboardSection) {
             dashboardSection = document.getElementById('dashboard');
         }
-        
+
         if (dashboardSection) {
             const allH2 = dashboardSection.querySelectorAll('.col-md-4 h2');
-            
+
             if (allH2.length >= 3) {
                 allH2[0].textContent = totalActivities;
                 allH2[1].textContent = upcomingActivities;
@@ -182,7 +204,7 @@ async function loadDashboardStats() {
         } else {
             console.warn('Dashboard section not found');
         }
-        
+
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
     }
@@ -192,7 +214,7 @@ async function loadDashboardStats() {
 async function loadUpcomingEvents() {
     try {
         console.log('loadUpcomingEvents() called');
-        
+
         // Load events regardless of visibility - they'll be displayed when the dashboard tab is clicked
         const response = await fetch('api/get-member-events.php?type=upcoming');
         const data = await response.json();
@@ -220,33 +242,33 @@ async function loadUpcomingEvents() {
 // Helper function to show "no events" or error message
 function showNoEventsMessage(isError = false) {
     console.log('showNoEventsMessage called, isError:', isError);
-    
+
     // Try to find container - check both regular dashboard and member-dashboard
     let container = document.getElementById('dashboardEventsList');
-    
+
     console.log('Looking for dashboardEventsList container...');
     console.log('Found by direct ID:', container ? 'YES' : 'NO');
-    
+
     if (!container) {
         const memberDashboard = document.getElementById('member-dashboard');
         console.log('Found member-dashboard section:', memberDashboard ? 'YES' : 'NO');
-        
+
         if (memberDashboard) {
             container = memberDashboard.querySelector('#dashboardEventsList');
             console.log('Found dashboardEventsList in member-dashboard:', container ? 'YES' : 'NO');
         }
     }
-    
+
     if (!container) {
         const regularDashboard = document.getElementById('dashboard');
         console.log('Found dashboard section:', regularDashboard ? 'YES' : 'NO');
-        
+
         if (regularDashboard) {
             container = regularDashboard.querySelector('#dashboardEventsList');
             console.log('Found dashboardEventsList in dashboard:', container ? 'YES' : 'NO');
         }
     }
-    
+
     if (container) {
         if (isError) {
             container.innerHTML = '<div class="text-center text-danger py-4">Error loading events. Please try again.</div>';
@@ -262,12 +284,12 @@ function showNoEventsMessage(isError = false) {
 // Populate upcoming events list on dashboard (Imminent Activities - shows nearest events only)
 function populateUpcomingEventsList(events) {
     console.log('populateUpcomingEventsList called with', events.length, 'events');
-    
+
     // Determine which dashboard section is visible/active
     let container = null;
     const memberDashboard = document.getElementById('member-dashboard');
     const adminDashboard = document.getElementById('dashboard');
-    
+
     // Check which one is currently visible (not d-none)
     if (memberDashboard && !memberDashboard.classList.contains('d-none')) {
         // Member view is active - use the container in member-dashboard
@@ -317,7 +339,7 @@ function populateUpcomingEventsList(events) {
 
         // Check if we're in admin view - if so, don't show register button
         const isAdminView = document.body.classList.contains('admin-view') || window.isAdminView;
-        
+
         // Show register button only if not in admin view
         let registerBtn = '';
         if (!isAdminView) {
@@ -346,7 +368,7 @@ function populateUpcomingEventsList(events) {
             </div>
         `;
     }).join('');
-    
+
     console.log('Successfully populated ' + nearestEvents.length + ' events in container');
 }
 
@@ -401,14 +423,14 @@ async function loadUpcomingEventsTab(memberId = null) {
     try {
         const container = document.getElementById('upcomingEventsList');
         if (!container) return;
-        
+
         const url = memberId ? `api/get-member-events.php?type=upcoming&memberId=${memberId}` : 'api/get-member-events.php?type=upcoming';
         const response = await fetch(url);
-        
+
         if (!response.ok) {
             throw new Error(`API responded with status ${response.status}`);
         }
-        
+
         const data = await response.json();
 
         if (data.success && data.events) {
@@ -462,8 +484,8 @@ function populateUpcomingEventsTab(events) {
         const capacityText = spotsLeft > 0 ? `${spotsLeft} spots available` : 'Event Full';
 
         // Hide register button if in admin view
-        const registerBtnHtml = isAdminView 
-            ? '' 
+        const registerBtnHtml = isAdminView
+            ? ''
             : `<button class="btn btn-sm btn-outline-primary" onclick="registerForEventTab(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}', '${event.ProposedDate}', '${event.StartTime}', '${event.EndTime}', '${event.Venue}')">Register Now</button>`;
 
         return `
@@ -523,11 +545,11 @@ async function loadRegisteredEventsTab(memberId = null) {
     try {
         const url = memberId ? `api/get-member-events.php?type=registered&memberId=${memberId}` : 'api/get-member-events.php?type=registered';
         const response = await fetch(url);
-        
+
         if (!response.ok) {
             throw new Error(`API responded with status ${response.status}`);
         }
-        
+
         const data = await response.json();
 
         if (data.success && data.events) {
@@ -635,11 +657,11 @@ async function loadCompletedEventsTab(memberId = null) {
     try {
         const url = memberId ? `api/get-member-events.php?type=completed&memberId=${memberId}` : 'api/get-member-events.php?type=completed';
         const response = await fetch(url);
-        
+
         if (!response.ok) {
             throw new Error(`API responded with status ${response.status}`);
         }
-        
+
         const data = await response.json();
 
         if (data.success && data.events) {
@@ -675,7 +697,7 @@ function populateCompletedEventsTab(events) {
         const rating = event.Rating ? `${event.Rating}/5 ⭐` : 'Not rated';
         const hasFeedback = event.FeedbackID ? true : false;
 
-        let attendedBadge = event.AttendanceID 
+        let attendedBadge = event.AttendanceID
             ? '<span class="badge bg-success">Attended</span>'
             : '<span class="badge bg-warning">Did not attend</span>';
 
@@ -731,11 +753,11 @@ async function loadActivityHistory(memberId = null) {
     try {
         const url = memberId ? `api/get-member-events.php?type=completed&memberId=${memberId}` : 'api/get-member-events.php?type=completed';
         const response = await fetch(url);
-        
+
         if (!response.ok) {
             throw new Error(`API responded with status ${response.status}`);
         }
-        
+
         const data = await response.json();
 
         if (data.success && data.events) {
@@ -761,7 +783,7 @@ function populateActivityHistoryPage(events) {
         const attended = event.AttendanceID ? '✓' : '✗';
         const rating = event.Rating ? `${event.Rating}/5 ⭐` : 'Not rated';
 
-        let statusBadge = event.AttendanceID 
+        let statusBadge = event.AttendanceID
             ? '<span class="badge bg-success mb-2">Attended</span>'
             : '<span class="badge bg-secondary mb-2">Did not attend</span>';
 
@@ -898,9 +920,9 @@ async function saveProfileChanges() {
         // Handle profile image upload if file is selected
         if (photoInput && photoInput.files && photoInput.files.length > 0) {
             const file = photoInput.files[0];
-            
+
             console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
-            
+
             // Validate file size (max 2MB)
             if (file.size > 2 * 1024 * 1024) {
                 alert('Image size must be less than 2MB');
@@ -997,7 +1019,7 @@ async function saveProfileChanges() {
             if (modal) {
                 modal.hide();
             }
-            
+
             // Reload profile to refresh all data
             await loadMemberProfile();
 
