@@ -49,21 +49,22 @@ Or paste the entire contents of:
 ## Verification
 After running both migrations, run these verification queries:
 
+**Simple verification - just run this query:**
 ```sql
--- Check 1: Verify enum includes 'Postponed'
-SELECT COLUMN_TYPE 
-FROM INFORMATION_SCHEMA.COLUMNS 
-WHERE TABLE_NAME = 'proposal' AND COLUMN_NAME = 'Status';
-
--- Should show: enum('Approved','Pending','Rejected','Postponed')
-
--- Check 2: Verify no empty statuses remain
-SELECT ProposalID, Title, Status 
-FROM proposal 
-WHERE Status = '' OR Status IS NULL;
-
--- Should return: (empty result set)
+DESCRIBE proposal;
 ```
+Look for the `Status` row - the **Type** column should show:
+```
+enum('Approved','Pending','Rejected','Postponed')
+```
+
+**Or check for invalid statuses:**
+```sql
+SELECT ProposalID, Title, Status FROM proposal 
+WHERE Status NOT IN ('Approved', 'Pending', 'Rejected', 'Postponed') 
+OR Status = '' OR Status IS NULL;
+```
+Should return: **(empty result set)**
 
 ## What This Fixes
 ✅ Postpone event action will work correctly  
