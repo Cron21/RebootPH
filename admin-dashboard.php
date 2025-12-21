@@ -1,7 +1,7 @@
 <?php
 
 // Huwag nang maglagay ng session_start() dito kung meron na sa config.php
-require_once 'api/config.php'; 
+require_once 'api/config.php';
 
 // Check kung naka-login at kung may officer role (not Member or Member Staff)
 $officerRoles = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator', 'Finance Officer', 'Meal Officer'];
@@ -116,7 +116,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     </li>
                     <li class="nav-item">
                         <span class="text-blue fw-bold me-3">Welcome,
-                            <?php echo htmlspecialchars($_SESSION['firstName']. ' ' . $_SESSION['lastName']); ?>!
+                            <?php echo htmlspecialchars($_SESSION['firstName'] . ' ' . $_SESSION['lastName']); ?>!
                         </span>
                     </li>
                     <li class="nav-item">
@@ -227,7 +227,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <h2 class="h4 mb-4">Admin Dashboard</h2>
                     <div class="row g-4 mb-4">
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="totalMembersCard" style="cursor: pointer; transition: all 0.2s;">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="totalMembersCard"
+                                style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Total Members.svg" alt="Total Members Icon" height="32px">
                                     <h5 class="text-secondary fw-bold">Total Members</h5>
@@ -238,7 +239,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="activeInitiativesCard" style="cursor: pointer; transition: all 0.2s;">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="activeInitiativesCard"
+                                style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Active Initiatives.svg" alt="Active Initiatives Icon"
                                         height="32px">
@@ -250,7 +252,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="pendingApplicationsCard" style="cursor: pointer; transition: all 0.2s;">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="pendingApplicationsCard"
+                                style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Pending Applications.svg" alt="Pending Applications Icon"
                                         height="32px">
@@ -261,7 +264,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="eventProposalsCard" style="cursor: pointer; transition: all 0.2s;">
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="eventProposalsCard"
+                                style="cursor: pointer; transition: all 0.2s;">
                                 <div class="card-body text-center">
                                     <img src="assets/image/Event Proposals.svg" alt="Event Proposals Icon"
                                         height="32px">
@@ -307,7 +311,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <div class="list-group list-group-flush" id="recentApplicationsList">
                                         <p class="text-muted">Loading...</p>
                                     </div>
-                                    <button id="viewAllApplicationsBtn" class="btn btn-success fw-semibold mt-3" style="width: 100%;">View All
+                                    <button id="viewAllApplicationsBtn" class="btn btn-success fw-semibold mt-3"
+                                        style="width: 100%;">View All
                                         Applications</button>
                                 </div>
                             </div>
@@ -319,7 +324,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <div class="list-group list-group-flush" id="dashboardEventsList">
                                         <p class="text-muted">Loading...</p>
                                     </div>
-                                    <button id="viewAllEventsBtn" class="btn btn-success fw-semibold mt-3" style="width: 100%;">View All
+                                    <button id="viewAllEventsBtn" class="btn btn-success fw-semibold mt-3"
+                                        style="width: 100%;">View All
                                         Events</button>
                                 </div>
                             </div>
@@ -940,7 +946,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     </div>
 
                                     <!-- Hero Sections List -->
-                                     <h4 class="h6 mb-3">Manage Landing Page</h4>
+                                    <h4 class="h6 mb-3">Manage Landing Page</h4>
                                     <div class="table-responsive">
                                         <table class="table">
                                             <thead>
@@ -964,30 +970,34 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                                     <!-- Manage Member Benefits -->
                                     <hr class="my-4">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h3 class="h5 mb-0">Manage Member Benefits</h3>
-                                            <button class="btn btn-primarybtn-sm" data-bs-toggle="modal" data-bs-target="#memberBenefitModal" onclick="openAddMemberBenefitModal()">
-                                                Add Benefit
-                                            </button>
-                                        </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h3 class="h5 mb-0">Manage Member Benefits</h3>
+                                        <button class="btn btn-primarybtn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#memberBenefitModal" onclick="openAddMemberBenefitModal()">
+                                            Add Benefit
+                                        </button>
+                                    </div>
 
-                                        <div class="table-responsive mb-4">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Title</th>
-                                                        <th>Description</th>
-                                                        <th>Icon / Class</th>
-                                                        <th>Order</th>
-                                                        <th>Active</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="memberBenefitsTableBody">
-                                                    <tr><td colspan="6" class="text-center text-muted">Loading member benefits...</td></tr>
+                                    <div class="table-responsive mb-4">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Description</th>
+                                                    <th>Icon / Class</th>
+                                                    <th>Order</th>
+                                                    <th>Active</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="memberBenefitsTableBody">
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-muted">Loading member
+                                                        benefits...</td>
+                                                </tr>
                                             </tbody>
-                                            </table>
-                                        </div>
+                                        </table>
+                                    </div>
                                     </hr>
 
                                 </div>
@@ -1202,7 +1212,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                                 </table>
                                             </div>
                                         </div>
-                                        
+
 
                                         <!-- Org Team Section -->
                                         <div id="org-team-content" class="tab-pane fade" role="tabpanel">
@@ -1244,15 +1254,18 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Facebook URL</label>
-                                            <input id="socialFacebook" class="form-control" placeholder="https://www.facebook.com/...">
+                                            <input id="socialFacebook" class="form-control"
+                                                placeholder="https://www.facebook.com/...">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Instagram URL</label>
-                                            <input id="socialInstagram" class="form-control" placeholder="https://www.instagram.com/...">
+                                            <input id="socialInstagram" class="form-control"
+                                                placeholder="https://www.instagram.com/...">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">LinkedIn URL</label>
-                                            <input id="socialLinkedIn" class="form-control" placeholder="https://www.linkedin.com/...">
+                                            <input id="socialLinkedIn" class="form-control"
+                                                placeholder="https://www.linkedin.com/...">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Contact Email</label>
@@ -1261,8 +1274,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     </div>
 
                                     <div class="mt-4">
-                                        <button class="btn btn-primary" onclick="saveSocialLinksAdmin()">Save Social Links</button>
-                                        <button class="btn btn-secondary" onclick="loadSocialLinksAdmin()">Reload</button>
+                                        <button class="btn btn-primary" onclick="saveSocialLinksAdmin()">Save Social
+                                            Links</button>
+                                        <button class="btn btn-secondary"
+                                            onclick="loadSocialLinksAdmin()">Reload</button>
                                     </div>
                                 </div>
                             </div>
@@ -1592,7 +1607,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <table class="table table-hover">
                                         <thead class="table-light">
                                             <tr>
-                                                <th style="width: 40px;"><input type="checkbox" id="selectAllCategories" onchange="toggleSelectAllCategories(this)"></th>
+                                                <th style="width: 40px;"><input type="checkbox" id="selectAllCategories"
+                                                        onchange="toggleSelectAllCategories(this)"></th>
                                                 <th>CategoryID</th>
                                                 <th>Type</th>
                                                 <th>Actions</th>
@@ -1600,7 +1616,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </thead>
                                         <tbody id="categoriesTableBody">
                                             <tr>
-                                                <td colspan="4" class="text-center text-muted">Loading categories...</td>
+                                                <td colspan="4" class="text-center text-muted">Loading categories...
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1817,39 +1834,13 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <div class="card-body p-4">
                                     <h3 class="text-center fw-bold mb-4" style="color:#035996;">Member ID Preview</h3>
 
-                                    <div class="id-card mx-auto p-3 shadow-sm border rounded-3 bg-white" id="idPreview"
-                                        style="max-width: 350px;">
+                                    <div class="id-card mx-auto shadow border" id="idPreview"
+                                        style="width: 100%; max-width: 500px; height: 300px; background-color: white; border-radius: 20px; overflow: hidden; position: relative; font-family: sans-serif;">
 
-                                        <div class="d-flex align-items-center mb-2">
-                                            <img src="assets/image/reboot-logo.png" class="me-2" style="height:45px;">
-                                            <div>
-                                                <h6 class="mb-0 fw-bold" style="color:#035996; font-size: 0.9rem;">
-                                                    Reboot Philippines</h6>
-                                                <small class="text-muted" style="font-size: 0.7rem;">Environmental
-                                                    Organization</small>
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading Preview...</span>
                                             </div>
-                                        </div>
-
-                                        <hr class="my-2">
-
-                                        <div class="text-center my-3">
-                                            <img id="idPreviewImage" src="assets/image/default-avatar.png"
-                                                alt="ID Photo" class="rounded-circle mx-auto d-block"
-                                                style="width:100px; height:100px; object-fit:cover; border:2px solid #035996;">
-                                        </div>
-
-                                        <div class="ps-2" style="font-size: 0.85rem;">
-                                            <p class="mb-1"><strong>Name:</strong> <span id="idPreviewName">-</span></p>
-                                            <p class="mb-1"><strong>Role:</strong> <span id="idPreviewRole"
-                                                    class="text-primary">-</span></p>
-                                            <p class="mb-1"><strong>ID:</strong> <span id="idPreviewID">-</span></p>
-                                            <p class="mb-1"><strong>Member Since:</strong> <span
-                                                    id="idPreviewMemberSince">-</span></p>
-                                            <p class="mb-3"><strong>Status:</strong> <span
-                                                    id="idPreviewValidUntil">-</span></p>
-                                        </div>
-
-                                        <div class="text-center bg-light p-2 rounded" id="idPreviewQR">
                                         </div>
                                     </div>
 
@@ -1864,6 +1855,7 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                     </div>
                 </div>
+                
                 <!-- My Activities Content -->
                 <div id="activities" class="d-none active-section member-section">
                     <div class="card">
@@ -1929,7 +1921,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <div class="card shadow-sm p-4" style="background:#f0f6ff; border-radius:12px;">
                         <h2 class="text-center fw-bold mb-4" style="color:#0b3d91;">Settings</h2>
 
-                        <div class="p-4 mb-4" style="background:white; border-radius:12px; border-left:6px solid #0b3d91;">
+                        <div class="p-4 mb-4"
+                            style="background:white; border-radius:12px; border-left:6px solid #0b3d91;">
                             <h4 class="fw-bold mb-3" style="color:#0b3d91;">Notification Settings</h4>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="emailNotif" checked>
@@ -1951,7 +1944,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
                         </div>
 
-                        <div class="p-4 mb-4" style="background:white; border-radius:12px; border-left:6px solid #0b3d91;">
+                        <div class="p-4 mb-4"
+                            style="background:white; border-radius:12px; border-left:6px solid #0b3d91;">
                             <h4 class="fw-bold mb-3" style="color:#0b3d91;">Privacy Settings</h4>
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span>Show my profile to other members</span>
@@ -1965,7 +1959,8 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                         <div class="text-center">
                             <h4 class="fw-bold mb-3" style="color:#0b3d91;">Account Actions</h4>
-                            <button class="btn btn-danger px-4" onclick="deactivateAccount()">Deactivate Account</button>
+                            <button class="btn btn-danger px-4" onclick="deactivateAccount()">Deactivate
+                                Account</button>
                         </div>
                     </div>
                 </div>
@@ -2528,39 +2523,39 @@ if ($_SESSION['role'] === 'Member Staff') {
     <div class="modal fade" id="memberBenefitModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="memberBenefitModalTitle">Add Benefit</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="memberBenefitForm">
-                <input type="hidden" id="benefitId" value="">
-                <div class="mb-3">
-                    <label class="form-label">Title</label>
-                    <input type="text" id="benefitTitle" class="form-control" required>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="memberBenefitModalTitle">Add Benefit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea id="benefitDescription" class="form-control" rows="3"></textarea>
+                <div class="modal-body">
+                    <form id="memberBenefitForm">
+                        <input type="hidden" id="benefitId" value="">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" id="benefitTitle" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea id="benefitDescription" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Icon Class (e.g., bi bi-book)</label>
+                            <input type="text" id="benefitIconClass" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Order</label>
+                            <input type="number" id="benefitOrder" class="form-control" value="0">
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="benefitIsActive">
+                            <label class="form-check-label">Set as active</label>
+                        </div>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Icon Class (e.g., bi bi-book)</label>
-                    <input type="text" id="benefitIconClass" class="form-control">
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" onclick="saveMemberBenefit()">Save</button>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Order</label>
-                    <input type="number" id="benefitOrder" class="form-control" value="0">
-                </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="benefitIsActive">
-                    <label class="form-check-label">Set as active</label>
-                </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button class="btn btn-primary" onclick="saveMemberBenefit()">Save</button>
-            </div>
             </div>
         </div>
     </div>
@@ -2704,63 +2699,66 @@ if ($_SESSION['role'] === 'Member Staff') {
     </div>
 
     <!-- Add/Edit Value Modal -->
-                <div class="modal fade" id="newValueModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="newValueModalLabel">Add Value</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal fade" id="newValueModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newValueModalLabel">Add Value</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="valueForm">
+                        <input type="hidden" id="valueId" />
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" id="valueTitle" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea id="valueDescription" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Icon (Bootstrap Icons)</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" id="valueIconPreview">
+                                    <i class="bi-square"></i>
+                                </span>
+                                <input type="text" id="valueIcon" class="form-control" placeholder="Selected icon class"
+                                    readonly />
                             </div>
-                            <div class="modal-body">
-                                <form id="valueForm">
-                                    <input type="hidden" id="valueId" />
-                                    <div class="mb-3">
-                                        <label class="form-label">Title</label>
-                                        <input type="text" id="valueTitle" class="form-control" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Description</label>
-                                        <textarea id="valueDescription" class="form-control" rows="3"></textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Icon (Bootstrap Icons)</label>
-                                        <div class="input-group mb-2">
-                                            <span class="input-group-text" id="valueIconPreview">
-                                                <i class="bi-square"></i>
-                                            </span>
-                                            <input type="text" id="valueIcon" class="form-control" placeholder="Selected icon class" readonly />
-                                        </div>
-                                        <input type="text" id="valueIconSearch" class="form-control" placeholder="Search icons (e.g. heart, star, settings)..." />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label d-block">Available Icons</label>
-                                        <div id="valueIconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;">
-                                            <!-- Icons will be loaded here -->
-                                        </div>
-                                    </div>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Display Order</label>
-                                            <input type="number" id="valueOrder" class="form-control" value="1" min="1" />
-                                        </div>
-                                        <div class="col-md-6 d-flex align-items-end">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="valueActive" checked />
-                                                <label class="form-check-label" for="valueActive">Active</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" onclick="saveValue()">Save Value</button>
+                            <input type="text" id="valueIconSearch" class="form-control"
+                                placeholder="Search icons (e.g. heart, star, settings)..." />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label d-block">Available Icons</label>
+                            <div id="valueIconGrid"
+                                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;">
+                                <!-- Icons will be loaded here -->
                             </div>
                         </div>
-                    </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" id="valueOrder" class="form-control" value="1" min="1" />
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="valueActive" checked />
+                                    <label class="form-check-label" for="valueActive">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveValue()">Save Value</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                
+
     <div class="modal fade" id="editVisionModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -2884,7 +2882,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                         <input type="hidden" id="categoryId" value="">
                         <div class="mb-3">
                             <label class="form-label">Type</label>
-                            <input type="text" class="form-control" id="categoryName" placeholder="e.g., Education" required>
+                            <input type="text" class="form-control" id="categoryName" placeholder="e.g., Education"
+                                required>
                         </div>
                     </form>
                 </div>
@@ -2943,29 +2942,31 @@ if ($_SESSION['role'] === 'Member Staff') {
         </div>
 
         <!--footer-->
-    <footer class="site-footer mt-auto">
-        <div class="footer-top py-5">
-            <div class="container text-center">
-                <div class="row align-items-start gy-4 justify-content-center">
+        <footer class="site-footer mt-auto">
+            <div class="footer-top py-5">
+                <div class="container text-center">
+                    <div class="row align-items-start gy-4 justify-content-center">
                         <div class="text-white small">
                             <h4 class="h5 fw-bold mb-2">Contact Us</h4>
                             <p class="mb-1">2804, Discovery Centre, 25 ADB Ave, Ortigas Center, Pasig, Philippines</p>
                             <p class="mb-0">Pasig, Philippines</p>
-                            
+
                         </div>
 
                         <div class="d-flex justify-content-center gap-3">
-                            <a id="footerEmailLink" href="mailto:rebootphinstitute@gmail.com" class="footer-social-icon" aria-label="Email" target="_blank" rel="noopener noreferrer">
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M0 3v18h24v-18h-24zm6.623 7.929l-4.623 5.712v-9.458l4.623 3.746zm-4.141-5.929h19.035l-9.517 7.713-9.518-7.713zm5.694 7.188l3.824 3.099l3.83-3.104 5.612 8.139h-18.74l5.474-8.134zm9.201-1.259l4.623-3.746v9.458l-4.623-5.712z"
-                                            fill="currentColor" />
-                                    </svg>
-                            </a>  
-                            
-                            <a id="footerFacebookLink" href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
-                                aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                            <a id="footerEmailLink" href="mailto:rebootphinstitute@gmail.com" class="footer-social-icon"
+                                aria-label="Email" target="_blank" rel="noopener noreferrer">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M0 3v18h24v-18h-24zm6.623 7.929l-4.623 5.712v-9.458l4.623 3.746zm-4.141-5.929h19.035l-9.517 7.713-9.518-7.713zm5.694 7.188l3.824 3.099l3.83-3.104 5.612 8.139h-18.74l5.474-8.134zm9.201-1.259l4.623-3.746v9.458l-4.623-5.712z"
+                                        fill="currentColor" />
+                                </svg>
+                            </a>
+
+                            <a id="footerFacebookLink" href="https://www.facebook.com/rebootphilippines"
+                                class="footer-social-icon" aria-label="Facebook" target="_blank"
+                                rel="noopener noreferrer">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2974,8 +2975,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </svg>
                             </a>
 
-                            <a id="footerInstagramLink"  href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon"
-                                aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                            <a id="footerInstagramLink" href="https://www.instagram.com/rebootphinstitute/"
+                                class="footer-social-icon" aria-label="Instagram" target="_blank"
+                                rel="noopener noreferrer">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2984,8 +2986,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </svg>
                             </a>
 
-                            <a id="footerLinkedInLink" href="https://www.linkedin.com/company/reboot-philippines/" class="footer-social-icon"
-                                aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+                            <a id="footerLinkedInLink" href="https://www.linkedin.com/company/reboot-philippines/"
+                                class="footer-social-icon" aria-label="LinkedIn" target="_blank"
+                                rel="noopener noreferrer">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -2994,24 +2997,24 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </svg>
                             </a>
                         </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="footer-bottom py-3">
-            <div class="container text-center text-white-50 small">
-                &copy; 2024 Reboot PH. All rights reserved.
+            <div class="footer-bottom py-3">
+                <div class="container text-center text-white-50 small">
+                    &copy; 2024 Reboot PH. All rights reserved.
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
 
         <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="assets/js/member-dashboard-shared.js"></script>
         <script>
-            (async function(){
-                try{
+            (async function () {
+                try {
                     const res = await fetch('api/manage-system-settings.php');
                     const data = await res.json();
-                    if(!data.success) return;
+                    if (!data.success) return;
                     const s = data.settings || {};
                     const email = s.social_email || 'rebootphinstitute@gmail.com';
                     const fb = s.social_facebook || 'https://www.facebook.com/rebootphilippines';
@@ -3021,11 +3024,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const fbEl = document.getElementById('footerFacebookLink');
                     const igEl = document.getElementById('footerInstagramLink');
                     const liEl = document.getElementById('footerLinkedInLink');
-                    if(emailEl) emailEl.href = 'mailto:' + email;
-                    if(fbEl) fbEl.href = fb;
-                    if(igEl) igEl.href = ig;
-                    if(liEl) liEl.href = li;
-                } catch(e){ console.error('social links load error', e); }
+                    if (emailEl) emailEl.href = 'mailto:' + email;
+                    if (fbEl) fbEl.href = fb;
+                    if (igEl) igEl.href = ig;
+                    if (liEl) liEl.href = li;
+                } catch (e) { console.error('social links load error', e); }
             })();
         </script>
         <script>
@@ -4209,11 +4212,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                         <td>${member.ApplicantEmail}</td>
                         <td>
                             ${isCurrentUser ? (
-                                '<span class="text-muted small">Cannot change own role</span>'
-                            ) : window.currentUserRole !== 'Executive Director' ? (
-                                '<span class="text-muted small">' + member.Role + '</span>'
-                            ) : (
-                                `<select class="form-select" data-role-select title="Change member role" onchange="updateMemberRole(${member.MemberID}, this.value)">
+                            '<span class="text-muted small">Cannot change own role</span>'
+                        ) : window.currentUserRole !== 'Executive Director' ? (
+                            '<span class="text-muted small">' + member.Role + '</span>'
+                        ) : (
+                            `<select class="form-select" data-role-select title="Change member role" onchange="updateMemberRole(${member.MemberID}, this.value)">
                                     <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
                                     <option value="Executive Director" ${member.Role === 'Executive Director' ? 'selected' : ''}>Executive Director</option>
                                     <option value="Program Officer" ${member.Role === 'Program Officer' ? 'selected' : ''}>Program Officer</option>
@@ -4222,7 +4225,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
                                     <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
                                 </select>`
-                            )}
+                        )}
                         </td>
                         <td>
                             <span class="badge ${member.isActive ? 'bg-success' : 'bg-danger'}">
@@ -4690,7 +4693,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 // Find and disable all approve buttons to prevent double-click
                 const modalApproveBtn = document.getElementById('approveBtn');
                 const tableApproveBtns = document.querySelectorAll(`[onclick*="approveApplicationByBtn"][onclick*="${currentApplicationId}"]`);
-                
+
                 if (modalApproveBtn) {
                     modalApproveBtn.disabled = true;
                     modalApproveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Approving...';
@@ -5196,7 +5199,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     alert('You do not have authority to approve event proposals. Only Executive Director, Program Officer, Regional Convenor, and Local Coordinator can approve proposals.');
                     return;
                 }
-                
+
                 try {
                     const approveResponse = await fetch('api/manage-event-proposal.php', {
                         method: 'POST',
@@ -5344,7 +5347,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         setTimeout(() => loadEventProposals(), 100);
                     });
                 }
-                
+
                 // Also populate event type when modal opens
                 const newEventModal = document.getElementById('newEventModal');
                 if (newEventModal) {
@@ -5754,7 +5757,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         if (eventTypeSelect) {
                             // Clear existing options except the default one
                             eventTypeSelect.innerHTML = '<option value="">Select event type</option>';
-                            
+
                             // Add category options
                             data.categories.forEach(category => {
                                 const option = document.createElement('option');
@@ -6915,56 +6918,56 @@ if ($_SESSION['role'] === 'Member Staff') {
                     document.getElementById('benefitDescription').value = b.Description;
                     document.getElementById('benefitIconClass').value = b.IconClass;
                     document.getElementById('benefitOrder').value = b.Order || 0;
-                    document.getElementById('benefitIsActive').checked = b.isActive==1;
+                    document.getElementById('benefitIsActive').checked = b.isActive == 1;
                     new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
                 } catch (e) { console.error(e); alert('Error loading benefit'); }
             }
 
             async function saveMemberBenefit() {
-            const id = document.getElementById('benefitId').value.trim();
-            const title = document.getElementById('benefitTitle').value.trim();
-            const description = document.getElementById('benefitDescription').value.trim();
-            const iconClass = document.getElementById('benefitIconClass').value.trim();
-            const order = parseInt(document.getElementById('benefitOrder').value || 0);
-            const isActive = document.getElementById('benefitIsActive').checked ? 1 : 0;
+                const id = document.getElementById('benefitId').value.trim();
+                const title = document.getElementById('benefitTitle').value.trim();
+                const description = document.getElementById('benefitDescription').value.trim();
+                const iconClass = document.getElementById('benefitIconClass').value.trim();
+                const order = parseInt(document.getElementById('benefitOrder').value || 0);
+                const isActive = document.getElementById('benefitIsActive').checked ? 1 : 0;
 
-            if (!title) { alert('Title required'); return; }
+                if (!title) { alert('Title required'); return; }
 
-            const action = id ? 'update' : 'create';
-            const payload = { action, title, description, iconClass, order, isActive };
-            if (id) payload.id = parseInt(id);
+                const action = id ? 'update' : 'create';
+                const payload = { action, title, description, iconClass, order, isActive };
+                if (id) payload.id = parseInt(id);
 
-            try {
-                const res = await fetch('api/manage-member-benefits.php', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    credentials: 'include',
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert(data.message);
-                    // hide only the member benefit modal
-                    const modalEl = document.getElementById('memberBenefitModal');
-                    const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modalInst.hide();
-                    // reload table
-                    if (typeof loadMemberBenefitsAdmin === 'function') loadMemberBenefitsAdmin();
-                } else {
-                    alert('Error: ' + data.message);
+                try {
+                    const res = await fetch('api/manage-member-benefits.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(data.message);
+                        // hide only the member benefit modal
+                        const modalEl = document.getElementById('memberBenefitModal');
+                        const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        modalInst.hide();
+                        // reload table
+                        if (typeof loadMemberBenefitsAdmin === 'function') loadMemberBenefitsAdmin();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Error saving benefit');
                 }
-            } catch (e) {
-                console.error(e);
-                alert('Error saving benefit');
             }
-        }
 
             async function deleteMemberBenefit(id, title) {
                 if (!confirm(`Delete "${title}"?`)) return;
                 try {
                     const res = await fetch('api/manage-member-benefits.php', {
                         method: 'POST',
-                        headers: {'Content-Type':'application/json'},
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'delete', id: id })
                     });
                     const data = await res.json();
@@ -6979,7 +6982,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 try {
                     const res = await fetch('api/manage-member-benefits.php', {
                         method: 'POST',
-                        headers: {'Content-Type':'application/json'},
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'setActive', id: id })
                     });
                     const data = await res.json();
@@ -6992,7 +6995,7 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Ensure loadMemberBenefitsAdmin() is invoked when Content Management tab is opened.
             // Call it on page load as well:
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 // other initializations...
                 // call this when content panel shows:
                 const contentLink = document.querySelector('a[href="#content"]');
@@ -7496,7 +7499,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const bsIconModal = bootstrap.Modal.getInstance(iconModal);
                     if (bsIconModal) bsIconModal.hide();
                 }
-                
+
                 // Reset form
                 document.getElementById('valueForm').reset();
                 document.getElementById('valueId').value = '';
@@ -7547,27 +7550,27 @@ if ($_SESSION['role'] === 'Member Staff') {
                     // Fetch the icons from the local JSON file
                     const response = await fetch('assets/bootstrap-icons-1.11.3/font/bootstrap-icons.json');
                     if (!response.ok) throw new Error('Failed to load icons');
-                    
+
                     const allIcons = await response.json();
                     _bootstrapIcons = Object.keys(allIcons).map(key => key.replace('bi-', ''));
-                    
+
                     // Initialize with popular organizational icons
                     const popularKeywords = [
                         'people', 'handshake', 'heart', 'star', 'lightbulb', 'target', 'book',
                         'shield', 'chart', 'check', 'award', 'link', 'network', 'globe',
                         'growth', 'trust', 'unity', 'vision', 'team', 'collaborate'
                     ];
-                    
-                    const popularIcons = _bootstrapIcons.filter(icon => 
+
+                    const popularIcons = _bootstrapIcons.filter(icon =>
                         popularKeywords.some(keyword => icon.includes(keyword))
                     ).slice(0, 100);
-                    
+
                     loadValueIconGrid(popularIcons);
-                    
+
                     // Set up search functionality for embedded icon picker
                     const searchInput = document.getElementById('valueIconSearch');
                     if (searchInput) {
-                        searchInput.addEventListener('input', function() {
+                        searchInput.addEventListener('input', function () {
                             const query = this.value.toLowerCase();
                             if (query.length === 0) {
                                 loadValueIconGrid(popularIcons);
@@ -7585,25 +7588,25 @@ if ($_SESSION['role'] === 'Member Staff') {
             function loadValueIconGrid(icons) {
                 const container = document.getElementById('valueIconGrid');
                 if (!container) return;
-                
+
                 container.innerHTML = icons.map(iconClass => `
                     <div class="icon-item" data-icon="bi-${iconClass}" style="display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; border: 1px solid #e0e0e0; border-radius: 4px; transition: all 0.2s; background: white;" title="bi-${iconClass}">
                         <i class="bi bi-${iconClass}" style="font-size: 24px;"></i>
                     </div>
                 `).join('');
-                
+
                 // Add click and hover effects
                 document.querySelectorAll('#valueIconGrid .icon-item').forEach(item => {
                     item.addEventListener('click', (e) => {
                         const iconClass = item.getAttribute('data-icon');
                         selectIcon(iconClass);
                     });
-                    
+
                     item.addEventListener('mouseover', () => {
                         item.style.backgroundColor = '#f0f7ff';
                         item.style.borderColor = '#035996';
                     });
-                    
+
                     item.addEventListener('mouseout', () => {
                         item.style.backgroundColor = 'white';
                         item.style.borderColor = '#e0e0e0';
@@ -7614,37 +7617,37 @@ if ($_SESSION['role'] === 'Member Staff') {
             function loadIconGrid(icons) {
                 const container = document.getElementById('iconGridContainer');
                 if (!container) return;
-                
+
                 container.innerHTML = '';
-                
+
                 if (icons.length === 0) {
                     container.innerHTML = '<p class="text-muted text-center" style="grid-column: 1/-1;">No icons found</p>';
                     return;
                 }
-                
+
                 icons.forEach(iconClass => {
                     const div = document.createElement('div');
                     div.style.cssText = 'text-align: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px solid #ddd;';
-                    
+
                     // Create icon element with error handling
                     const iconHtml = `<i class="bi ${iconClass}" style="font-size: 1.8rem;"></i>`;
                     div.innerHTML = iconHtml;
                     div.title = iconClass;
-                    
+
                     div.addEventListener('mouseenter', () => {
                         div.style.backgroundColor = '#e7f1fb';
                         div.style.borderColor = '#035996';
                     });
-                    
+
                     div.addEventListener('mouseleave', () => {
                         div.style.backgroundColor = '';
                         div.style.borderColor = '#ddd';
                     });
-                    
+
                     div.addEventListener('click', () => {
                         selectIcon(iconClass);
                     });
-                    
+
                     container.appendChild(div);
                 });
             }
@@ -7688,9 +7691,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const order = Number(document.getElementById('valueOrder').value || 1);
                 const isActive = document.getElementById('valueActive').checked ? 1 : 0;
 
-                if (!title) { 
-                    alert('Title is required'); 
-                    return; 
+                if (!title) {
+                    alert('Title is required');
+                    return;
                 }
 
                 const payload = {
@@ -7719,9 +7722,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                     } else {
                         alert('Error: ' + (j.message || 'Failed to save'));
                     }
-                } catch (e) { 
-                    console.error('Save error:', e); 
-                    alert('Request failed: ' + e.message); 
+                } catch (e) {
+                    console.error('Save error:', e);
+                    alert('Request failed: ' + e.message);
                 }
             }
 
@@ -7731,13 +7734,13 @@ if ($_SESSION['role'] === 'Member Staff') {
                 if (iconInput) {
                     iconInput.value = iconClass;
                 }
-                
+
                 // Update the preview with the selected icon
                 const preview = document.getElementById('valueIconPreview');
                 if (preview) {
                     preview.innerHTML = `<i class="bi ${iconClass}"></i>`;
                 }
-                
+
                 console.log('Icon selected:', iconClass);
             }
 
@@ -7745,7 +7748,7 @@ if ($_SESSION['role'] === 'Member Staff') {
             window.openAddValueModal = openAddValueModal;
             window.editValue = editValue;
             window.deleteValue = deleteValue;
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 loadValues();
                 initializeIconPicker();
             });
