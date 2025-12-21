@@ -1548,7 +1548,33 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
 
                             <div class="p-4 bg-white rounded shadow-sm mb-4">
-                                <h5 class="fw-bold text-blue mb-4">System Maintenance</h5>
+                                <h5 class="fw-bold text-blue mb-4">Categories Management</h5>
+                                <div class="mb-3">
+                                    <button class="btn btn-primary btn-sm" onclick="openAddCategoryModal()">
+                                        <i class="bi bi-plus-circle"></i> Add New Category
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 40px;"><input type="checkbox" id="selectAllCategories" onchange="toggleSelectAllCategories(this)"></th>
+                                                <th>CategoryID</th>
+                                                <th>Type</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="categoriesTableBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">Loading categories...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-white rounded shadow-sm mb-4">
+                                <h5 class="fw-bold text-blue mb-4"></h5>System Maintenance</h5>
 
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -2836,6 +2862,31 @@ if ($_SESSION['role'] === 'Member Staff') {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Management Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalTitle">Add Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="categoryForm">
+                        <input type="hidden" id="categoryId" value="">
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <input type="text" class="form-control" id="categoryName" placeholder="e.g., Education" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCategory()">Save Category</button>
                 </div>
             </div>
         </div>
@@ -5681,6 +5732,153 @@ if ($_SESSION['role'] === 'Member Staff') {
                     alert('Error loading categories: ' + error.message);
                 }
             }
+
+            // Load categories for admin settings table
+            async function loadCategoriesAdmin() {
+                try {
+                    const response = await fetch('api/get-categories.php');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        populateCategoriesTable(data.categories || []);
+                    } else {
+                        alert('Error loading categories: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading categories:', error);
+                    alert('Error loading categories');
+                }
+            }
+
+            // Populate categories table
+            function populateCategoriesTable(categories) {
+                const tbody = document.getElementById('categoriesTableBody');
+
+                if (!categories || categories.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No categories found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = categories.map(category => `
+                    <tr>
+                        <td><input type="checkbox" class="category-checkbox" value="${category.CategoryID}"></td>
+                        <td><strong>${category.CategoryID}</strong></td>
+                        <td>${category.Type || category.CategoryName || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editCategory(${category.CategoryID}, '${category.CategoryName}', '${category.Type}')">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${category.CategoryID}, '${category.CategoryName}')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Open add category modal
+            function openAddCategoryModal() {
+                document.getElementById('categoryId').value = '';
+                document.getElementById('categoryName').value = '';
+                document.getElementById('categoryType').value = '';
+                document.getElementById('categoryModalTitle').textContent = 'Add Category';
+                const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                modal.show();
+            }
+
+            // Toggle select all categories
+            function toggleSelectAllCategories(checkbox) {
+                const allCheckboxes = document.querySelectorAll('.category-checkbox');
+                allCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+            }
+
+            // Edit category
+            function editCategory(categoryId, categoryName, categoryType) {
+                document.getElementById('categoryId').value = categoryId;
+                document.getElementById('categoryName').value = categoryType || categoryName;
+                document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+                const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                modal.show();
+            }
+
+            // Save category (create or update)
+            async function saveCategory() {
+                const categoryId = document.getElementById('categoryId').value.trim();
+                const categoryName = document.getElementById('categoryName').value.trim();
+
+                if (!categoryName) {
+                    alert('Type is required');
+                    return;
+                }
+
+                const action = categoryId ? 'update' : 'create';
+                const payload = { action, categoryName };
+                if (categoryId) payload.categoryId = parseInt(categoryId);
+
+                try {
+                    const response = await fetch('api/manage-category.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert(data.message);
+                        bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+                        loadCategoriesAdmin();
+                        loadCategories();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error saving category:', error);
+                    alert('Error saving category');
+                }
+            }
+
+            // Delete category
+            async function deleteCategory(categoryId, categoryName) {
+                if (!confirm(`Are you sure you want to delete the category "${categoryName}"?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('api/manage-category.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'delete',
+                            categoryId: parseInt(categoryId)
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert(data.message);
+                        loadCategoriesAdmin();
+                        loadCategories();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error deleting category:', error);
+                    alert('Error deleting category');
+                }
+            }
+
+            // Initialize categories management
+            document.addEventListener('DOMContentLoaded', function () {
+                // Load categories when admin-settings is accessed
+                const adminSettingsLink = document.querySelector('a[href="#admin-settings"]');
+                if (adminSettingsLink) {
+                    adminSettingsLink.addEventListener('click', function () {
+                        loadCategoriesAdmin();
+                    });
+                }
+            });
 
             // ===== IMAGE UPLOAD HANDLERS =====
 
