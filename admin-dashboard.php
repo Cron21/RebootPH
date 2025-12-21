@@ -4124,8 +4124,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 '<span class="text-muted small">Cannot change own role</span>'
                             ) : window.currentUserRole !== 'Executive Director' ? (
                                 '<span class="text-muted small">' + member.Role + '</span>'
-                            ) : member.Role === 'Executive Director' ? (
-                                '<span class="text-muted small">Executive Director (Cannot change peers)</span>'
                             ) : (
                                 `<select class="form-select" data-role-select title="Change member role" onchange="updateMemberRole(${member.MemberID}, this.value)">
                                     <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
@@ -4216,17 +4214,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                 // Only Executive Director can change roles
                 if (window.currentUserRole !== 'Executive Director') {
                     alert('You do not have authority to change member roles. Only Executive Director can change roles.');
-                    loadMembers();
-                    return;
-                }
-
-                // Get the member's current role to check if they are an Executive Director peer
-                const memberRow = document.querySelector(`[data-member-id="${memberId}"]`);
-                const memberCurrentRole = memberRow ? memberRow.getAttribute('data-member-role') : null;
-
-                // Executive Director cannot change other Executive Directors' roles
-                if (memberCurrentRole === 'Executive Director') {
-                    alert('You cannot change the role of another Executive Director. Executive Directors cannot change roles for their peers.');
                     loadMembers();
                     return;
                 }
