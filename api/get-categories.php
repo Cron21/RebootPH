@@ -7,7 +7,7 @@ try {
     $stmt = $conn->prepare("
         SELECT 
             CategoryID,
-            Type as CategoryName
+            Type
         FROM category
         ORDER BY Type ASC
     ");
