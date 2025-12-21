@@ -150,18 +150,68 @@ try {
         }
         exit;
 
+    } elseif ($action === 'postpone') {
+        $eventId = (int)($data['eventId'] ?? 0);
+
+        if ($eventId <= 0) throw new Exception('Invalid event ID');
+
+        // Get event status
+        $eventStmt = $conn->prepare("SELECT ProposalID FROM event WHERE EventID = ?");
+        $eventStmt->execute([$eventId]);
+        $event = $eventStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$event) {
+            throw new Exception('Event not found');
+        }
+
+        // Delete registrations and attendance records when postponing
+        // First delete attendance records
+        $deleteAttendanceStmt = $conn->prepare("
+            DELETE FROM eventattendance 
+            WHERE RegistrationID IN (SELECT RegistrationID FROM registration WHERE EventID = ?)
+        ");
+        $deleteAttendanceStmt->execute([$eventId]);
+
+        // Then delete registrations
+        $deleteRegStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
+        $deleteRegStmt->execute([$eventId]);
+
+        // Update event status to Postponed
+        $updateStmt = $conn->prepare("
+            UPDATE proposal 
+            SET Status = 'Postponed'
+            WHERE ProposalID = ?
+        ");
+        $updateStmt->execute([$event['ProposalID']]);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Event postponed successfully and all registrations have been cancelled'
+        ]);
+        exit;
+
     } elseif ($action === 'delete') {
         $eventId = (int)($data['eventId'] ?? 0);
 
         if ($eventId <= 0) throw new Exception('Invalid event ID');
 
-        // Get event and proposal details before deleting
-        $getEventStmt = $conn->prepare("SELECT ProposalID FROM event WHERE EventID = ?");
+        // Get event and check status
+        $getEventStmt = $conn->prepare("
+            SELECT e.ProposalID, p.Status 
+            FROM event e 
+            JOIN proposal p ON e.ProposalID = p.ProposalID 
+            WHERE e.EventID = ?
+        ");
         $getEventStmt->execute([$eventId]);
         $eventRow = $getEventStmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$eventRow) {
             throw new Exception('Event not found');
+        }
+
+        // Check if event status is Postponed
+        if ($eventRow['Status'] !== 'Postponed') {
+            throw new Exception('Events can only be deleted if they are Postponed');
         }
 
         $proposalId = $eventRow['ProposalID'];

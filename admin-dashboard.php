@@ -5554,11 +5554,15 @@ if ($_SESSION['role'] === 'Member Staff') {
                             form.dataset.originalStatus = event.Status;
                         }
 
-                        // Show delete button
+                        // Show delete button only if event status is Postponed
                         const deleteBtn = document.getElementById('emDeleteEventBtn');
                         if (deleteBtn) {
-                            deleteBtn.style.display = 'block';
-                            deleteBtn.dataset.eventTitle = event.Title;
+                            if (event.Status === 'Postponed') {
+                                deleteBtn.style.display = 'block';
+                                deleteBtn.dataset.eventTitle = event.Title;
+                            } else {
+                                deleteBtn.style.display = 'none';
+                            }
                         }
 
                         // Reset to view mode
@@ -5767,8 +5771,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const data = await response.json();
 
                     if (data.success) {
-                        alert('Event postponed successfully!');
+                        alert('Event postponed successfully! All registered members have been removed.');
                         loadEvents();
+                        // Close modal if open
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editEventManagementModal'));
+                        if (modal) modal.hide();
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -5789,6 +5796,12 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const eventId = parseInt(form.dataset.eventId);
                 if (!eventId || isNaN(eventId)) {
                     alert('Error: Event ID not found');
+                    return;
+                }
+                
+                const eventStatus = document.getElementById('emEventStatus').textContent;
+                if (eventStatus !== 'Postponed') {
+                    alert('Events can only be deleted if they are Postponed. Please postpone the event first.');
                     return;
                 }
                 
@@ -5827,6 +5840,12 @@ if ($_SESSION['role'] === 'Member Staff') {
             async function deleteProposal(proposalId) {
                 if (!proposalId) {
                     alert('Error: Proposal ID not found');
+                    return;
+                }
+
+                const proposalStatus = document.getElementById('propStatus').textContent;
+                if (proposalStatus !== 'Rejected') {
+                    alert('Proposals can only be deleted if they are Rejected.');
                     return;
                 }
 

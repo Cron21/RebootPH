@@ -265,13 +265,18 @@ try {
             throw new Exception('Unauthorized: Cannot delete proposal');
         }
 
-        // Get proposal details
-        $propStmt = $conn->prepare("SELECT EventID FROM proposal WHERE ProposalID = ?");
+        // Get proposal details and status
+        $propStmt = $conn->prepare("SELECT EventID, Status FROM proposal WHERE ProposalID = ?");
         $propStmt->execute([$proposalId]);
         $proposal = $propStmt->fetch();
 
         if (!$proposal) {
             throw new Exception('Proposal not found');
+        }
+
+        // Check if proposal status is Rejected
+        if ($proposal['Status'] !== 'Rejected') {
+            throw new Exception('Proposals can only be deleted if they are Rejected');
         }
 
         // If event exists, delete cascade (registrations, attendance, feedback, event)
