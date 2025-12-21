@@ -4897,7 +4897,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <button class="btn btn-outline-danger" onclick="rejectProposalFromTable(${prop.ProposalID})">Reject</button>
                                 ` : ''}
                                 ${prop.Status === 'Rejected' ? `
-                                    <button class="btn btn-danger" onclick="deleteProposalFromTable(${prop.ProposalID}, '${prop.Title.replace(/'/g, "\\'")}')">Delete</button>
+                                    <button class="btn btn-danger" onclick="deleteProposalFromTable(${prop.ProposalID}, '${prop.Title.replace(/'/g, "\\'")}', '${prop.Status}')">Delete</button>
                                 ` : ''}
                             </div>
                         </td>
@@ -5268,17 +5268,21 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                     const approveData = await approveResponse.json();
 
-                    // 2. CHECK FOR SECURITY ALERT
+                    // CHECK FOR ERRORS
                     if (!approveData.success) {
                         if (approveData.message.includes('Security Alert')) {
                             alert(approveData.message);
+                        } else if (approveData.message.includes('already')) {
+                            alert('Event already exists for this proposal.\n\nPlease check the Events section.\n\nTo fix: Refresh the page or contact administrator if you need to re-create the event.');
+                            loadEventProposals();
+                            if (typeof loadEvents === 'function') loadEvents();
                         } else {
                             alert('Error: ' + approveData.message);
                         }
                         return;
                     }
 
-                    // 3. 
+                    // Proposal approved - now create the event
                     if (!confirm('Proposal validated. Do you want to proceed with creating the event?')) {
                         loadEventProposals();
                         return;
@@ -5308,11 +5312,18 @@ if ($_SESSION['role'] === 'Member Staff') {
                             if (modalInstance) modalInstance.hide();
                         }
                     } else {
-                        alert('Event creation error: ' + eventData.message);
+                        // Handle case where event already exists
+                        if (eventData.message.includes('already')) {
+                            alert('Event already exists for this proposal.\n\nThe proposal has been approved but the event was not created because it already exists.\n\nPlease check the Events section.');
+                            loadEventProposals();
+                            if (typeof loadEvents === 'function') loadEvents();
+                        } else {
+                            alert('Event creation error: ' + eventData.message);
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error processing request');
+                    alert('Error processing request: ' + error.message);
                 }
             }
 
@@ -5500,7 +5511,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-primary" onclick="viewEmEvent(${event.EventID})">View</button>
                                 ${event.status !== 'Postponed' && event.status !== 'Completed' ? `<button class="btn btn-outline-warning" onclick="postponeEvent(${event.EventID})">Postpone</button>` : ''}
-                                <button class="btn btn-outline-danger" onclick="deleteEvent(${event.EventID}, '${event.Title}')">Delete</button>
+                                <button class="btn btn-outline-danger" onclick="deleteEvent(${event.EventID}, '${event.Title}', '${event.status}')">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -5885,7 +5896,13 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             // Delete proposal from table
-            async function deleteProposalFromTable(proposalId, proposalTitle) {
+            async function deleteProposalFromTable(proposalId, proposalTitle, proposalStatus) {
+                // Check if proposal is Rejected
+                if (proposalStatus !== 'Rejected') {
+                    alert('Proposals can only be deleted if they are Rejected. Current status: ' + proposalStatus);
+                    return;
+                }
+
                 if (!confirm(`Are you sure you want to delete the proposal "${proposalTitle}"? This action cannot be undone.`)) {
                     return;
                 }
@@ -5915,7 +5932,13 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             // Delete event from events table
-            async function deleteEvent(eventId, eventTitle) {
+            async function deleteEvent(eventId, eventTitle, eventStatus) {
+                // Check if event is Postponed
+                if (eventStatus !== 'Postponed') {
+                    alert('Events can only be deleted if they are Postponed. Current status: ' + eventStatus + '.\\n\\nPlease postpone the event first using the Postpone button.');
+                    return;
+                }
+
                 if (!confirm(`Are you sure you want to delete the event "${eventTitle}"? This action cannot be undone.`)) {
                     return;
                 }
