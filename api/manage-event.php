@@ -166,16 +166,16 @@ try {
 
         $proposalId = $eventRow['ProposalID'];
 
-        // Delete registrations related to this event
-        $deleteRegStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
-        $deleteRegStmt->execute([$eventId]);
-
-        // Delete attendance records related to this event
+        // Delete attendance records first (they reference registrations)
         $deleteAttendanceStmt = $conn->prepare("
             DELETE FROM eventattendance 
             WHERE RegistrationID IN (SELECT RegistrationID FROM registration WHERE EventID = ?)
         ");
         $deleteAttendanceStmt->execute([$eventId]);
+
+        // Delete registrations related to this event
+        $deleteRegStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
+        $deleteRegStmt->execute([$eventId]);
 
         // Delete feedback related to this event
         $deleteFeedbackStmt = $conn->prepare("DELETE FROM feedback WHERE EventID = ?");
