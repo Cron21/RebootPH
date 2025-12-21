@@ -1662,78 +1662,62 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <!-- Stats Cards -->
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
-                            <div class="card bg-primary text-white" id="totalActivitiesCard" style="cursor: pointer;">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="card-title mb-0">Total Activities</h6>
-                                            <h2 class="mt-2 mb-0 card-text display-6">0</h2>
-                                        </div>
-                                        <div class="bg-white p-2 rounded">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                fill="currentColor" class="bi bi-calendar-check text-primary"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
-                                                <path
-                                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                                            </svg>
-                                        </div>
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="totalActivitiesCard"
+                                style="cursor: pointer; transition: all 0.2s;">
+                                <div class="card-body text-center">
+                                    <div class="mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#02075D"
+                                            class="bi bi-calendar-check" viewBox="0 0 16 16">
+                                            <path
+                                                d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
+                                            <path
+                                                d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                                        </svg>
                                     </div>
-                                    <div class="mt-2">
-                                        <small>All time activities</small>
-                                    </div>
+                                    <h5 class="fw-bold" style="color: #777777;">Total Activities</h5>
+                                    <p class="display-5 fw-bold mb-0" id="statTotalActivities" style="color: #333333;">0
+                                    </p>
+                                    <small class="fw-semibold" style="color: #666666;">All time record</small>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-4">
-                            <div class="card bg-success text-white" id="upcomingActivitiesCard"
-                                style="cursor: pointer;">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="card-title mb-0">Upcoming Activities</h6>
-                                            <h2 class="mt-2 mb-0 card-text display-6">0</h2>
-                                        </div>
-                                        <div class="bg-white p-2 rounded">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                fill="currentColor" class="bi bi-calendar-event text-success"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                                            </svg>
-                                        </div>
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="upcomingActivitiesCard"
+                                style="cursor: pointer; transition: all 0.2s;">
+                                <div class="card-body text-center">
+                                    <div class="mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#02075D"
+                                            class="bi bi-calendar-event" viewBox="0 0 16 16">
+                                            <path
+                                                d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                                        </svg>
                                     </div>
-                                    <div class="mt-2">
-                                        <small>Next 30 days</small>
-                                    </div>
+                                    <h5 class="fw-bold" style="color: #777777;">Upcoming Activities</h5>
+                                    <p class="display-5 fw-bold mb-0" id="statUpcomingActivities"
+                                        style="color: #333333;">0</p>
+                                    <small class="fw-semibold" style="color: #666666;">Next 30 days</small>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-4">
-                            <div class="card bg-info text-white" id="attendedActivitiesCard" style="cursor: pointer;">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="card-title mb-0">Activities Attended</h6>
-                                            <h2 class="mt-2 mb-0 card-text display-6">0</h2>
-                                        </div>
-                                        <div class="bg-white p-2 rounded">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                fill="currentColor" class="bi bi-person-check text-info"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
-                                                <path
-                                                    d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Z" />
-                                            </svg>
-                                        </div>
+                            <div class="card shadow-sm border-0 rounded-3 metric-card" id="attendedActivitiesCard"
+                                style="cursor: pointer; transition: all 0.2s;">
+                                <div class="card-body text-center">
+                                    <div class="mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#02075D"
+                                            class="bi bi-person-check" viewBox="0 0 16 16">
+                                            <path
+                                                d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                                            <path
+                                                d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Z" />
+                                        </svg>
                                     </div>
-                                    <div class="mt-2">
-                                        <small>Completed activities</small>
-                                    </div>
+                                    <h5 class="fw-bold" style="color: #777777;">Activities Attended</h5>
+                                    <p class="display-5 fw-bold mb-0" id="statAttendedActivities"
+                                        style="color: #333333;">0</p>
+                                    <small class="fw-semibold" style="color: #666666;">Successfully joined</small>
                                 </div>
                             </div>
                         </div>
