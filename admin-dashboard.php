@@ -5993,7 +5993,7 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Delete proposal from table
             async function deleteProposalFromTable(proposalId, proposalTitle, proposalStatus) {
                 // Check if proposal is Rejected
-                if (proposalStatus !== 'Rejected') {
+                if (proposalStatus !== 'Rejected'|| proposalStatus !== 'Postponed') {
                     alert('Proposals can only be deleted if they are Rejected. Current status: ' + proposalStatus);
                     return;
                 }
