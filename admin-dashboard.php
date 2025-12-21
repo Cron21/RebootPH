@@ -1,6 +1,5 @@
 <?php
 
-// Huwag nang maglagay ng session_start() dito kung meron na sa config.php
 require_once 'api/config.php'; 
 
 // Check kung naka-login at kung may officer role (not Member or Member Staff)
