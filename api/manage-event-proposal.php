@@ -45,9 +45,7 @@ try {
         $staffRequired = (int)($data['staffRequired'] ?? 0);
         $equipmentNeeded = trim($data['equipmentNeeded'] ?? '');
         $objectives = trim($data['objectives'] ?? '');
-        $department = trim($data['department'] ?? '');
         $partnersSponsor = trim($data['partnersSponsor'] ?? '');
-        $additionalNotes = trim($data['additionalNotes'] ?? '');
 
         if (empty($title)) throw new Exception('Title is required');
         if (empty($description)) throw new Exception('Description is required');
@@ -56,16 +54,15 @@ try {
         $stmt = $conn->prepare("
             INSERT INTO proposal 
             (Title, Description, ProposedDate, StartTime, EndTime, Venue, TargetParticipants, EventType, 
-             BudgetEstimate, StaffRequired, EquipmentNeeded, Objectives, Department, PartnersSponsor, 
-             AdditionalNotes, SubmittedByMemberID, Status, SubmissionDate)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())
+             BudgetEstimate, StaffRequired, EquipmentNeeded, Objectives, PartnersSponsor, 
+             SubmittedByMemberID, Status, SubmissionDate)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())
         ");
 
         $stmt->execute([
             $title, $description, $proposedDate, $startTime, $endTime, $venue,
             $targetParticipants, $eventType, $budgetEstimate, $staffRequired,
-            $equipmentNeeded, $objectives, $department, $partnersSponsor,
-            $additionalNotes, $memberId
+            $equipmentNeeded, $objectives, $partnersSponsor, $memberId
         ]);
 
         echo json_encode([
@@ -139,14 +136,13 @@ try {
         $isAdmin = ($userRole === 'Admin');
 
         //  Update (Admin can edit any pending, Member only their own)
-        $query = "UPDATE proposal SET Title = ?, Description = ?, ProposedDate = ?, StartTime = ?, EndTime = ?, Venue = ?, TargetParticipants = ?, EventType = ?, BudgetEstimate = ?, StaffRequired = ?, EquipmentNeeded = ?, Objectives = ?, Department = ?, PartnersSponsor = ?, AdditionalNotes = ? WHERE ProposalID = ? AND Status = 'Pending'";
+        $query = "UPDATE proposal SET Title = ?, Description = ?, ProposedDate = ?, StartTime = ?, EndTime = ?, Venue = ?, TargetParticipants = ?, EventType = ?, BudgetEstimate = ?, StaffRequired = ?, EquipmentNeeded = ?, Objectives = ?, PartnersSponsor = ? WHERE ProposalID = ? AND Status = 'Pending'";
         
         $params = [
             $data['title'], $data['description'], $data['proposedDate'], $data['startTime'], 
             $data['endTime'], $data['venue'], $data['targetParticipants'], $data['eventType'], 
             $data['budgetEstimate'], $data['staffRequired'], $data['equipmentNeeded'], 
-            $data['objectives'], $data['department'], $data['partnersSponsor'], 
-            $data['additionalNotes'], $proposalId
+            $data['objectives'], $data['partnersSponsor'], $proposalId
         ];
 
         if (!$isAdmin) {
