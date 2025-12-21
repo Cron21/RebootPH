@@ -1662,7 +1662,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <!-- Stats Cards -->
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
-                            <div class="card bg-primary text-white">
+                            <div class="card bg-primary text-white" id="totalActivitiesCard" style="cursor: pointer;">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
@@ -1686,8 +1686,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-md-4">
-                            <div class="card bg-success text-white">
+                            <div class="card bg-success text-white" id="upcomingActivitiesCard"
+                                style="cursor: pointer;">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
@@ -1709,8 +1711,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-md-4">
-                            <div class="card bg-info text-white">
+                            <div class="card bg-info text-white" id="attendedActivitiesCard" style="cursor: pointer;">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
@@ -9954,6 +9957,38 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             document.addEventListener('DOMContentLoaded', loadTeamTable);
+
+            // for quick cards dashboard member view
+            document.addEventListener('DOMContentLoaded', function () {
+                function navigateTo(selector) {
+                    const link = document.querySelector(selector);
+                    if (link) link.click();
+                }
+
+                // 1. Total Activities - navigate to My ACtivities section
+                const totalActivitiesCard = document.getElementById('totalActivitiesCard');
+                if (totalActivitiesCard) {
+                    totalActivitiesCard.addEventListener('click', function () {
+                        navigateTo('a[href="#activities"]');
+                    });
+                }
+
+                // 2. Upcoming Activities - navigate to My Activities section
+                const upcomingActivitiesCard = document.getElementById('upcomingActivitiesCard');
+                if (upcomingActivitiesCard) {
+                    upcomingActivitiesCard.addEventListener('click', function () {
+                        navigateTo('a[href="#activities"]');
+                    });
+                }
+
+                // 3. Activities Attended - navigate to Activity History section
+                const attendedActivitiesCard = document.getElementById('attendedActivitiesCard');
+                if (attendedActivitiesCard) {
+                    attendedActivitiesCard.addEventListener('click', function () {
+                        navigateTo('a[href="#history"]');
+                    });
+                }
+            });
 
         </script>
 </body>
