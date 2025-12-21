@@ -4867,14 +4867,15 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const statusBadge = {
                         'Pending': 'bg-warning',
                         'Approved': 'bg-success',
-                        'Rejected': 'bg-danger'
+                        'Rejected': 'bg-danger',
+                        'Postponed': 'bg-danger'
                     }[prop.Status] || 'bg-secondary';
 
                     const proposerName = `${prop.FName || '-'} ${prop.LName || '-'}`;
                     const proposedDate = prop.ProposedDate ? new Date(prop.ProposedDate).toLocaleDateString() : '-';
 
                     return `
-                    <tr>
+                    <tr data-proposal-status="${prop.Status}" data-proposal-id="${prop.ProposalID}">
                         <td>${prop.Title || '-'}</td>
                         <td>${proposerName}</td>
                         <td>${proposedDate}</td>
@@ -4887,8 +4888,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <button class="btn btn-outline-success" onclick="approveProposalFromTable(${prop.ProposalID})">Approve</button>
                                     <button class="btn btn-outline-danger" onclick="rejectProposalFromTable(${prop.ProposalID})">Reject</button>
                                 ` : ''}
-                                ${prop.Status === 'Rejected' ? `
-                                    <button class="btn btn-danger" onclick="deleteProposalFromTable(${prop.ProposalID}, '${prop.Title.replace(/'/g, "\\'")}', '${prop.Status}')">Delete</button>
+                                ${prop.Status === 'Approved' ? `
+                                    <button class="btn btn-outline-warning" onclick="postponeProposal(${prop.ProposalID})">Postpone</button>
+                                ` : ''}
+                                ${prop.Status === 'Rejected' || prop.Status === 'Postponed' ? `
+                                    <button class="btn btn-outline-danger" onclick="deleteProposalFromTable(${prop.ProposalID}, '${prop.Title.replace(/'/g, "\\'")}', '${prop.Status}')">Delete</button>
                                 ` : ''}
                             </div>
                         </td>
@@ -5350,6 +5354,62 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
             }
 
+            // Postpone approved proposal
+            async function postponeProposal(proposalId) {
+                if (!confirm('Are you sure you want to postpone this approved event proposal? All registered members will be removed.')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('api/manage-event-proposal.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'postpone',
+                            proposalId: proposalId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('Event proposal postponed successfully! All registered members have been removed.');
+                        
+                        // Update table row - find and update the row for this proposal
+                        const tableRow = document.querySelector(`tr[data-proposal-id="${proposalId}"]`);
+                        if (tableRow) {
+                            // Update the status badge
+                            const badgeCell = tableRow.querySelector('td:nth-child(4)');
+                            if (badgeCell) {
+                                badgeCell.innerHTML = '<span class="badge bg-danger">Postponed</span>';
+                            }
+                            
+                            // Update the action buttons
+                            const actionCell = tableRow.querySelector('td:nth-child(5)');
+                            if (actionCell) {
+                                const proposalTitle = tableRow.querySelector('td:first-child').textContent;
+                                actionCell.innerHTML = `
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="viewEventProposal(${proposalId})">View</button>
+                                        <button class="btn btn-outline-danger" onclick="deleteProposalFromTable(${proposalId}, '${proposalTitle}', 'Postponed')">Delete</button>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Update data attribute
+                            tableRow.setAttribute('data-proposal-status', 'Postponed');
+                        }
+                        
+                        loadEventProposals();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error postponing proposal');
+                }
+            }
+
             // Filter events based on search and status
             function filterEvents() {
                 const searchInput = document.getElementById('eventSearchInput').value.toLowerCase();
@@ -5489,7 +5549,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     }
 
                     return `
-                    <tr data-event-status="${event.status}">
+                    <tr data-event-status="${event.status}" data-event-id="${event.EventID}">
                         <td>${event.Title || '-'}</td>
                         <td>
                             <div>${dateStr}</div>
@@ -5502,7 +5562,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-primary" onclick="viewEmEvent(${event.EventID})">View</button>
                                 ${event.status !== 'Postponed' && event.status !== 'Completed' ? `<button class="btn btn-outline-warning" onclick="postponeEvent(${event.EventID})">Postpone</button>` : ''}
-                                <button class="btn btn-outline-danger" onclick="deleteEvent(${event.EventID}, '${event.Title}', '${event.status}')">Delete</button>
+                                ${event.status === 'Postponed' ? `<button class="btn btn-outline-danger" onclick="deleteEvent(${event.EventID}, '${event.Title}', '${event.status}')">Delete</button>` : ''}
                             </div>
                         </td>
                     </tr>
@@ -5796,10 +5856,35 @@ if ($_SESSION['role'] === 'Member Staff') {
                             deleteBtn.style.display = 'block';
                         }
                         
+                        // Update table row - find and update the row for this event
+                        const tableRow = document.querySelector(`tr[data-event-id="${eventId}"]`);
+                        if (tableRow) {
+                            // Update the status badge
+                            const badgeCell = tableRow.querySelector('td:nth-child(5)');
+                            if (badgeCell) {
+                                badgeCell.innerHTML = '<span class="badge bg-danger">Postponed</span>';
+                            }
+                            
+                            // Update the action buttons
+                            const actionCell = tableRow.querySelector('td:nth-child(6)');
+                            if (actionCell) {
+                                const eventTitle = tableRow.querySelector('td:first-child').textContent;
+                                actionCell.innerHTML = `
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" onclick="viewEmEvent(${eventId})">View</button>
+                                        <button class="btn btn-outline-danger" onclick="deleteEvent(${eventId}, '${eventTitle}', 'Postponed')">Delete</button>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Update data attribute
+                            tableRow.setAttribute('data-event-status', 'Postponed');
+                        }
+                        
                         // Close modal first if open
                         const modal = bootstrap.Modal.getInstance(document.getElementById('editEventManagementModal'));
                         if (modal) modal.hide();
-                        // Then reload events after a short delay
+                        // Then reload events after a short delay to ensure full sync
                         setTimeout(() => loadEvents(), 300);
                     } else {
                         alert('Error: ' + data.message);
