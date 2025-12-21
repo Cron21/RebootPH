@@ -207,6 +207,52 @@ try {
 
         echo json_encode(['success' => true, 'message' => 'Proposal updated successfully']);
 
+    } elseif ($action === 'updateDate') {
+        // --- UPDATE PROPOSAL DATE (only for pending proposals with passed dates) ---
+        $proposalId = (int)($data['proposalId'] ?? 0);
+        $newDate = $data['newDate'] ?? '';
+
+        if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
+        if (empty($newDate)) throw new Exception('New date is required');
+
+        // Only admins can update dates
+        $rolesCanUpdateDates = ['Admin', 'Executive Director', 'Program Officer', 'Regional Convenor', 'Local Coordinator'];
+        if (!in_array($userRole, $rolesCanUpdateDates)) {
+            throw new Exception('Unauthorized: Cannot update proposal date');
+        }
+
+        // Get current proposal
+        $propStmt = $conn->prepare("SELECT Status, ProposedDate FROM proposal WHERE ProposalID = ?");
+        $propStmt->execute([$proposalId]);
+        $proposal = $propStmt->fetch();
+
+        if (!$proposal) {
+            throw new Exception('Proposal not found');
+        }
+
+        if ($proposal['Status'] !== 'Pending Review') {
+            throw new Exception('Can only update date for pending proposals');
+        }
+
+        // Validate new date is not in the past
+        $selectedDate = new DateTime($newDate);
+        $today = new DateTime();
+        $today->setTime(0, 0, 0);
+
+        if ($selectedDate < $today) {
+            throw new Exception('New date cannot be in the past');
+        }
+
+        // Update the proposal date
+        $updateStmt = $conn->prepare("
+            UPDATE proposal 
+            SET ProposedDate = ?
+            WHERE ProposalID = ?
+        ");
+        $updateStmt->execute([$newDate, $proposalId]);
+
+        echo json_encode(['success' => true, 'message' => 'Proposal date updated successfully']);
+
     } else {
         throw new Exception('Unknown action: ' . $action);
     }

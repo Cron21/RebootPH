@@ -65,7 +65,7 @@ try {
             WHERE p.Status = 'Approved'
                 AND p.ProposedDate >= CURDATE()
             GROUP BY e.EventID, e.ProposalID, e.SerialNumber, e.QRCode, 
-                     e.RegistrationDeadline, p.ProposalID, p.Title, 
+                     e.RegistrationDeadline, p.Title, 
                      p.ProposedDate, p.StartTime, p.EndTime, p.Venue, 
                      p.TargetParticipants, p.StaffRequired, p.Status, p.Description
             ORDER BY p.ProposedDate ASC, p.StartTime ASC
