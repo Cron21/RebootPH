@@ -22,6 +22,13 @@ try {
         throw new Exception('Action is required');
     }
 
+    // Verify user is authenticated for all actions except createFromProposal
+    if ($action !== 'createFromProposal') {
+        if (!isset($_SESSION['memberID'])) {
+            throw new Exception('Not authenticated');
+        }
+    }
+
     if ($action === 'createFromProposal') {
         $proposalId = (int)($data['proposalId'] ?? 0);
         if ($proposalId <= 0) throw new Exception('Invalid proposal ID');
