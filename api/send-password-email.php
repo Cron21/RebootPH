@@ -4,7 +4,8 @@
  */
 
 function generateRandomPassword($length = 12) {
-    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    // Use only alphanumeric characters to avoid HTML encoding issues
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $password = '';
     for ($i = 0; $i < $length; $i++) {
         $password .= $chars[random_int(0, strlen($chars) - 1)];
@@ -47,8 +48,8 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
                 
                 <h3>Your Account Credentials</h3>
                 <div class='credentials'>
-                    <p><strong>Email:</strong> $email</p>
-                    <p><strong>Temporary Password:</strong> $tempPassword</p>
+                    <p><strong>Email:</strong> <code>' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</code></p>
+                    <p><strong>Temporary Password:</strong> <code>' . htmlspecialchars($tempPassword, ENT_QUOTES, 'UTF-8') . '</code></p>
                 </div>
                 
                 <p><strong>Important:</strong> For security purposes, this is a temporary password. You must change it immediately upon your first login.</p>

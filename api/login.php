@@ -24,7 +24,7 @@ if (!$input || !isset($input['email']) || !isset($input['password'])) {
 }
 
 $email = trim($input['email']);
-$password = $input['password'];
+$passwordInput = trim($input['password']);  // Trim whitespace from password input
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password_db);
@@ -39,7 +39,17 @@ try {
     $stmt->execute([$email]);
     $application = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($application && password_verify($password, $application['PasswordHash'])) {
+    // Debug: Check if application exists but has no password hash
+    if ($application && empty($application['PasswordHash'])) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Your account has been approved, but no password has been set yet. Please check your email for password setup instructions, or contact the administrator if you haven\'t received the email.'
+        ]);
+        exit;
+    }
+
+    if ($application && !empty($application['PasswordHash']) && password_verify($passwordInput, $application['PasswordHash'])) {
         // Check member account status by joining with application table
         $memberStmt = $pdo->prepare("
             SELECT m.MemberID, m.Role, m.isActive 
