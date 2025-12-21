@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 
-<body class="bg-light d-flex flex-column min-vh-100" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
+<body class="bg-light d-flex flex-column min-vh-100"
+    style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg">
         <div class="container d-flex align-items-center justify-content-between">
@@ -45,11 +46,12 @@
         <section class="py-5">
             <div class="container">
                 <h1 class="text-center fw-bold mb-4 initiatives-title">Our Initiatives</h1>
-                
+
                 <!-- Search and Filter -->
                 <div class="row g-3 mb-4 justify-content-center">
                     <div class="col-12 col-md-5">
-                        <input type="text" id="searchBar" class="form-control initiatives-search" placeholder="Search Initiatives...">
+                        <input type="text" id="searchBar" class="form-control initiatives-search"
+                            placeholder="Search Initiatives...">
                     </div>
                     <div class="col-12 col-md-4">
                         <select id="filterOptions" class="form-select initiatives-filter" style="display: none;">
@@ -71,11 +73,13 @@
                         <!-- Carousel items will be dynamically generated from initiativesList data -->
                     </div>
 
-                    <button class="carousel-control-prev" type="button" data-bs-target="#initiativeCarousel" data-bs-slide="prev">
+                    <button class="carousel-control-prev" type="button" data-bs-target="#initiativeCarousel"
+                        data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
                     </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#initiativeCarousel" data-bs-slide="next">
+                    <button class="carousel-control-next" type="button" data-bs-target="#initiativeCarousel"
+                        data-bs-slide="next">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>
                     </button>
@@ -119,7 +123,8 @@
             <div class="container">
                 <div class="row align-items-start gy-4 justify-content-between">
                     <div class="col-12 col-md-4 d-flex align-items-center gap-3">
-                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center" href="index.html">
+                        <a class="footer-logo-wrapper d-flex align-items-center justify-content-center"
+                            href="index.html">
                             <img src="assets/image/reboot-logo.png" alt="Reboot PH" class="img-fluid">
                         </a>
                         <div class="text-white small">
@@ -137,17 +142,43 @@
                     </div>
                     <div class="col-12 col-md-4 text-white small text-md-end">
                         <h4 class="h6 fw-bold mb-3">Contact Info</h4>
-                        <p class="mb-1">rebootphinstitute@gmail.com</p>
-                        <p class="mb-3">info@reboot-philippines.org</p>
+                        <p class="mb-1">
+                            <a href="mailto:rebootphinstitute@gmail.com"
+                                class="text-white text-decoration-none">rebootphinstitute@gmail.com</a>
+                        </p>
+                        <p class="mb-3">
+                            <a href="mailto:info@reboot-philippines.org"
+                                class="text-white text-decoration-none">info@reboot-philippines.org</a>
+                        </p>
+
                         <div class="d-flex justify-content-start justify-content-md-end gap-3">
-                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="currentColor"/>
+                            <a href="https://www.facebook.com/rebootphilippines" class="footer-social-icon"
+                                aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                                        fill="currentColor" />
                                 </svg>
                             </a>
-                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
+
+                            <a href="https://www.instagram.com/rebootphinstitute/" class="footer-social-icon"
+                                aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                                        fill="currentColor" />
+                                </svg>
+                            </a>
+
+                            <a href="https://www.linkedin.com/company/reboot-philippines/" class="footer-social-icon"
+                                aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+                                        fill="currentColor" />
                                 </svg>
                             </a>
                         </div>
@@ -171,7 +202,7 @@
             try {
                 const response = await fetch('api/get-initiatives.php');
                 const data = await response.json();
-                
+
                 if (data.success && data.initiatives) {
                     allInitiatives = data.initiatives;
                     populateHighlightCarousel();
@@ -185,24 +216,24 @@
 
         function populateHighlightCarousel() {
             const highlighted = allInitiatives.filter(i => i.isHighlighted == 1);
-            
+
             if (highlighted.length === 0) return;
-            
+
             const carousel = document.getElementById('initiativeCarousel');
             const indicators = carousel.querySelector('.carousel-indicators');
             const inner = carousel.querySelector('.carousel-inner');
-            
+
             // Build indicators
             indicators.innerHTML = highlighted.map((_, idx) => `
                 <button type="button" data-bs-target="#initiativeCarousel" data-bs-slide-to="${idx}" ${idx === 0 ? 'class="active"' : ''}></button>
             `).join('');
-            
+
             // Build carousel items
             inner.innerHTML = highlighted.map((initiative, idx) => {
                 const imagePath = initiative.images && initiative.images[0]
                     ? initiative.images[0]
                     : 'assets/image/placeholder.jpg';
-                
+
                 return `
                     <div class="carousel-item ${idx === 0 ? 'active' : ''}">
                         <img src="${imagePath}" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="${escapeHtml(initiative.Title)}" onerror="this.src='assets/image/placeholder.jpg'">
@@ -219,7 +250,7 @@
             const filterSelect = document.getElementById('filterOptions');
             const filterSpinner = document.getElementById('filterSpinner');
             const categories = [...new Set(allInitiatives.map(i => i.Category))].filter(Boolean);
-            
+
             filterSelect.innerHTML = '<option value="">All Categories</option>';
             categories.forEach(category => {
                 const option = document.createElement('option');
@@ -227,7 +258,7 @@
                 option.textContent = category;
                 filterSelect.appendChild(option);
             });
-            
+
             // Show dropdown and hide spinner
             filterSpinner.style.display = 'none';
             filterSelect.style.display = 'block';
@@ -235,17 +266,17 @@
 
         function displayInitiatives(initiatives) {
             const container = document.getElementById('initiativesList');
-            
+
             if (initiatives.length === 0) {
                 container.innerHTML = '<p class="col-12 text-center text-muted">No initiatives found.</p>';
                 return;
             }
-            
+
             container.innerHTML = initiatives.map(initiative => {
                 const images = initiative.images && initiative.images.length > 0
                     ? initiative.images
                     : ['assets/image/placeholder.jpg'];
-                
+
                 const carouselId = `initiative-carousel-${initiative.InitiativeID}`;
                 let imageHtml = '';
 
@@ -279,7 +310,7 @@
                         <img src="${images[0]}" class="w-100" style="height: 200px; object-fit: cover;" alt="${escapeHtml(initiative.Title)}" onerror="this.src='assets/image/placeholder.jpg'">
                     `;
                 }
-                
+
                 return `
                     <div class="col">
                         <div class="card h-100 shadow-lg border-0">
@@ -301,15 +332,15 @@
         function filterInitiatives() {
             const searchTerm = document.getElementById('searchBar').value.toLowerCase();
             const filterTerm = document.getElementById('filterOptions').value.toLowerCase();
-            
+
             const filtered = allInitiatives.filter(initiative => {
                 const matchesSearch = initiative.Title.toLowerCase().includes(searchTerm) ||
-                                    initiative.Description.toLowerCase().includes(searchTerm);
-                const matchesFilter = !filterTerm || 
-                                    initiative.Category.toLowerCase() === filterTerm;
+                    initiative.Description.toLowerCase().includes(searchTerm);
+                const matchesFilter = !filterTerm ||
+                    initiative.Category.toLowerCase() === filterTerm;
                 return matchesSearch && matchesFilter;
             });
-            
+
             displayInitiatives(filtered);
         }
 
@@ -320,7 +351,7 @@
 
             document.getElementById('initiativeModalTitle').textContent = escapeHtml(initiative.Title);
             document.getElementById('initiativeModalDescription').textContent = escapeHtml(initiative.Description);
-            
+
             // Set category badge
             const categoryBadge = document.getElementById('initiativeModalCategory');
             if (initiative.Category) {
@@ -382,9 +413,9 @@
         }
 
         // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadInitiatives();
-            
+
             document.getElementById('searchBar').addEventListener('input', filterInitiatives);
             document.getElementById('filterOptions').addEventListener('change', filterInitiatives);
         });
