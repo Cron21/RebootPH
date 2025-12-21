@@ -4119,18 +4119,30 @@ if ($_SESSION['role'] === 'Member Staff') {
                         </td>
                         <td>${member.ApplicantEmail}</td>
                         <td>
-                            <select class="form-select" data-role-select
-                                ${roleDisabled}
-                                title="${roleTitle}"
-                                onchange="updateMemberRole(${member.MemberID}, this.value)">
-                                <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
-                                <option value="Executive Director" ${member.Role === 'Executive Director' ? 'selected' : ''}>Executive Director</option>
-                                <option value="Program Officer" ${member.Role === 'Program Officer' ? 'selected' : ''}>Program Officer</option>
-                                <option value="Regional Convenor" ${member.Role === 'Regional Convenor' ? 'selected' : ''}>Regional Convenor</option>
-                                <option value="Local Coordinator" ${member.Role === 'Local Coordinator' ? 'selected' : ''}>Local Coordinator</option>
-                                <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
-                                <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
-                            </select>
+                            ${isCurrentUser ? (
+                                '<span class="text-muted small">Cannot change own role</span>'
+                            ) : member.Role === 'Executive Director' ? (
+                                '<span class="text-muted small">Executive Director</span>'
+                            ) : window.currentUserRole !== 'Executive Director' ? (
+                                `<select class="form-select" data-role-select title="Promote or demote member" onchange="updateMemberRole(${member.MemberID}, this.value)">
+                                    <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
+                                    <option value="Program Officer" ${member.Role === 'Program Officer' ? 'selected' : ''}>Program Officer</option>
+                                    <option value="Regional Convenor" ${member.Role === 'Regional Convenor' ? 'selected' : ''}>Regional Convenor</option>
+                                    <option value="Local Coordinator" ${member.Role === 'Local Coordinator' ? 'selected' : ''}>Local Coordinator</option>
+                                    <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
+                                    <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
+                                </select>`
+                            ) : (
+                                `<select class="form-select" data-role-select title="Change member role" onchange="updateMemberRole(${member.MemberID}, this.value)">
+                                    <option value="Member Staff" ${member.Role === 'Member Staff' ? 'selected' : ''}>Member Staff</option>
+                                    <option value="Executive Director" ${member.Role === 'Executive Director' ? 'selected' : ''}>Executive Director</option>
+                                    <option value="Program Officer" ${member.Role === 'Program Officer' ? 'selected' : ''}>Program Officer</option>
+                                    <option value="Regional Convenor" ${member.Role === 'Regional Convenor' ? 'selected' : ''}>Regional Convenor</option>
+                                    <option value="Local Coordinator" ${member.Role === 'Local Coordinator' ? 'selected' : ''}>Local Coordinator</option>
+                                    <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
+                                    <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
+                                </select>`
+                            )}
                         </td>
                         <td>
                             <span class="badge ${member.isActive ? 'bg-success' : 'bg-danger'}">
@@ -4207,6 +4219,13 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Update member role
             async function updateMemberRole(memberId, newRole) {
+                // Non-Executive Director users cannot assign Executive Director role
+                if (window.currentUserRole !== 'Executive Director' && newRole === 'Executive Director') {
+                    alert('You do not have authority to assign the Executive Director role. Only Executive Director can assign that role.');
+                    loadMembers();
+                    return;
+                }
+
                 try {
                     const response = await fetch('api/update-member.php', {
                         method: 'POST',
@@ -4430,7 +4449,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <button class="btn btn-sm btn-outline-primary" onclick="viewApplication(${app.ApplicationID})">
                                 View
                             </button>
-                            ${app.ApplicationStatus == 0 ? `
+                            ${(app.ApplicationStatus == 0 && window.currentUserRole === 'Executive Director') ? `
                                 <button class="btn btn-sm btn-outline-success" onclick="approveApplicationByBtn(${app.ApplicationID}, '${app.FName} ${app.LName}')">
                                     Approve
                                 </button>
