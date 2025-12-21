@@ -99,11 +99,6 @@ try {
             throw new Exception('This proposal has already been reviewed');
         }
 
-        // SELF-APPROVAL CHECK:
-        if ((int)$proposal['SubmittedByMemberID'] === (int)$memberId) {
-            throw new Exception('Security Alert: You cannot approve or reject your own proposal. Please let another administrator review this.');
-        }
-
         if ($action === 'approve') {
             $newStatus = 'Approved';
             $message = 'Proposal approved successfully and announcement created';
