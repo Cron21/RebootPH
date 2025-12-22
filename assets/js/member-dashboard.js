@@ -65,32 +65,51 @@ async function loadMemberProfile() {
                     }
 
                     idPreview.innerHTML = `
-                        <div class="text-center mb-3">
-                            <img src="assets/image/reboot-logo.png" alt="Reboot PH Logo" style="height: 60px;">
-                            <h4 class="mt-2 mb-0">Reboot Philippines</h4>
-                            <small class="text-muted">Environmental Organization</small>
-                        </div>
-                        <div class="text-center mb-3">
-                            <div class="rounded-circle bg-light mx-auto mb-2" style="width: 120px; height: 120px; border: 2px dashed #ccc;">
-                                ${photoHtml}
+                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #0A4FA3 0%, #035996 100%); color: white; padding: 20px; display: flex; flex-direction: column; font-family: 'Segoe UI', Roboto, sans-serif;">
+                            
+                            <!-- Header -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <img src="assets/image/reboot-logo.png" alt="Reboot Logo" style="height: 40px; width: 40px; border-radius: 50%; background: white; padding: 2px;">
+                                </div>
+                                <div style="text-align: right; font-size: 12px; line-height: 1.3;">
+                                    <div style="font-weight: bold; font-size: 13px;">Reboot Philippines</div>
+                                    <div style="opacity: 0.9; font-size: 11px;">2804, Discovery Centre, Pasig City</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-center mb-4">
-                            <h5 class="mb-1">${window.currentMemberName}</h5>
-                            <p class="mb-1 text-primary">${currentMember.Role || 'Member'}</p>
-                            <small class="text-muted">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</small>
-                        </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col-12">
-                                <small class="text-muted d-block">Member Since: ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</small>
-                                <small class="text-muted d-block">Status: ${currentMember.isActive ? 'Active' : 'Inactive'}</small>
+
+                            <!-- Main Content Row -->
+                            <div style="display: flex; gap: 16px; flex: 1; align-items: center;">
+                                
+                                <!-- Left Side: Photo -->
+                                <div style="flex-shrink: 0;">
+                                    <div style="width: 90px; height: 90px; border-radius: 50%; background: white; border: 3px solid white; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                        ${photoHtml}
+                                    </div>
+                                </div>
+
+                                <!-- Right Side: Info -->
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 4px; word-break: break-word;">${window.currentMemberName}</div>
+                                    <div style="font-size: 12px; opacity: 0.95; margin-bottom: 8px;">${currentMember.Role || 'Member'}</div>
+                                    <div style="font-size: 11px; opacity: 0.85; margin-bottom: 6px;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</div>
+                                </div>
+
+                                <!-- Right Side: QR Code -->
+                                <div style="flex-shrink: 0;">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
+                                         alt="Member QR Code" 
+                                         style="width: 80px; height: 80px; background: white; padding: 2px; border-radius: 4px;">
+                                </div>
+
                             </div>
-                        </div>
-                        <div class="text-center mt-3" id="idPreviewQR">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
-                                 alt="Member QR Code" 
-                                 class="img-fluid"
-                                 style="width: 100px;">
+
+                            <!-- Footer -->
+                            <div style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 12px; margin-top: 12px; font-size: 11px; text-align: center; opacity: 0.9;">
+                                <div>Member Since: ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                                <div>${currentMember.isActive ? '✓ Active' : 'Inactive'}</div>
+                            </div>
+
                         </div>
                     `;
                 }
