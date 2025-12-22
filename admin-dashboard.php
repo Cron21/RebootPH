@@ -9188,36 +9188,46 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                     const data = await response.json();
 
-                    const modal = new bootstrap.Modal(document.getElementById('attendanceCheckModal'));
-                    const resultDiv = document.getElementById('attendanceResult');
-                    const confirmBtn = document.getElementById('confirmAttendance');
-
                     if (data.valid) {
                         const member = data.data;
-                        resultDiv.innerHTML = `
-                        <div class="text-center mb-4">
-                            <div class="display-1 text-success">
-                                <i class="bi bi-person-check-fill"></i>
-                            </div>
-                        </div>
-                        <div class="alert alert-success">
-                            <h6 class="alert-heading">Member Found!</h6>
-                            <hr>
-                            <p class="mb-0"><strong>Name:</strong> ${member.name}</p>
-                            <p class="mb-0"><strong>Member ID:</strong> ${member.memberId}</p>
-                            <p class="mb-0"><strong>Email:</strong> ${member.email}</p>
-                            <p class="mb-0"><strong>Event:</strong> ${member.eventName}</p>
-                            <p class="mb-0"><strong>Registration Time:</strong> ${new Date(member.registrationTime).toLocaleString()}</p>
-                            ${member.hasAttended ? `<p class="mb-0 text-warning"><strong>Status:</strong> Already attended at ${new Date(member.attendanceTime).toLocaleTimeString()}</p>` : ''}
-                        </div>`;
-
+                        
+                        // If member hasn't attended yet, automatically record attendance
                         if (!member.hasAttended) {
-                            confirmBtn.classList.remove('d-none');
-                            confirmBtn.onclick = () => recordAttendanceForMember(member.registrationId, member.memberId, eventId);
+                            // Auto-record attendance without showing modal
+                            await recordAttendanceForMember(member.registrationId, member.memberId, eventId);
                         } else {
+                            // If already attended, show modal with info
+                            const modal = new bootstrap.Modal(document.getElementById('attendanceCheckModal'));
+                            const resultDiv = document.getElementById('attendanceResult');
+                            const confirmBtn = document.getElementById('confirmAttendance');
+                            
+                            resultDiv.innerHTML = `
+                            <div class="text-center mb-4">
+                                <div class="display-1 text-warning">
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                </div>
+                            </div>
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading">Already Attended</h6>
+                                <hr>
+                                <p class="mb-0"><strong>Name:</strong> ${member.name}</p>
+                                <p class="mb-0"><strong>First Check-in:</strong> ${new Date(member.attendanceTime).toLocaleString()}</p>
+                            </div>`;
+                            
                             confirmBtn.classList.add('d-none');
+                            modal.show();
+                            
+                            // Close after 3 seconds
+                            setTimeout(() => {
+                                modal.hide();
+                            }, 3000);
                         }
                     } else {
+                        // Show error modal
+                        const modal = new bootstrap.Modal(document.getElementById('attendanceCheckModal'));
+                        const resultDiv = document.getElementById('attendanceResult');
+                        const confirmBtn = document.getElementById('confirmAttendance');
+                        
                         resultDiv.innerHTML = `
                         <div class="text-center mb-4">
                             <div class="display-1 text-danger">
@@ -9229,9 +9239,14 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <p class="mb-0">${data.message}</p>
                         </div>`;
                         confirmBtn.classList.add('d-none');
+                        modal.show();
+                        
+                        // Close after 3 seconds
+                        setTimeout(() => {
+                            modal.hide();
+                        }, 3000);
                     }
-
-                    modal.show();
+                    
                     document.getElementById('memberSerialInput').value = '';
 
                 } catch (error) {
@@ -9269,10 +9284,14 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                         document.getElementById('confirmAttendance').classList.add('d-none');
 
-                        // Refresh events list after 2 seconds
+                        // Close modal and refresh members table after 2 seconds
                         setTimeout(() => {
-                            hideAttendanceCheckingForm();
-                            loadEventAttendance();
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceCheckModal'));
+                            if (modal) {
+                                modal.hide();
+                            }
+                            // Refresh the members table to show updated attendance
+                            loadEventAttendanceMembers();
                         }, 2000);
                     } else {
                         alert('Error recording attendance: ' + data.message);
@@ -9418,8 +9437,13 @@ if ($_SESSION['role'] === 'Member Staff') {
                         // Scanning event serial
                         verifyEventSerial(decodedText);
                     } else if (step === '2') {
-                        // Scanning member serial
+                        // Scanning member serial - automatically mark attendance and stop scanner
                         verifyMemberSerial(decodedText);
+                        // Stop the scanner after successful scan
+                        if (html5QrcodeScanner) {
+                            html5QrcodeScanner.clear();
+                            html5QrcodeScanner = null;
+                        }
                     }
                 } catch (e) {
                     console.error('QR decode error:', e);
