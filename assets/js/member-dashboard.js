@@ -78,12 +78,13 @@ async function loadMemberProfile() {
                             height: 100%;
                             background: linear-gradient(135deg, #0A4FA3 0%, #035996 100%);
                             color: white;
-                            padding: 20px;
+                            padding: 5%;
                             display: flex;
                             flex-direction: column;
                             font-family: 'Segoe UI', Roboto, sans-serif;
                             box-sizing: border-box;
                             border-radius: 12px;
+                            gap: 3%;
                         ">
                             
                             <!-- Header -->
@@ -91,40 +92,34 @@ async function loadMemberProfile() {
                                 display: flex;
                                 align-items: center;
                                 justify-content: space-between;
-                                margin-bottom: 16px;
-                                border-bottom: 2px solid rgba(255,255,255,0.3);
-                                padding-bottom: 12px;
-                                gap: 8px;
+                                border-bottom: 1px solid rgba(255,255,255,0.3);
+                                padding-bottom: 3%;
+                                gap: 3%;
+                                flex-shrink: 0;
                             ">
-                                <div style="
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 8px;
+                                <img src="assets/image/reboot-logo.png" alt="Reboot Logo" style="
+                                    height: 11%;
+                                    width: 11%;
+                                    border-radius: 50%;
+                                    background: white;
+                                    padding: 1%;
                                     flex-shrink: 0;
                                 ">
-                                    <img src="assets/image/reboot-logo.png" alt="Reboot Logo" style="
-                                        height: 40px;
-                                        width: 40px;
-                                        border-radius: 50%;
-                                        background: white;
-                                        padding: 2px;
-                                    ">
-                                </div>
                                 <div style="
                                     text-align: right;
-                                    font-size: 12px;
-                                    line-height: 1.3;
+                                    font-size: 2.5%;
+                                    line-height: 1.2;
                                     flex: 1;
                                 ">
-                                    <div style="font-weight: bold; font-size: 13px;">Reboot Philippines</div>
-                                    <div style="opacity: 0.9; font-size: 11px;">2804, Discovery Centre, Pasig</div>
+                                    <div style="font-weight: bold; font-size: 3.2%;">Reboot Philippines</div>
+                                    <div style="opacity: 0.9; font-size: 2.3%;">2804, Discovery Centre, Pasig</div>
                                 </div>
                             </div>
 
                             <!-- Main Content Row -->
                             <div style="
                                 display: flex;
-                                gap: 16px;
+                                gap: 4%;
                                 flex: 1;
                                 align-items: center;
                                 min-width: 0;
@@ -133,17 +128,20 @@ async function loadMemberProfile() {
                                 <!-- Left Side: Photo -->
                                 <div style="
                                     flex-shrink: 0;
+                                    display: flex;
+                                    align-items: center;
                                 ">
                                     <div style="
-                                        width: 90px;
-                                        height: 90px;
+                                        width: 25%;
+                                        aspect-ratio: 1;
                                         border-radius: 50%;
                                         background: white;
-                                        border: 3px solid white;
+                                        border: 2px solid white;
                                         overflow: hidden;
                                         display: flex;
                                         align-items: center;
                                         justify-content: center;
+                                        flex-shrink: 0;
                                     ">
                                         ${photoHtml}
                                     </div>
@@ -153,31 +151,35 @@ async function loadMemberProfile() {
                                 <div style="
                                     flex: 1;
                                     min-width: 0;
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 1%;
                                 ">
                                     <div style="
-                                        font-size: 16px;
+                                        font-size: 3.5%;
                                         font-weight: bold;
-                                        margin-bottom: 4px;
-                                        word-break: break-word;
                                         overflow: hidden;
                                         display: -webkit-box;
                                         -webkit-line-clamp: 2;
                                         -webkit-box-orient: vertical;
+                                        line-height: 1.2;
                                     ">${window.currentMemberName}</div>
                                     <div style="
-                                        font-size: 12px;
-                                        opacity: 0.95;
-                                        margin-bottom: 8px;
+                                        font-size: 2.2%;
+                                        opacity: 0.85;
                                     ">Role:</div>
                                     <div style="
-                                        font-size: 14px;
+                                        font-size: 3%;
                                         font-weight: 600;
                                         opacity: 0.95;
-                                        margin-bottom: 6px;
-                                        word-break: break-word;
+                                        overflow: hidden;
+                                        display: -webkit-box;
+                                        -webkit-line-clamp: 2;
+                                        -webkit-box-orient: vertical;
+                                        line-height: 1.2;
                                     ">${currentMember.Role || 'Member'}</div>
                                     <div style="
-                                        font-size: 11px;
+                                        font-size: 2.2%;
                                         opacity: 0.85;
                                     ">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</div>
                                 </div>
@@ -185,15 +187,18 @@ async function loadMemberProfile() {
                                 <!-- Right Side: QR Code -->
                                 <div style="
                                     flex-shrink: 0;
+                                    display: flex;
+                                    align-items: center;
                                 ">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
                                          alt="Member QR Code" 
                                          style="
-                                            width: 80px;
-                                            height: 80px;
+                                            width: 22%;
+                                            aspect-ratio: 1;
                                             background: white;
-                                            padding: 2px;
-                                            border-radius: 4px;
+                                            padding: 1%;
+                                            border-radius: 2%;
+                                            flex-shrink: 0;
                                         ">
                                 </div>
 
@@ -201,13 +206,13 @@ async function loadMemberProfile() {
 
                             <!-- Footer -->
                             <div style="
-                                border-top: 2px solid rgba(255,255,255,0.3);
-                                padding-top: 12px;
-                                margin-top: 12px;
-                                font-size: 11px;
+                                border-top: 1px solid rgba(255,255,255,0.3);
+                                padding-top: 2%;
+                                font-size: 2.2%;
                                 text-align: center;
                                 opacity: 0.9;
-                                line-height: 1.4;
+                                line-height: 1.3;
+                                flex-shrink: 0;
                             ">
                                 <div>Member Since:</div>
                                 <div style="font-weight: 600;">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
