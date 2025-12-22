@@ -708,7 +708,7 @@ function getEventAttendance() {
                 a.LName,
                 a.ApplicantEmail,
                 ea.AttendanceID,
-                ea.CheckInTime,
+                ea.AttendanceTime,
                 ea.ScanType
             FROM registration r
             JOIN member m ON r.MemberID = m.MemberID
