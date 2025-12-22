@@ -373,6 +373,7 @@
             e.preventDefault();
             
             console.log('=== FORM SUBMISSION STARTED ===');
+            console.log('selectedEventData:', selectedEventData);
             
             // Get form elements
             const eventSelect = document.getElementById('eventSelect');
@@ -382,8 +383,15 @@
             const commentsInput = this.querySelector('#comments');
             
             // Validate all required fields
-            const eventId = eventSelect.value;
-            console.log('eventId:', eventId);
+            // Try to get eventId from selectedEventData (URL params) first, then from select
+            let eventId = null;
+            if (selectedEventData) {
+                eventId = selectedEventData.EventID;
+                console.log('Using eventId from selectedEventData:', eventId);
+            } else {
+                eventId = eventSelect.value;
+                console.log('Using eventId from select element:', eventId);
+            }
             
             if (!eventId) {
                 alert('Please select an event');
