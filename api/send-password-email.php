@@ -22,8 +22,13 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
     $token = base64_encode($email . ':' . time());
     $changePasswordUrl = 'https://rebootph-bicol.online/change-password.html?token=' . urlencode($token);
     
+    // Escape values for HTML
+    $emailEscaped = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+    $passwordEscaped = htmlspecialchars($tempPassword, ENT_QUOTES, 'UTF-8');
+    $firstNameEscaped = htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8');
+    
     // HTML email template
-    $htmlBody = "
+    $htmlBody = <<<EOT
     <html>
     <head>
         <style>
@@ -31,7 +36,8 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
             .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; }
             .header { background-color: #0b4f86; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
             .content { background-color: white; padding: 30px; }
-            .credentials { background-color: #f0f0f0; padding: 15px; border-left: 4px solid #0b4f86; margin: 20px 0; font-family: monospace; }
+            .credentials { background-color: #f0f0f0; padding: 15px; border-left: 4px solid #0b4f86; margin: 20px 0; }
+            .credentials p { margin: 8px 0; font-family: monospace; }
             .button { display: inline-block; background-color: #35b34a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
             .footer { text-align: center; color: #999; font-size: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
         </style>
@@ -42,14 +48,14 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
                 <h2>Welcome to Reboot PH!</h2>
             </div>
             <div class='content'>
-                <p>Dear <strong>$firstName</strong>,</p>
+                <p>Dear <strong>$firstNameEscaped</strong>,</p>
                 
                 <p>Congratulations! Your application for membership with Reboot PH has been <strong>approved</strong>. We're excited to have you join our community of youth-led energy advocates!</p>
                 
                 <h3>Your Account Credentials</h3>
                 <div class='credentials'>
-                    <p><strong>Email:</strong> <code>' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</code></p>
-                    <p><strong>Temporary Password:</strong> <code>' . htmlspecialchars($tempPassword, ENT_QUOTES, 'UTF-8') . '</code></p>
+                    <p><strong>Email:</strong> $emailEscaped</p>
+                    <p><strong>Temporary Password:</strong> $passwordEscaped</p>
                 </div>
                 
                 <h3>You Have Two Options:</h3>
@@ -58,15 +64,15 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
                 <p>You can immediately log in to the dashboard using the temporary password provided above:</p>
                 <ul>
                     <li>Visit: <strong>https://springgreen-walrus-657527.hostingersite.com</strong></li>
-                    <li>Email: <code>' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</code></li>
-                    <li>Password: <code>' . htmlspecialchars($tempPassword, ENT_QUOTES, 'UTF-8') . '</code></li>
+                    <li>Email: <strong>$emailEscaped</strong></li>
+                    <li>Password: <strong>$passwordEscaped</strong></li>
                 </ul>
                 
                 <h4 style='color: #035996;'>Option 2: Set Your Own Password First (Recommended)</h4>
                 <p>For better security, we recommend setting your own password before logging in. Click the button below:</p>
                 <a href='$changePasswordUrl' class='button'>Set Your Password</a>
                 
-                <p style='margin-top: 20px; word-break: break-all; color: #0b4f86;'><small>Or copy this link: $changePasswordUrl</small></p>
+                <p style='margin-top: 20px; word-break: break-all; color: #0b4f86;'><small>Or copy this link: <a href='$changePasswordUrl'>$changePasswordUrl</a></small></p>
                 
                 <h3>Next Steps:</h3>
                 <ol>
@@ -88,17 +94,17 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
         </div>
     </body>
     </html>
-    ";
+EOT;
     
     // Plain text version
     $textBody = "
-    Dear $firstName,
+    Dear $firstNameEscaped,
     
     Congratulations! Your application for membership with Reboot PH has been APPROVED. We're excited to have you join our community!
     
     Your Account Credentials:
-    Email: $email
-    Temporary Password: $tempPassword
+    Email: $emailEscaped
+    Temporary Password: $passwordEscaped
     
     YOU HAVE TWO OPTIONS:
     
