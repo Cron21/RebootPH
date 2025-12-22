@@ -714,7 +714,7 @@ function getEventAttendance() {
             JOIN member m ON r.MemberID = m.MemberID
             JOIN application a ON m.ApplicationID = a.ApplicationID
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE r.EventID = ? AND r.RegistrationStatus = 'Confirmed'
+            WHERE r.EventID = ?
             ORDER BY a.LName ASC, a.FName ASC
         ");
         
