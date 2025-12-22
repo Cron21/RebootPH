@@ -884,12 +884,6 @@
             // Set description
             document.getElementById('announcementModalDescription').textContent = escapeHtml(announcement.Description || 'N/A');
 
-            // Set author
-            const authorName = (announcement.FName && announcement.LName)
-                ? `${announcement.FName} ${announcement.LName}`
-                : 'N/A';
-            document.getElementById('announcementModalAuthor').textContent = escapeHtml(authorName);
-
             // Set status with badge
             const statusText = announcement.Status || 'N/A';
             let statusClass = 'bg-secondary';
@@ -935,22 +929,6 @@
             // Set attendee count
             const attendeeCount = parseInt(announcement.AttendeeRegistered) || 0;
             document.getElementById('announcementModalAttendeeCount').textContent = attendeeCount;
-
-            // Set registered count (all members registered, regardless of role)
-            const registeredCount = parseInt(announcement.RegisteredCount) || 0;
-            document.getElementById('announcementModalRegistered').textContent = registeredCount;
-
-            // Format review date
-            let formattedReviewDate = 'N/A';
-            if (announcement.ReviewDate) {
-                const reviewDate = new Date(announcement.ReviewDate);
-                formattedReviewDate = reviewDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            }
-            document.getElementById('announcementModalReviewDate').textContent = formattedReviewDate;
 
             // Set priority badge
             const priorityBadge = document.getElementById('announcementModalPriority');

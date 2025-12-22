@@ -439,12 +439,6 @@
                     // Set description
                     document.getElementById('announcementDescription').textContent = escapeHtml(announcement.Description || description || 'N/A');
 
-                    // Set author
-                    const authorName = (announcement.FName && announcement.LName)
-                        ? `${announcement.FName} ${announcement.LName}`
-                        : author || 'N/A';
-                    document.getElementById('announcementAuthor').textContent = escapeHtml(authorName);
-
                     // Set status with badge
                     const statusText = announcement.Status || status || 'N/A';
                     let statusClass = 'bg-secondary';
@@ -492,23 +486,6 @@
                     const attendeeCount = parseInt(announcement.AttendeeRegistered) || 0;
                     document.getElementById('announcementAttendeeCount').textContent = attendeeCount;
 
-                    // Set registered count (all members registered, regardless of role)
-                    const registeredCount = parseInt(announcement.RegisteredCount) || 0;
-                    document.getElementById('announcementRegistered').textContent = registeredCount;
-
-                    // Format review date
-                    let formattedReviewDate = 'N/A';
-                    const reviewDateValue = announcement.ReviewDate || reviewDate;
-                    if (reviewDateValue) {
-                        const reviewDateObj = new Date(reviewDateValue);
-                        formattedReviewDate = reviewDateObj.toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
-                    }
-                    document.getElementById('announcementReviewDate').textContent = formattedReviewDate;
-
                     // Set priority badge
                     const priorityValue = announcement.IsPriority || isPriority;
                     const priorityBadge = document.getElementById('priorityBadge');
@@ -521,7 +498,6 @@
                     // Fallback to passed parameters if API fails
                     document.getElementById('announcementTitle').textContent = escapeHtml(title || 'N/A');
                     document.getElementById('announcementDescription').textContent = escapeHtml(description || 'N/A');
-                    document.getElementById('announcementAuthor').textContent = escapeHtml(author || 'N/A');
                     document.getElementById('announcementStatus').innerHTML = `<span class="badge bg-secondary">${escapeHtml(status || 'N/A')}</span>`;
                     document.getElementById('announcementDate').textContent = 'N/A';
                     document.getElementById('announcementStartTime').textContent = 'N/A';
@@ -531,18 +507,6 @@
                     document.getElementById('announcementStaffSlotsLeft').textContent = '0';
                     document.getElementById('announcementStaffCount').textContent = '0';
                     document.getElementById('announcementAttendeeCount').textContent = '0';
-                    document.getElementById('announcementRegistered').textContent = '0';
-
-                    let formattedReviewDate = 'N/A';
-                    if (reviewDate) {
-                        const date = new Date(reviewDate);
-                        formattedReviewDate = date.toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
-                    }
-                    document.getElementById('announcementReviewDate').textContent = formattedReviewDate;
 
                     const priorityBadge = document.getElementById('priorityBadge');
                     if (isPriority == 1) {
@@ -558,9 +522,8 @@
             } catch (error) {
                 console.error('Error loading announcement details:', error);
                 // Fallback to basic display
-                document.getElementById('announcementTitle').value = escapeHtml(title || 'N/A');
-                document.getElementById('announcementDescription').value = escapeHtml(description || 'N/A');
-                document.getElementById('announcementAuthor').value = escapeHtml(author || 'N/A');
+                document.getElementById('announcementTitle').textContent = escapeHtml(title || 'N/A');
+                document.getElementById('announcementDescription').textContent = escapeHtml(description || 'N/A');
                 document.getElementById('announcementStatus').innerHTML = `<span class="badge bg-secondary">${escapeHtml(status || 'N/A')}</span>`;
 
                 const modal = new bootstrap.Modal(document.getElementById('announcementDetailsModal'));
@@ -810,7 +773,7 @@
                 const memberId = sessionData.memberID;
 
                 // Get announcement details to find event ID
-                const announcementTitle = document.getElementById('announcementTitle').value;
+                const announcementTitle = document.getElementById('announcementTitle').textContent;
                 const response = await fetch('api/get-announcements.php');
                 const data = await response.json();
 
