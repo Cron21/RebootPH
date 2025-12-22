@@ -99,6 +99,49 @@ if ($_SESSION['role'] === 'Member Staff') {
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: clamp(8px, 2vw, 16px);
+            padding: clamp(8px, 2%, 16px);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .id-card img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .id-card .profile-image {
+            width: clamp(40px, 20%, 80px);
+            height: clamp(40px, 20%, 80px);
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .id-card .logo {
+            width: clamp(30px, 15%, 50px);
+            height: auto;
+        }
+
+        .id-card .qr-code {
+            width: clamp(60px, 25%, 100px);
+            height: clamp(60px, 25%, 100px);
+        }
+
+        .id-card h3,
+        .id-card h4,
+        .id-card h5,
+        .id-card h6 {
+            font-size: clamp(10px, 3vw, 14px);
+            margin: clamp(2px, 1%, 4px) 0;
+        }
+
+        .id-card p {
+            font-size: clamp(8px, 2vw, 12px);
+            margin: clamp(1px, 0.5%, 2px) 0;
+        }
+
+        .id-card small {
+            font-size: clamp(7px, 1.5vw, 10px);
         }
     </style>
 
