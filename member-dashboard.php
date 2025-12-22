@@ -906,8 +906,12 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/member-dashboard.js"></script>
     <script>
+        // Capture logged-in member's ID from PHP session
+        window.currentMemberId = <?php echo isset($_SESSION['memberID']) ? json_encode($_SESSION['memberID']) : 'null'; ?>;
+        
         document.addEventListener('DOMContentLoaded', function () {
             console.log('DOMContentLoaded event fired');
+            console.log('Current member ID:', window.currentMemberId);
             loadMemberProfile();
 
             const navLinks = document.querySelectorAll('.header-nav .nav-link');
@@ -1038,26 +1042,65 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
         // Verify attendance
         async function verifyAttendance() {
             let serialNumber = document.getElementById('serialNumber').value.trim();
-            const eventId = window.currentEventId;
+            const memberId = window.currentMemberId;
 
             if (!serialNumber) {
-                alert('Please enter a serial number or scan a QR code');
+                alert('Please scan a QR code or enter event details');
                 return;
             }
 
-            if (!eventId) {
-                alert('Error: Event ID not found. Please try again.');
+            if (!memberId) {
+                alert('Error: Member ID not found. Please log in again.');
                 return;
             }
 
             try {
-                // Extract MemberID from QR code format: RPH-[MemberID]
-                let memberId = serialNumber;
-                if (serialNumber.startsWith('RPH-')) {
-                    memberId = parseInt(serialNumber.substring(4)); // Extract digits after "RPH-"
+                // Parse event QR code (JSON format)
+                let eventId;
+                let qrData;
+                try {
+                    qrData = JSON.parse(serialNumber);
+                    eventId = qrData.eventId;
+                } catch (e) {
+                    // If not JSON, show error
+                    const modalBody = document.querySelector('#attendanceModal .modal-body');
+                    const qrReader = document.getElementById('qr-reader');
+                    if (qrReader) {
+                        qrReader.style.display = 'none';
+                    }
+                    const verifyBtn = document.querySelector('#attendanceModal .modal-footer .btn-primary');
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'none';
+                    }
+                    
+                    modalBody.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="display-1 text-danger">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading">Invalid QR Code</h6>
+                        <p class="mb-0">Please scan a valid event QR code.</p>
+                    </div>`;
+                    
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }, 3000);
+                    return;
                 }
 
-                // Look up the registration using MemberID and EventID
+                if (!eventId) {
+                    alert('Error: Event ID not found in QR code.');
+                    return;
+                }
+
+                console.log('Attendance verification:', { eventId, memberId, scannedQR: qrData });
+
+                // Look up the registration for logged-in member for this event
                 const lookupResponse = await fetch('api/manage-attendance.php?action=getEventAttendance', {
                     method: 'POST',
                     headers: {
@@ -1067,6 +1110,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                 });
 
                 const lookupData = await lookupResponse.json();
+                console.log('Event registration lookup:', { eventId, memberId, response: lookupData });
 
                 if (!lookupData.success || !lookupData.data || lookupData.data.length === 0) {
                     // Show error message - member not registered

@@ -3111,8 +3111,9 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Get current user's role from PHP session
             window.currentUserRole = '<?php echo isset($_SESSION['role']) ? htmlspecialchars($_SESSION['role']) : ''; ?>';
             window.isAdminView = true;
-            window.currentMemberId = null;
-            console.log('Initialized: isAdminView=' + window.isAdminView + ', currentMemberId=' + window.currentMemberId + ', currentUserRole=' + window.currentUserRole);
+            window.adminId = <?php echo isset($_SESSION['memberID']) ? json_encode($_SESSION['memberID']) : 'null'; ?>; // Admin's own member ID
+            window.currentMemberId = null; // Will be set when viewing member profiles
+            console.log('Initialized: isAdminView=' + window.isAdminView + ', adminId=' + window.adminId + ', currentUserRole=' + window.currentUserRole);
 
             // Navigate to members management section
             function navigateToMembers() {
@@ -3421,26 +3422,65 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Verify attendance
             async function verifyAttendance() {
                 let serialNumber = document.getElementById('serialNumber').value.trim();
-                const eventId = window.currentEventId;
+                const memberId = window.currentMemberId;
 
                 if (!serialNumber) {
-                    alert('Please enter a serial number or scan a QR code');
+                    alert('Please scan a QR code or enter event details');
                     return;
                 }
 
-                if (!eventId) {
-                    alert('Error: Event ID not found. Please try again.');
+                if (!memberId) {
+                    alert('Error: Member ID not found. Please select a member first.');
                     return;
                 }
 
                 try {
-                    // Extract MemberID from QR code format: RPH-[MemberID]
-                    let memberId = serialNumber;
-                    if (serialNumber.startsWith('RPH-')) {
-                        memberId = parseInt(serialNumber.substring(4)); // Extract digits after "RPH-"
+                    // Parse event QR code (JSON format)
+                    let eventId;
+                    let qrData;
+                    try {
+                        qrData = JSON.parse(serialNumber);
+                        eventId = qrData.eventId;
+                    } catch (e) {
+                        // If not JSON, show error
+                        const modalBody = document.querySelector('#attendanceModal .modal-body');
+                        const qrReader = document.getElementById('qr-reader');
+                        if (qrReader) {
+                            qrReader.style.display = 'none';
+                        }
+                        const verifyBtn = document.querySelector('#attendanceModal .modal-footer .btn-primary');
+                        if (verifyBtn) {
+                            verifyBtn.style.display = 'none';
+                        }
+                        
+                        modalBody.innerHTML = `
+                        <div class="text-center mb-4">
+                            <div class="display-1 text-danger">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                        </div>
+                        <div class="alert alert-danger">
+                            <h6 class="alert-heading">Invalid QR Code</h6>
+                            <p class="mb-0">Please scan a valid event QR code.</p>
+                        </div>`;
+                        
+                        setTimeout(() => {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                            if (modal) {
+                                modal.hide();
+                            }
+                        }, 3000);
+                        return;
                     }
 
-                    // Look up the registration using MemberID and EventID
+                    if (!eventId) {
+                        alert('Error: Event ID not found in QR code.');
+                        return;
+                    }
+
+                    console.log('Attendance verification:', { eventId, memberId, scannedQR: qrData });
+
+                    // Look up the registration for the selected member for this event
                     const lookupResponse = await fetch('api/manage-attendance.php?action=getEventAttendance', {
                         method: 'POST',
                         headers: {
@@ -3450,6 +3490,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     });
 
                     const lookupData = await lookupResponse.json();
+                    console.log('Event registration lookup:', { eventId, memberId, response: lookupData });
 
                     if (!lookupData.success || !lookupData.data || lookupData.data.length === 0) {
                         // Show error message - member not registered
