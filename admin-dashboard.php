@@ -87,6 +87,19 @@ if ($_SESSION['role'] === 'Member Staff') {
             transform: translateY(-4px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
         }
+
+        /* ID Card Responsive Styling */
+        .id-card {
+            background: #ffffff;
+            border: 2px solid #035996;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 85 / 54;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 
 </head>
@@ -1822,8 +1835,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <div class="card-body p-4">
                                     <h3 class="text-center fw-bold mb-4" style="color:#035996;">Member ID Preview</h3>
 
-                                    <div class="id-card mx-auto shadow border" id="idPreview"
-                                        style="width: 100%; max-width: 350px; aspect-ratio: 85 / 54; background-color: white; border-radius: 20px; overflow: hidden; position: relative; font-family: sans-serif;">
+                                    <div class="id-card mx-auto shadow" id="idPreview"
+                                        style="max-width: 350px; overflow: hidden; position: relative; font-family: sans-serif;">
 
                                         <div class="d-flex align-items-center justify-content-center h-100">
                                             <div class="spinner-border text-primary" role="status">
