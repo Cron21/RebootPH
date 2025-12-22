@@ -284,81 +284,105 @@
 
     <!-- Announcement Details Modal -->
     <div class="modal fade" id="announcementDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-body p-4">
-                    <div class="text-center mb-3">
-                        <h3 class="fw-bold" style="color:#0b5394;">Announcement Details</h3>
-                        <hr style="border-top:2px solid #90EE90; width:80px; margin:0.5rem auto 0;">
-                    </div>
-                    <div class="modal-body">
-
-
-                        <div class="mb-3">
-                            <input type="text" id="announcementModalTitle"
-                                class="form-control-plaintext fw-bold mb-1 px-2" readonly
-                                style="background-color: #FFFFFF; font-size: 1.5rem;">
-                        </div>
-
-                        <div class="row g-3 align-items-center">
-                            <div class="col-md-5">
-                                <div class="d-flex align-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#4CAF50"
-                                        class="bi bi-calendar3 me-2" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z" />
-                                        <path
-                                            d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
-                                    </svg>
-                                    <input type="text" id="announcementModalDate" class="form-control-plaintext fw-bold"
-                                        readonly style="background-color: #FFFFFF;" value="October 25, 2025">
-                                </div>
-                                <!--pagtatabihin and start time and end time-->
-                                <div class="col-md-4">
-                                    <input type="text" id="announcementModalStartTime" class="form-control-plaintext"
-                                        readonly style="background-color: #FFFFFF;">
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="text" id="announcementModalEndTime" class="form-control-plaintext"
-                                        readonly style="background-color: #FFFFFF;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="row g-3">
-                                <div class="col-md-8">
-                                    <h6>Venue</h6>
-                                    <input type="text" id="announcementModalVenue" class="form-control-plaintext"
-                                        readonly style="background-color: #FFFFFF;">
-                                </div>
-                                <div class="col-md-4">
-                                    <h6>Slot Left</h6>
-                                    <input type="text" id="announcementModalCapacity" class="form-control-plaintext"
-                                        readonly style="background-color: #FFFFFF;">
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <h6>Event Description</h6>
-                            <input type id="announcementModalDescription" class="form-control-plaintext mb-1 px-2"
-                                readonly style="background-color: #FFFFFF;">
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="mt-3">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <!-- Header: Title with Category and Venue -->
+                    <div class="row mb-4 pb-3 border-bottom">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <h2 class="h3 fw-bold m-0" id="announcementModalTitle" style="color: #2B702A;"></h2>
                                 <span id="announcementModalPriority"></span>
                             </div>
                         </div>
-
+                        <div class="col-md-4 text-end">
+                            <label class="text-muted small d-block">VENUE</label>
+                            <p class="fw-bold m-0" id="announcementModalVenue"></p>
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!-- Date & Time Section -->
+                    <div class="row mb-4 pb-3 border-bottom">
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">DATE</label>
+                            <p class="fw-bold m-0" id="announcementModalDate"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">START TIME</label>
+                            <p class="fw-bold m-0" id="announcementModalStartTime"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">END TIME</label>
+                            <p class="fw-bold m-0" id="announcementModalEndTime"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">STATUS</label>
+                            <div id="announcementModalStatus"></div>
+                        </div>
                     </div>
 
+                    <!-- Registration Slots Section -->
+                    <div class="row mb-4 pb-3 border-bottom">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 bg-light">
+                                <label class="text-muted small d-block fw-bold">STAFF REGISTRATION</label>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Slots Left</small>
+                                        <p class="h5 fw-bold m-0 text-success" id="announcementModalStaffSlotsLeft">0</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Registered</small>
+                                        <p class="h5 fw-bold m-0 text-info" id="announcementModalStaffCount">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 bg-light">
+                                <label class="text-muted small d-block fw-bold">GENERAL ATTENDEE REGISTRATION</label>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Registered</small>
+                                        <p class="h5 fw-bold m-0 text-info" id="announcementModalAttendeeCount">0</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Total Capacity</small>
+                                        <p class="h5 fw-bold m-0 text-primary" id="announcementModalCapacity">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description Section -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <label class="text-muted small fw-bold d-block mb-2">DETAILS</label>
+                        <p id="announcementModalDescription" class="text-muted" style="line-height: 1.6; white-space: pre-wrap;"></p>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="row g-3 text-muted small">
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Proposed By</label>
+                            <p id="announcementModalAuthor" class="m-0"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Review Date</label>
+                            <p id="announcementModalReviewDate" class="m-0"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Total Registered</label>
+                            <p id="announcementModalRegistered" class="m-0 fw-bold text-dark"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success btn-lg" id="registerAnnouncementBtn" onclick="registerForAnnouncementEvent()">Register for Event</button>
                 </div>
             </div>
         </div>
@@ -871,20 +895,23 @@
             if (!announcement) return;
 
             // Set title
-            document.getElementById('announcementModalTitle').value = escapeHtml(announcement.Title || 'N/A');
+            document.getElementById('announcementModalTitle').textContent = escapeHtml(announcement.Title || 'N/A');
 
             // Set description
-            document.getElementById('announcementModalDescription').value = escapeHtml(announcement.Description || 'N/A');
+            document.getElementById('announcementModalDescription').textContent = escapeHtml(announcement.Description || 'N/A');
 
             // Set author
-            // document.getElementById('announcementModalAuthor').value = escapeHtml((announcement.FName || '') + ' ' + (announcement.LName || '') || 'N/A');
+            const authorName = (announcement.FName && announcement.LName)
+                ? `${announcement.FName} ${announcement.LName}`
+                : 'N/A';
+            document.getElementById('announcementModalAuthor').textContent = escapeHtml(authorName);
 
             // Set status with badge
             const statusText = announcement.Status || 'N/A';
             let statusClass = 'bg-secondary';
             if (statusText.toLowerCase() === 'approved') statusClass = 'bg-success';
             else if (statusText.toLowerCase() === 'pending') statusClass = 'bg-warning';
-            // document.getElementById('announcementModalStatus').innerHTML = `<span class="badge ${statusClass}">${escapeHtml(statusText)}</span>`;
+            document.getElementById('announcementModalStatus').innerHTML = `<span class="badge ${statusClass}">${escapeHtml(statusText)}</span>`;
 
             // Format event date
             let formattedDate = 'N/A';
@@ -896,34 +923,38 @@
                     day: 'numeric'
                 });
             }
-            document.getElementById('announcementModalDate').value = formattedDate;
+            document.getElementById('announcementModalDate').textContent = formattedDate;
 
             // Set start time
-            document.getElementById('announcementModalStartTime').value = announcement.StartTime || 'N/A';
+            document.getElementById('announcementModalStartTime').textContent = announcement.StartTime || 'N/A';
 
             // Set end time
-            document.getElementById('announcementModalEndTime').value = announcement.EndTime || 'N/A';
+            document.getElementById('announcementModalEndTime').textContent = announcement.EndTime || 'N/A';
 
             // Set venue
-            document.getElementById('announcementModalVenue').value = escapeHtml(announcement.Venue || 'N/A');
+            document.getElementById('announcementModalVenue').textContent = escapeHtml(announcement.Venue || 'N/A');
 
             // Set capacity
             const capacity = parseInt(announcement.TargetParticipants) || 0;
-            document.getElementById('announcementModalCapacity').value = capacity > 0 ? capacity : 'N/A';
+            document.getElementById('announcementModalCapacity').textContent = capacity > 0 ? capacity : 'N/A';
 
             // Calculate and set staff slots left
-            // All members (Admin or regular Member) can participate as staff
             const staffRequired = parseInt(announcement.StaffRequired) || 0;
             const staffRegistered = parseInt(announcement.StaffRegistered) || 0;
             const staffSlotsLeft = Math.max(0, staffRequired - staffRegistered);
-            const staffSlotsText = staffRequired > 0
-                ? `${staffSlotsLeft} (${staffRequired} required, ${staffRegistered} registered)`
-                : 'N/A';
-            // document.getElementById('announcementModalStaffSlots').value = staffSlotsText;
+            document.getElementById('announcementModalStaffSlotsLeft').textContent = staffSlotsLeft;
+
+            // Set staff count
+            const staffCount = parseInt(announcement.StaffRegistered) || 0;
+            document.getElementById('announcementModalStaffCount').textContent = staffCount;
+
+            // Set attendee count
+            const attendeeCount = parseInt(announcement.AttendeeRegistered) || 0;
+            document.getElementById('announcementModalAttendeeCount').textContent = attendeeCount;
 
             // Set registered count (all members registered, regardless of role)
             const registeredCount = parseInt(announcement.RegisteredCount) || 0;
-            // document.getElementById('announcementModalRegistered').value = registeredCount;
+            document.getElementById('announcementModalRegistered').textContent = registeredCount;
 
             // Format review date
             let formattedReviewDate = 'N/A';
@@ -935,18 +966,24 @@
                     day: 'numeric'
                 });
             }
-            // document.getElementById('announcementModalReviewDate').value = formattedReviewDate;
+            document.getElementById('announcementModalReviewDate').textContent = formattedReviewDate;
 
             // Set priority badge
             const priorityBadge = document.getElementById('announcementModalPriority');
             if (announcement.IsPriority == 1) {
-                priorityBadge.innerHTML = '<span class="badge bg-danger">Priority</span>';
+                priorityBadge.innerHTML = '<span class="badge bg-danger">Priority Event</span>';
             } else {
                 priorityBadge.innerHTML = '';
             }
 
             const modal = new bootstrap.Modal(document.getElementById('announcementDetailsModal'));
             modal.show();
+        }
+
+        // Register for announcement event from index page
+        function registerForAnnouncementEvent() {
+            // Placeholder for future implementation with non-member registration via cookies
+            alert('Registration feature coming soon! This will allow both members and non-members to register.');
         }
 
         // Load mission and vision

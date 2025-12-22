@@ -82,114 +82,106 @@
 
     <!-- Announcement Details Modal -->
     <div class="modal fade" id="announcementDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Event Details</h5>
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-4">
-                        <h6 class="border-bottom pb-2">Event Information</h6>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <label class="form-label">Event Name</label>
-                                <input type="text" id="announcementTitle" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
+                <div class="modal-body p-5">
+                    <!-- Header: Title with Category and Venue -->
+                    <div class="row mb-4 pb-3 border-bottom">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <h2 class="h3 fw-bold m-0" id="announcementTitle" style="color: #2B702A;"></h2>
+                                <span id="announcementCategory" class="badge bg-success" style="display: none;"></span>
+                                <span id="priorityBadge"></span>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Status</label>
-                                <div id="announcementStatus" class="form-control"
-                                    style="background-color: #f8f9fa; padding: 10px;"></div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <label class="text-muted small d-block">VENUE</label>
+                            <p class="fw-bold m-0" id="announcementVenue"></p>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time Section -->
+                    <div class="row mb-4 pb-3 border-bottom">
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">DATE</label>
+                            <p class="fw-bold m-0" id="announcementDate"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">START TIME</label>
+                            <p class="fw-bold m-0" id="announcementStartTime"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">END TIME</label>
+                            <p class="fw-bold m-0" id="announcementEndTime"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="text-muted small d-block">STATUS</label>
+                            <div id="announcementStatus"></div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Slots Section -->
+                    <div class="row mb-4 pb-3 border-bottom">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 bg-light">
+                                <label class="text-muted small d-block fw-bold">STAFF REGISTRATION</label>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Slots Left</small>
+                                        <p class="h5 fw-bold m-0 text-success" id="announcementStaffSlotsLeft">0</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Registered</small>
+                                        <p class="h5 fw-bold m-0 text-info" id="announcementStaffCount">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 bg-light">
+                                <label class="text-muted small d-block fw-bold">GENERAL ATTENDEE REGISTRATION</label>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Registered</small>
+                                        <p class="h5 fw-bold m-0 text-info" id="announcementAttendeeCount">0</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Total Capacity</small>
+                                        <p class="h5 fw-bold m-0 text-primary" id="announcementCapacity">0</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h6 class="border-bottom pb-2">Date & Time</h6>
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Event Date</label>
-                                <input type="text" id="announcementDate" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Start Time</label>
-                                <input type="text" id="announcementStartTime" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">End Time</label>
-                                <input type="text" id="announcementEndTime" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                        </div>
+                    <!-- Description Section -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <label class="text-muted small fw-bold d-block mb-2">DETAILS</label>
+                        <p id="announcementDescription" class="text-muted" style="line-height: 1.6; white-space: pre-wrap;"></p>
                     </div>
 
-                    <div class="mb-4">
-                        <h6 class="border-bottom pb-2">Location & Capacity</h6>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <label class="form-label">Venue</label>
-                                <input type="text" id="announcementVenue" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Capacity</label>
-                                <input type="text" id="announcementCapacity" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Staff Participation Slots Left</label>
-                                <input type="text" id="announcementStaffSlots" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Staff Registered</label>
-                                <input type="text" id="announcementStaffCount" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">General Attendees Registered</label>
-                                <input type="text" id="announcementAttendeeCount" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Total Members Registered</label>
-                                <input type="text" id="announcementRegistered" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
+                    <!-- Additional Information -->
+                    <div class="row g-3 text-muted small">
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Proposed By</label>
+                            <p id="announcementAuthor" class="m-0"></p>
                         </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h6 class="border-bottom pb-2">Description</h6>
-                        <textarea id="announcementDescription" class="form-control" rows="3" readonly
-                            style="background-color: #f8f9fa;"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <h6 class="border-bottom pb-2">Additional Information</h6>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Submitted by</label>
-                                <input type="text" id="announcementAuthor" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Review Date</label>
-                                <input type="text" id="announcementReviewDate" class="form-control" readonly
-                                    style="background-color: #f8f9fa;">
-                            </div>
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Review Date</label>
+                            <p id="announcementReviewDate" class="m-0"></p>
                         </div>
-                        <div class="mt-3">
-                            <span id="priorityBadge"></span>
+                        <div class="col-md-4">
+                            <label class="fw-bold d-block mb-1">Total Registered</label>
+                            <p id="announcementRegistered" class="m-0 fw-bold text-dark"></p>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer border-top">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" id="registerEventBtn" onclick="showRegistrationTypeModal()">Register</button>
+                    <button type="button" class="btn btn-success btn-lg" id="registerEventBtn" onclick="showRegistrationTypeModal()">Register for Event</button>
                 </div>
             </div>
         </div>
@@ -458,16 +450,16 @@
                     const announcement = data.announcements[0];
 
                     // Set title
-                    document.getElementById('announcementTitle').value = escapeHtml(announcement.Title || title || 'N/A');
+                    document.getElementById('announcementTitle').textContent = escapeHtml(announcement.Title || title || 'N/A');
 
                     // Set description
-                    document.getElementById('announcementDescription').value = escapeHtml(announcement.Description || description || 'N/A');
+                    document.getElementById('announcementDescription').textContent = escapeHtml(announcement.Description || description || 'N/A');
 
                     // Set author
                     const authorName = (announcement.FName && announcement.LName)
                         ? `${announcement.FName} ${announcement.LName}`
                         : author || 'N/A';
-                    document.getElementById('announcementAuthor').value = escapeHtml(authorName);
+                    document.getElementById('announcementAuthor').textContent = escapeHtml(authorName);
 
                     // Set status with badge
                     const statusText = announcement.Status || status || 'N/A';
@@ -486,42 +478,39 @@
                             day: 'numeric'
                         });
                     }
-                    document.getElementById('announcementDate').value = formattedDate;
+                    document.getElementById('announcementDate').textContent = formattedDate;
 
                     // Set start time
-                    document.getElementById('announcementStartTime').value = announcement.StartTime || 'N/A';
+                    document.getElementById('announcementStartTime').textContent = announcement.StartTime || 'N/A';
 
                     // Set end time
-                    document.getElementById('announcementEndTime').value = announcement.EndTime || 'N/A';
+                    document.getElementById('announcementEndTime').textContent = announcement.EndTime || 'N/A';
 
                     // Set venue
-                    document.getElementById('announcementVenue').value = escapeHtml(announcement.Venue || 'N/A');
+                    document.getElementById('announcementVenue').textContent = escapeHtml(announcement.Venue || 'N/A');
 
                     // Set capacity
                     const capacity = parseInt(announcement.TargetParticipants) || 0;
-                    document.getElementById('announcementCapacity').value = capacity > 0 ? capacity : 'N/A';
+                    document.getElementById('announcementCapacity').textContent = capacity > 0 ? capacity : 'N/A';
 
                     // Calculate and set staff slots left
                     // All members (Admin or regular Member) can participate as staff
                     const staffRequired = parseInt(announcement.StaffRequired) || 0;
                     const staffRegistered = parseInt(announcement.StaffRegistered) || 0;
                     const staffSlotsLeft = Math.max(0, staffRequired - staffRegistered);
-                    const staffSlotsText = staffRequired > 0
-                        ? `${staffSlotsLeft} (${staffRequired} required, ${staffRegistered} registered)`
-                        : 'N/A';
-                    document.getElementById('announcementStaffSlots').value = staffSlotsText;
+                    document.getElementById('announcementStaffSlotsLeft').textContent = staffSlotsLeft;
 
                     // Set staff count
                     const staffCount = parseInt(announcement.StaffRegistered) || 0;
-                    document.getElementById('announcementStaffCount').value = staffCount;
+                    document.getElementById('announcementStaffCount').textContent = staffCount;
 
                     // Set attendee count
                     const attendeeCount = parseInt(announcement.AttendeeRegistered) || 0;
-                    document.getElementById('announcementAttendeeCount').value = attendeeCount;
+                    document.getElementById('announcementAttendeeCount').textContent = attendeeCount;
 
                     // Set registered count (all members registered, regardless of role)
                     const registeredCount = parseInt(announcement.RegisteredCount) || 0;
-                    document.getElementById('announcementRegistered').value = registeredCount;
+                    document.getElementById('announcementRegistered').textContent = registeredCount;
 
                     // Format review date
                     let formattedReviewDate = 'N/A';
@@ -534,29 +523,31 @@
                             day: 'numeric'
                         });
                     }
-                    document.getElementById('announcementReviewDate').value = formattedReviewDate;
+                    document.getElementById('announcementReviewDate').textContent = formattedReviewDate;
 
                     // Set priority badge
                     const priorityValue = announcement.IsPriority || isPriority;
                     const priorityBadge = document.getElementById('priorityBadge');
                     if (priorityValue == 1) {
-                        priorityBadge.innerHTML = '<span class="badge bg-danger">Priority</span>';
+                        priorityBadge.innerHTML = '<span class="badge bg-danger">Priority Event</span>';
                     } else {
                         priorityBadge.innerHTML = '';
                     }
                 } else {
                     // Fallback to passed parameters if API fails
-                    document.getElementById('announcementTitle').value = escapeHtml(title || 'N/A');
-                    document.getElementById('announcementDescription').value = escapeHtml(description || 'N/A');
-                    document.getElementById('announcementAuthor').value = escapeHtml(author || 'N/A');
+                    document.getElementById('announcementTitle').textContent = escapeHtml(title || 'N/A');
+                    document.getElementById('announcementDescription').textContent = escapeHtml(description || 'N/A');
+                    document.getElementById('announcementAuthor').textContent = escapeHtml(author || 'N/A');
                     document.getElementById('announcementStatus').innerHTML = `<span class="badge bg-secondary">${escapeHtml(status || 'N/A')}</span>`;
-                    document.getElementById('announcementDate').value = 'N/A';
-                    document.getElementById('announcementStartTime').value = 'N/A';
-                    document.getElementById('announcementEndTime').value = 'N/A';
-                    document.getElementById('announcementVenue').value = 'N/A';
-                    document.getElementById('announcementCapacity').value = 'N/A';
-                    document.getElementById('announcementStaffSlots').value = 'N/A';
-                    document.getElementById('announcementRegistered').value = 'N/A';
+                    document.getElementById('announcementDate').textContent = 'N/A';
+                    document.getElementById('announcementStartTime').textContent = 'N/A';
+                    document.getElementById('announcementEndTime').textContent = 'N/A';
+                    document.getElementById('announcementVenue').textContent = 'N/A';
+                    document.getElementById('announcementCapacity').textContent = 'N/A';
+                    document.getElementById('announcementStaffSlotsLeft').textContent = '0';
+                    document.getElementById('announcementStaffCount').textContent = '0';
+                    document.getElementById('announcementAttendeeCount').textContent = '0';
+                    document.getElementById('announcementRegistered').textContent = '0';
 
                     let formattedReviewDate = 'N/A';
                     if (reviewDate) {
@@ -567,7 +558,7 @@
                             day: 'numeric'
                         });
                     }
-                    document.getElementById('announcementReviewDate').value = formattedReviewDate;
+                    document.getElementById('announcementReviewDate').textContent = formattedReviewDate;
 
                     const priorityBadge = document.getElementById('priorityBadge');
                     if (isPriority == 1) {
