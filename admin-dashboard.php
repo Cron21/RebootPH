@@ -10394,24 +10394,30 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Load members for selected event
             async function loadEventAttendanceMembers() {
-                const eventId = document.getElementById('attendanceEventSelect').value;
-                const showQRBtn = document.getElementById('showQRButton');
-
-                if (!eventId) {
-                    document.getElementById('attendanceMembersTableBody').innerHTML = `
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-4">
-                                Select an event to view registered members
-                            </td>
-                        </tr>
-                    `;
-                    document.getElementById('attendanceStatsRow').style.display = 'none';
-                    showQRBtn.classList.add('d-none');
-                    return;
-                }
-
                 try {
-                    console.log('Loading members for event:', eventId);
+                    const eventId = document.getElementById('attendanceEventSelect').value;
+                    const showQRBtn = document.getElementById('showQRButton');
+                    const tbody = document.getElementById('attendanceMembersTableBody');
+                    const statsRow = document.getElementById('attendanceStatsRow');
+
+                    // Reset if no event selected
+                    if (!eventId) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Select an event to view registered members
+                                </td>
+                            </tr>
+                        `;
+                        statsRow.style.display = 'none';
+                        showQRBtn.classList.add('d-none');
+                        console.log('No event selected');
+                        return;
+                    }
+
+                    console.log('Loading members for event ID:', eventId);
+                    
+                    // Fetch members for the selected event
                     const response = await fetch(`api/manage-attendance.php?action=getEventAttendance&eventId=${eventId}`, {
                         method: 'GET',
                         credentials: 'include',
@@ -10425,61 +10431,75 @@ if ($_SESSION['role'] === 'Member Staff') {
                     }
                     
                     const data = await response.json();
-                    console.log('Event attendance response:', data);
+                    console.log('Raw API response:', data);
 
-                    if (data.success) {
-                        // Update stats
-                        const totalReg = parseInt(data.stats.totalRegistered) || 0;
-                        const totalAtt = parseInt(data.stats.totalAttended) || 0;
-                        const rate = totalReg > 0 ? Math.round((totalAtt / totalReg) * 100) : 0;
-                        
-                        document.getElementById('totalRegisteredCard').textContent = totalReg;
-                        document.getElementById('totalCheckedInCard').textContent = totalAtt;
-                        document.getElementById('attendanceRateCard').textContent = rate + '%';
-                        document.getElementById('attendanceStatsRow').style.display = '';
+                    if (!data.success) {
+                        throw new Error(data.message || 'API returned failure');
+                    }
 
-                        // Show QR button
-                        showQRBtn.classList.remove('d-none');
-                        showQRBtn.dataset.eventId = eventId;
+                    // Validate attendees data
+                    if (!data.attendees || !Array.isArray(data.attendees)) {
+                        throw new Error('Invalid attendees data received from API');
+                    }
 
-                        // Populate members table
-                        const tbody = document.getElementById('attendanceMembersTableBody');
-                        if (data.attendees && Array.isArray(data.attendees) && data.attendees.length > 0) {
-                            tbody.innerHTML = data.attendees.map((attendee, index) => `
+                    // Update statistics
+                    const totalReg = parseInt(data.stats?.totalRegistered) || 0;
+                    const totalAtt = parseInt(data.stats?.totalAttended) || 0;
+                    const rate = totalReg > 0 ? Math.round((totalAtt / totalReg) * 100) : 0;
+                    
+                    document.getElementById('totalRegisteredCard').textContent = totalReg;
+                    document.getElementById('totalCheckedInCard').textContent = totalAtt;
+                    document.getElementById('attendanceRateCard').textContent = rate + '%';
+                    statsRow.style.display = '';
+
+                    // Show QR button only after event is selected
+                    showQRBtn.classList.remove('d-none');
+                    showQRBtn.dataset.eventId = eventId;
+
+                    // Populate members table
+                    if (data.attendees.length > 0) {
+                        const rows = data.attendees.map((attendee, index) => {
+                            const isCheckedIn = attendee.AttendanceID ? true : false;
+                            const statusBadge = isCheckedIn 
+                                ? '<span class="badge bg-success">Checked In</span>' 
+                                : '<span class="badge bg-warning">Pending</span>';
+                            const checkInTime = attendee.CheckInTime 
+                                ? new Date(attendee.CheckInTime).toLocaleString() 
+                                : '-';
+                            
+                            return `
                                 <tr>
                                     <td>${index + 1}</td>
                                     <td>${attendee.FName} ${attendee.LName}</td>
                                     <td>${attendee.ApplicantEmail}</td>
-                                    <td>
-                                        <span class="badge ${attendee.AttendanceID ? 'bg-success' : 'bg-warning'}">
-                                            ${attendee.AttendanceID ? 'Checked In' : 'Pending'}
-                                        </span>
-                                    </td>
-                                    <td>${attendee.CheckInTime ? new Date(attendee.CheckInTime).toLocaleString() : '-'}</td>
-                                </tr>
-                            `).join('');
-                            console.log(`Loaded ${data.attendees.length} attendees`);
-                        } else {
-                            tbody.innerHTML = `
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">
-                                        No registered members for this event
-                                    </td>
+                                    <td>${statusBadge}</td>
+                                    <td>${checkInTime}</td>
                                 </tr>
                             `;
-                        }
+                        }).join('');
+                        
+                        tbody.innerHTML = rows;
+                        console.log(`Successfully loaded ${data.attendees.length} attendees`);
                     } else {
-                        throw new Error(data.message || 'Failed to load attendance data');
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    No registered members for this event yet
+                                </td>
+                            </tr>
+                        `;
                     }
                 } catch (error) {
                     console.error('Error loading event attendance:', error);
                     document.getElementById('attendanceMembersTableBody').innerHTML = `
                         <tr>
                             <td colspan="5" class="text-center text-danger py-4">
-                                Error loading attendance data: ${error.message}
+                                <strong>Error:</strong> ${error.message}
                             </td>
                         </tr>
                     `;
+                    document.getElementById('attendanceStatsRow').style.display = 'none';
+                    document.getElementById('showQRButton').classList.add('d-none');
                 }
             }
 
@@ -10506,61 +10526,98 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const eventName = eventSelect.options[eventSelect.selectedIndex].text;
                     console.log('Generating QR code for event:', eventId, eventName);
                     
-                    // Generate organizer QR code data
-                    const qrData = JSON.stringify({
-                        type: 'organizer',
-                        eventId: eventId,
-                        eventName: eventName,
-                        timestamp: new Date().toISOString(),
-                        organizerId: 'ORG-' + Date.now()
+                    // Fetch the event details to get the serial number
+                    fetchEventDetails(eventId).then(eventDetails => {
+                        const serialNumber = eventDetails?.SerialNumber || 'EVT-' + eventId;
+                        
+                        // Generate QR code data with the event serial number
+                        // Members will scan this to get the serial number for marking attendance
+                        const qrData = JSON.stringify({
+                            type: 'event_attendance',
+                            eventId: eventId,
+                            eventName: eventName,
+                            serialNumber: serialNumber,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        console.log('QR Data:', qrData);
+                        
+                        // Show modal with QR code
+                        const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+                        modal.show();
+                        
+                        // Generate QR code after modal is shown
+                        setTimeout(() => {
+                            try {
+                                const qrContainer = document.getElementById('organizerQRCode');
+                                if (!qrContainer) {
+                                    console.error('QR container element not found');
+                                    return;
+                                }
+                                
+                                qrContainer.innerHTML = ''; // Clear previous QR
+                                
+                                // Check if QRCode library is loaded
+                                if (typeof QRCode === 'undefined') {
+                                    console.error('QRCode library not loaded');
+                                    qrContainer.innerHTML = '<div class="alert alert-danger">QR Code library not loaded</div>';
+                                    return;
+                                }
+                                
+                                // Generate the QR code
+                                new QRCode(qrContainer, {
+                                    text: qrData,
+                                    width: 300,
+                                    height: 300,
+                                    colorDark: '#1a7f0d',
+                                    colorLight: '#ffffff',
+                                    correctLevel: QRCode.CorrectLevel.H
+                                });
+                                
+                                console.log('QR code generated successfully');
+                            } catch (error) {
+                                console.error('Error generating QR code:', error);
+                                const qrContainer = document.getElementById('organizerQRCode');
+                                if (qrContainer) {
+                                    qrContainer.innerHTML = '<div class="alert alert-danger">Error generating QR code: ' + error.message + '</div>';
+                                }
+                            }
+                        }, 300);
+                    }).catch(error => {
+                        console.error('Error fetching event details:', error);
+                        alert('Error loading event details: ' + error.message);
                     });
-                    
-                    console.log('QR Data:', qrData);
-                    
-                    // Show modal with QR code
-                    const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
-                    modal.show();
-                    
-                    // Generate QR code after modal is shown
-                    setTimeout(() => {
-                        try {
-                            const qrContainer = document.getElementById('organizerQRCode');
-                            if (!qrContainer) {
-                                console.error('QR container element not found');
-                                return;
-                            }
-                            
-                            qrContainer.innerHTML = ''; // Clear previous QR
-                            
-                            // Check if QRCode library is loaded
-                            if (typeof QRCode === 'undefined') {
-                                console.error('QRCode library not loaded');
-                                qrContainer.innerHTML = '<div class="alert alert-danger">QR Code library not loaded</div>';
-                                return;
-                            }
-                            
-                            // Generate the QR code
-                            new QRCode(qrContainer, {
-                                text: qrData,
-                                width: 250,
-                                height: 250,
-                                colorDark: '#1a7f0d',
-                                colorLight: '#ffffff',
-                                correctLevel: QRCode.CorrectLevel.H
-                            });
-                            
-                            console.log('QR code generated successfully');
-                        } catch (error) {
-                            console.error('Error generating QR code:', error);
-                            const qrContainer = document.getElementById('organizerQRCode');
-                            if (qrContainer) {
-                                qrContainer.innerHTML = '<div class="alert alert-danger">Error generating QR code: ' + error.message + '</div>';
-                            }
-                        }
-                    }, 300);
                 } catch (error) {
                     console.error('Error in showOrganizerQRCode:', error);
                     alert('Error generating QR code: ' + error.message);
+                }
+            }
+
+            // Helper function to fetch event details including serial number
+            async function fetchEventDetails(eventId) {
+                try {
+                    const response = await fetch(`api/manage-attendance.php?action=getEventDetails&eventId=${eventId}`, {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    if (data.success && data.event) {
+                        return data.event;
+                    } else {
+                        throw new Error(data.message || 'Failed to fetch event details');
+                    }
+                } catch (error) {
+                    console.error('Error fetching event details:', error);
+                    // Return null and let caller handle it
+                    return null;
                 }
             }
 
