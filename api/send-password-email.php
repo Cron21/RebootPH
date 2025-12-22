@@ -63,7 +63,7 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
                 <h4 style='color: #035996;'>Option 1: Use Your Temporary Password (Direct Login)</h4>
                 <p>You can immediately log in to the dashboard using the temporary password provided above:</p>
                 <ul>
-                    <li>Visit: <strong>https://springgreen-walrus-657527.hostingersite.com</strong></li>
+                    <li>Visit: <strong>https://rebootph-bicol.online</strong></li>
                     <li>Email: <strong>$emailEscaped</strong></li>
                     <li>Password: <strong>$passwordEscaped</strong></li>
                 </ul>
@@ -109,7 +109,7 @@ EOT;
     YOU HAVE TWO OPTIONS:
     
     OPTION 1: Use Your Temporary Password (Direct Login)
-    - Visit: https://springgreen-walrus-657527.hostingersite.com
+    - Visit: https://rebootph-bicol.online
     - Use the email and temporary password above to log in immediately
     - You can change your password anytime in your profile settings
     

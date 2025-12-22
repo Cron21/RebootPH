@@ -7,6 +7,18 @@
     <title>Initiatives - Reboot PH</title>
     <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./assets/css/style.css">
+    <style>
+        .initiative-badge {
+            display: inline-block;
+            max-width: 100%;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            font-size: clamp(0.65rem, 2vw, 0.875rem);
+            padding: clamp(4px, 1%, 6px) clamp(6px, 2%, 10px) !important;
+            line-height: 1.3;
+        }
+    </style>
 </head>
 
 <body class="bg-light d-flex flex-column min-vh-100"
@@ -104,7 +116,7 @@
                 <div class="modal-body">
                     <div id="initiativeModalImages" class="mb-3"></div>
                     <div class="mb-3">
-                        <span id="initiativeModalCategory" class="badge bg-info"></span>
+                        <span id="initiativeModalCategory" class="badge bg-info initiative-badge"></span>
                     </div>
                     <div class="mb-3">
                         <h6 class="fw-bold">Description</h6>
@@ -327,7 +339,7 @@
                         <div class="card h-100 shadow-lg border-0">
                             ${imageHtml}
                             <div class="card-body">
-                                <span class="badge bg-info mb-2">${escapeHtml(initiative.Category || 'Uncategorized')}</span>
+                                <span class="badge bg-info initiative-badge mb-2">${escapeHtml(initiative.Category || 'Uncategorized')}</span>
                                 <h5 class="card-title">${escapeHtml(initiative.Title)}</h5>
                                 <p class="card-text text-muted small">${escapeHtml(initiative.Description.substring(0, 100))}...</p>
                             </div>
