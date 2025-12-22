@@ -1823,7 +1823,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <h3 class="text-center fw-bold mb-4" style="color:#035996;">Member ID Preview</h3>
 
                                     <div class="id-card mx-auto shadow border" id="idPreview"
-                                        style="width: 100%; max-width: 500px; height: 300px; background-color: white; border-radius: 20px; overflow: hidden; position: relative; font-family: sans-serif;">
+                                        style="width: 100%; max-width: 350px; aspect-ratio: 3.5 / 4.5; background-color: white; border-radius: 20px; overflow: hidden; position: relative; font-family: sans-serif;">
 
                                         <div class="d-flex align-items-center justify-content-center h-100">
                                             <div class="spinner-border text-primary" role="status">
