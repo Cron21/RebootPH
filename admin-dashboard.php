@@ -4891,9 +4891,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <button class="btn btn-outline-success" onclick="approveProposalFromTable(${prop.ProposalID})">Approve</button>
                                     <button class="btn btn-outline-danger" onclick="rejectProposalFromTable(${prop.ProposalID})">Reject</button>
                                 ` : ''}
-                                ${prop.Status === 'Approved' ? `
-                                    <button class="btn btn-outline-warning" onclick="postponeProposal(${prop.ProposalID})">Postpone</button>
-                                ` : ''}
+
                                 ${prop.Status === 'Rejected' || prop.Status === 'Postponed' ? `
                                     <button class="btn btn-outline-danger" onclick="deleteProposalFromTable(${prop.ProposalID}, '${prop.Title.replace(/'/g, "\\'")}', '${prop.Status}')">Delete</button>
                                 ` : ''}
