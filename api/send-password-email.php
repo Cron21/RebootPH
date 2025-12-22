@@ -20,7 +20,7 @@ function sendPasswordEmail($email, $firstName, $tempPassword) {
     
     // Create change password link with token (you can use email + timestamp as simple token)
     $token = base64_encode($email . ':' . time());
-    $changePasswordUrl = 'https://springgreen-walrus-657527.hostingersite.com/change-password.html?token=' . urlencode($token);
+    $changePasswordUrl = 'https://rebootph-bicol.online/change-password.html?token=' . urlencode($token);
     
     // HTML email template
     $htmlBody = "
