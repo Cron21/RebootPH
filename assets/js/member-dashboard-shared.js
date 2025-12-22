@@ -614,7 +614,10 @@ function populateRegisteredEventsTab(events) {
         else if (isUpcoming) statusBadge = '<span class="badge bg-primary">Upcoming</span>';
         else statusBadge = '<span class="badge bg-secondary">Completed</span>';
 
-        const unregisterBtn = isUpcoming
+        // Show cancel button if event is NOT ongoing AND NOT completed (and not attended)
+        const isCompleted = now > eventEndTime;
+        const canUnregister = !attended && !isOngoing && !isCompleted;
+        const unregisterBtn = canUnregister
             ? `<button class="btn btn-sm btn-outline-danger" onclick="unregisterFromEvent(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}')"">Cancel Registration</button>`
             : '';
 
