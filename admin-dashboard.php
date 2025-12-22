@@ -9219,7 +9219,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                             
                             // Close after 3 seconds
                             setTimeout(() => {
-                                modal.hide();
+                                const modalInstance = bootstrap.Modal.getInstance(document.getElementById('attendanceCheckModal'));
+                                if (modalInstance) {
+                                    modalInstance.hide();
+                                }
                             }, 3000);
                         }
                     } else {
@@ -9243,7 +9246,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                         
                         // Close after 3 seconds
                         setTimeout(() => {
-                            modal.hide();
+                            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('attendanceCheckModal'));
+                            if (modalInstance) {
+                                modalInstance.hide();
+                            }
                         }, 3000);
                     }
                     
@@ -9269,6 +9275,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const data = await response.json();
 
                     if (data.success) {
+                        // Show success modal
                         const resultDiv = document.getElementById('attendanceResult');
                         resultDiv.innerHTML = `
                         <div class="text-center mb-4">
@@ -9284,14 +9291,25 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                         document.getElementById('confirmAttendance').classList.add('d-none');
 
+                        // Show the modal
+                        const modal = new bootstrap.Modal(document.getElementById('attendanceCheckModal'));
+                        modal.show();
+
                         // Close modal and refresh members table after 2 seconds
                         setTimeout(() => {
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceCheckModal'));
-                            if (modal) {
-                                modal.hide();
+                            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('attendanceCheckModal'));
+                            if (modalInstance) {
+                                modalInstance.hide();
                             }
                             // Refresh the members table to show updated attendance
                             loadEventAttendanceMembers();
+                            
+                            // Reset the form to allow next scan
+                            document.getElementById('attendanceCheckingForm').dataset.step = '1';
+                            document.getElementById('step1-event-verification').classList.remove('d-none');
+                            document.getElementById('step2-member-verification').classList.add('d-none');
+                            document.getElementById('eventSerialInput').value = '';
+                            document.getElementById('memberSerialInput').value = '';
                         }, 2000);
                     } else {
                         alert('Error recording attendance: ' + data.message);
@@ -9437,13 +9455,15 @@ if ($_SESSION['role'] === 'Member Staff') {
                         // Scanning event serial
                         verifyEventSerial(decodedText);
                     } else if (step === '2') {
-                        // Scanning member serial - automatically mark attendance and stop scanner
-                        verifyMemberSerial(decodedText);
-                        // Stop the scanner after successful scan
+                        // Stop the scanner immediately when member QR is detected
                         if (html5QrcodeScanner) {
                             html5QrcodeScanner.clear();
                             html5QrcodeScanner = null;
                         }
+                        document.getElementById('qr-scanner').classList.add('d-none');
+                        
+                        // Scanning member serial - automatically mark attendance
+                        verifyMemberSerial(decodedText);
                     }
                 } catch (e) {
                     console.error('QR decode error:', e);

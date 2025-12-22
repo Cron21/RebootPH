@@ -1000,9 +1000,17 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                 
                 window.html5QrcodeScanner.render(
                     (decodedText) => {
-                        // QR code scanned successfully
+                        // QR code scanned successfully - stop scanner immediately
+                        if (window.html5QrcodeScanner) {
+                            window.html5QrcodeScanner.clear();
+                            window.html5QrcodeScanner = null;
+                        }
                         document.getElementById('serialNumber').value = decodedText;
                         console.log('QR Code Scanned:', decodedText);
+                        // Auto-verify attendance after scanning
+                        setTimeout(() => {
+                            verifyAttendance();
+                        }, 500);
                     },
                     (error) => {
                         // Ignore errors during scanning
@@ -1043,7 +1051,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             }
 
             try {
-                // Mark attendance using the member's ID
+                // Mark attendance using the serial number
                 const response = await fetch('api/manage-attendance.php?action=markAttendance', {
                     method: 'POST',
                     headers: {
@@ -1052,26 +1060,113 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                     credentials: 'include',
                     body: JSON.stringify({
                         eventId: eventId,
-                        memberId: parseInt(serialNumber) || serialNumber
+                        serialNumber: serialNumber
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Attendance marked successfully!');
-                    stopQRScanner();
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
-                    modal.hide();
+                    // Show success message
+                    const serialInput = document.getElementById('serialNumber');
+                    serialInput.value = '';
                     
-                    // Reload registered events to update the UI
-                    loadRegisteredEventsTab();
+                    // Hide the scanner and button, show success message
+                    const qrReader = document.getElementById('qr-reader');
+                    if (qrReader) {
+                        qrReader.style.display = 'none';
+                    }
+                    const verifyBtn = document.querySelector('#attendanceModal .modal-footer .btn-primary');
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'none';
+                    }
+                    
+                    // Update modal body with success message
+                    const modalBody = document.querySelector('#attendanceModal .modal-body');
+                    modalBody.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="display-1 text-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        <h6 class="alert-heading">Attendance Marked Successfully!</h6>
+                        <hr>
+                        <p class="mb-0">Your attendance has been recorded for this event.</p>
+                    </div>`;
+                    
+                    // Close modal after 2 seconds
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                        // Reload registered events to update the UI
+                        loadRegisteredEventsTab();
+                    }, 2000);
                 } else {
-                    alert('Error: ' + (data.message || 'Failed to mark attendance'));
+                    // Show error message
+                    const modalBody = document.querySelector('#attendanceModal .modal-body');
+                    const qrReader = document.getElementById('qr-reader');
+                    if (qrReader) {
+                        qrReader.style.display = 'none';
+                    }
+                    const verifyBtn = document.querySelector('#attendanceModal .modal-footer .btn-primary');
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'none';
+                    }
+                    
+                    modalBody.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="display-1 text-danger">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading">Error Recording Attendance</h6>
+                        <p class="mb-0">${data.message || 'Failed to mark attendance. Please try again.'}</p>
+                    </div>`;
+                    
+                    // Close modal after 3 seconds
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }, 3000);
                 }
             } catch (error) {
                 console.error('Error verifying attendance:', error);
-                alert('Error: ' + error.message);
+                
+                // Show error message
+                const modalBody = document.querySelector('#attendanceModal .modal-body');
+                const qrReader = document.getElementById('qr-reader');
+                if (qrReader) {
+                    qrReader.style.display = 'none';
+                }
+                const verifyBtn = document.querySelector('#attendanceModal .modal-footer .btn-primary');
+                if (verifyBtn) {
+                    verifyBtn.style.display = 'none';
+                }
+                
+                modalBody.innerHTML = `
+                <div class="text-center mb-4">
+                    <div class="display-1 text-danger">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                </div>
+                <div class="alert alert-danger">
+                    <h6 class="alert-heading">Connection Error</h6>
+                    <p class="mb-0">${error.message}</p>
+                </div>`;
+                
+                // Close modal after 3 seconds
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                }, 3000);
             }
         }
     </script>
