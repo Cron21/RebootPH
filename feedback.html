@@ -476,14 +476,10 @@
                     const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                     successModal.show();
 
-                    // Reset form
-                    this.reset();
-                    this.classList.remove('was-validated');
-                    document.getElementById('knowledgeRange').value = 3;
-                    
-                    // Reload events to update feedback status
-                    await loadCompletedEvents();
-                    checkUrlParameters();
+                    // Redirect to member dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'member-dashboard.html';
+                    }, 2000);
                 } else {
                     const errorMsg = result.message || 'Unknown error';
                     console.error('API error response:', result);
