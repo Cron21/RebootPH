@@ -10194,7 +10194,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         // Clear existing options except first
                         select.innerHTML = '<option value="">-- Choose an Event --</option>';
 
-                        // Add event options
+                        // Add event options - filter for ongoing/scheduled status only
                         data.events.forEach(event => {
                             const option = document.createElement('option');
                             option.value = event.EventID;

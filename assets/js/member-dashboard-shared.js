@@ -604,7 +604,7 @@ function populateRegisteredEventsTab(events) {
 
         // Add attendance button for ongoing events
         const attendanceBtn = isOngoing && !attended
-            ? `<button class="btn btn-sm btn-success" onclick="showAttendanceCheckInModal(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}', ${window.currentMemberId}, '${window.currentMemberName}')"><i class="bi bi-qr-code"></i> Mark Attendance</button>`
+            ? `<button class="btn btn-sm btn-success" onclick="showAttendanceCheckInModal(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}', ${window.currentMemberId}, '${window.currentMemberName}')"><i class="bi bi-qr-code"></i> Scan Attendance QR</button>`
             : '';
 
         return `
@@ -616,14 +616,14 @@ function populateRegisteredEventsTab(events) {
                         ${statusBadge}
                     </div>
                 </div>
-                <p class="mb-2 text-muted small">
+                <p class="mb-3 text-muted small">
                     📅 ${eventDate.toLocaleDateString()} | ⏰ ${event.StartTime} - ${event.EndTime}<br>
                     📍 ${event.Venue}<br>
                     Registered on: ${regDate.toLocaleDateString()}
                 </p>
-                ${event.Description ? `<p class="mb-2 small">${event.Description}</p>` : ''}
+                ${event.Description ? `<p class="mb-3 small">${event.Description}</p>` : ''}
 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                     ${attendanceBtn}
                     ${unregisterBtn}
                 </div>

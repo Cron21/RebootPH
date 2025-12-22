@@ -40,6 +40,9 @@ try {
         case 'scanQRCode':
             scanQRCode();
             break;
+        case 'getEventAttendance':
+            getEventAttendance();
+            break;
         default:
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid action']);
@@ -671,6 +674,62 @@ function scanQRCode() {
             'attendanceId' => $attendanceId,
             'memberName' => $member['FName'] . ' ' . $member['LName'],
             'eventName' => $member['EventName']
+        ]);
+    } catch (Exception $e) {
+        throw $e;
+    }
+}
+
+/**
+ * Get event attendance details with member list
+ */
+function getEventAttendance() {
+    global $conn;
+    
+    $eventId = $_GET['eventId'] ?? null;
+    
+    if (!$eventId) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Event ID is required']);
+        return;
+    }
+    
+    try {
+        // Get all registered members for this event with attendance status
+        $stmt = $conn->prepare("
+            SELECT 
+                r.RegistrationID,
+                r.MemberID,
+                r.RegistrationDate,
+                a.FName,
+                a.LName,
+                a.ApplicantEmail,
+                ea.AttendanceID,
+                ea.AttendanceTime,
+                ea.ScanType
+            FROM registration r
+            JOIN member m ON r.MemberID = m.MemberID
+            JOIN application a ON m.ApplicationID = a.ApplicationID
+            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID AND r.EventID = ea.EventID
+            WHERE r.EventID = ? AND r.RegistrationStatus = 'Confirmed'
+            ORDER BY a.LName ASC, a.FName ASC
+        ");
+        
+        $stmt->execute([$eventId]);
+        $attendees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $totalAttended = count(array_filter($attendees, fn($a) => $a['AttendanceID']));
+        
+        echo json_encode([
+            'success' => true,
+            'attendees' => $attendees,
+            'stats' => [
+                'totalRegistered' => count($attendees),
+                'totalAttended' => $totalAttended,
+                'attendanceRate' => count($attendees) > 0 
+                    ? round(($totalAttended / count($attendees)) * 100, 2)
+                    : 0
+            ]
         ]);
     } catch (Exception $e) {
         throw $e;
