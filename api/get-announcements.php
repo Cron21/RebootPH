@@ -34,7 +34,11 @@ try {
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
                  JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID), 0) as StaffRegistered,
+                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Staff'), 0) as StaffRegistered,
+                COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
+                 FROM registration r
+                 JOIN event e ON r.EventID = e.EventID
+                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Attendee'), 0) as AttendeeRegistered,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
                  JOIN event e ON r.EventID = e.EventID
@@ -71,7 +75,11 @@ try {
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
                  JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID), 0) as StaffRegistered,
+                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Staff'), 0) as StaffRegistered,
+                COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
+                 FROM registration r
+                 JOIN event e ON r.EventID = e.EventID
+                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Attendee'), 0) as AttendeeRegistered,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
                  JOIN event e ON r.EventID = e.EventID
@@ -90,6 +98,7 @@ try {
     // Ensure numeric values are properly cast
     foreach ($announcements as &$announcement) {
         $announcement['StaffRegistered'] = (int)($announcement['StaffRegistered'] ?? 0);
+        $announcement['AttendeeRegistered'] = (int)($announcement['AttendeeRegistered'] ?? 0);
         $announcement['RegisteredCount'] = (int)($announcement['RegisteredCount'] ?? 0);
         $announcement['StaffRequired'] = (int)($announcement['StaffRequired'] ?? 0);
         $announcement['TargetParticipants'] = (int)($announcement['TargetParticipants'] ?? 0);

@@ -145,6 +145,16 @@
                                     style="background-color: #f8f9fa;">
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label">Staff Registered</label>
+                                <input type="text" id="announcementStaffCount" class="form-control" readonly
+                                    style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">General Attendees Registered</label>
+                                <input type="text" id="announcementAttendeeCount" class="form-control" readonly
+                                    style="background-color: #f8f9fa;">
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Total Members Registered</label>
                                 <input type="text" id="announcementRegistered" class="form-control" readonly
                                     style="background-color: #f8f9fa;">
@@ -179,6 +189,32 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="registerEventBtn" onclick="showRegistrationTypeModal()">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Type Modal -->
+    <div class="modal fade" id="registrationTypeModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Select Registration Type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">How would you like to register for this event?</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-success" onclick="registerAsStaff()">
+                            <strong>Register as Staff</strong>
+                            <small class="d-block text-muted">Participate as event staff member</small>
+                        </button>
+                        <button type="button" class="btn btn-outline-success" onclick="registerAsAttendee()">
+                            <strong>Register as General Attendee</strong>
+                            <small class="d-block text-muted">Participate as general attendee</small>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -464,6 +500,14 @@
                         : 'N/A';
                     document.getElementById('announcementStaffSlots').value = staffSlotsText;
 
+                    // Set staff count
+                    const staffCount = parseInt(announcement.StaffRegistered) || 0;
+                    document.getElementById('announcementStaffCount').value = staffCount;
+
+                    // Set attendee count
+                    const attendeeCount = parseInt(announcement.AttendeeRegistered) || 0;
+                    document.getElementById('announcementAttendeeCount').value = attendeeCount;
+
                     // Set registered count (all members registered, regardless of role)
                     const registeredCount = parseInt(announcement.RegisteredCount) || 0;
                     document.getElementById('announcementRegistered').value = registeredCount;
@@ -730,6 +774,123 @@
                     button.disabled = false;
                     button.textContent = originalText || 'Download PDF';
                 }
+            }
+        }
+
+        // Store current announcement data for registration
+        let currentAnnouncementData = null;
+
+        function showRegistrationTypeModal() {
+            // Check if user is logged in
+            fetch('api/check-session.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.memberID) {
+                        // User is logged in, show registration type modal
+                        const registrationModal = new bootstrap.Modal(document.getElementById('registrationTypeModal'));
+                        registrationModal.show();
+                    } else {
+                        // User is not logged in, redirect to login
+                        alert('Please log in to register for an event.');
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking session:', error);
+                    alert('Unable to verify login status. Please try again.');
+                });
+        }
+
+        function registerAsStaff() {
+            registerForEvent('Staff');
+        }
+
+        function registerAsAttendee() {
+            registerForEvent('Attendee');
+        }
+
+        async function registerForEvent(registrationType) {
+            try {
+                // Get member ID from session
+                const sessionResponse = await fetch('api/check-session.php');
+                const sessionData = await sessionResponse.json();
+
+                if (!sessionData.success || !sessionData.memberID) {
+                    alert('Please log in to register for an event.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const memberId = sessionData.memberID;
+
+                // Get announcement details to find event ID
+                const announcementTitle = document.getElementById('announcementTitle').value;
+                const response = await fetch('api/get-announcements.php');
+                const data = await response.json();
+
+                if (!data.success || !data.announcements) {
+                    alert('Unable to load event details. Please try again.');
+                    return;
+                }
+
+                // Find matching announcement
+                const announcement = data.announcements.find(ann => ann.Title === announcementTitle);
+                if (!announcement || !announcement.ProposalID) {
+                    alert('Event details not found.');
+                    return;
+                }
+
+                // Get event ID from proposal
+                const eventsResponse = await fetch('api/get-events.php');
+                const eventsData = await eventsResponse.json();
+
+                if (!eventsData.success || !eventsData.events) {
+                    alert('Unable to load event information. Please try again.');
+                    return;
+                }
+
+                const event = eventsData.events.find(e => e.ProposalID === announcement.ProposalID);
+                if (!event || !event.EventID) {
+                    alert('Event not found.');
+                    return;
+                }
+
+                // Register for the event
+                const registerResponse = await fetch('api/manage-registration.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'register',
+                        memberId: memberId,
+                        eventId: event.EventID,
+                        registrationType: registrationType
+                    })
+                });
+
+                const registerData = await registerResponse.json();
+
+                if (registerData.success) {
+                    alert(`Successfully registered as ${registrationType}!`);
+                    // Close the registration modal
+                    const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationTypeModal'));
+                    if (registrationModal) {
+                        registrationModal.hide();
+                    }
+                    // Close the announcement details modal
+                    const announcementModal = bootstrap.Modal.getInstance(document.getElementById('announcementDetailsModal'));
+                    if (announcementModal) {
+                        announcementModal.hide();
+                    }
+                    // Reload announcements to update counts
+                    loadAnnouncements();
+                } else {
+                    alert(registerData.message || 'Failed to register for the event.');
+                }
+            } catch (error) {
+                console.error('Error registering for event:', error);
+                alert('An error occurred while registering. Please try again.');
             }
         }
 
