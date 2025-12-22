@@ -344,7 +344,7 @@
                                         <p class="text-muted small mb-3">
                                             ${escapeHtml(newsletter.Content.substring(0, 200))}...
                                         </p>
-                                        <button class="btn btn-success btn-sm px-4 rounded-pill" onclick="downloadNewsletterPDF(${newsletter.NewsletterID}, '${escapeHtml(newsletter.Title)}')">Download PDF</button>
+                                        <button class="btn btn-success btn-sm px-4 rounded-pill" onclick="downloadNewsletterPDF(${newsletter.NewsletterID}, this)">Download PDF</button>
                                     </div>
                                 </div>
                             </div>
@@ -549,13 +549,64 @@
             return text.replace(/[&<>"']/g, m => map[m]);
         }
 
-        async function downloadNewsletterPDF(newsletterId, title) {
+        function _cleanHTMLToText(html) {
+            if (!html) return '';
+            // Decode any HTML entities and strip tags
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return (tmp.textContent || tmp.innerText || '');
+        }
+
+        function _cleanText(raw) {
+            let s = String(raw || '');
+            // Normalize CRLF to LF
+            s = s.replace(/\r\n?/g, '\n');
+            // Remove zero-width and BOM
+            s = s.replace(/[\u200B-\u200F\uFEFF]/g, '');
+            // Remove other non-printable control chars except newline
+            s = s.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/g, '');
+            // Remove variation selectors
+            s = s.replace(/\uFE0F/g, '');
+            // Remove common emoji/pictograph ranges (they are not reliably rendered by jsPDF)
+            s = s.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+            // Join sequences of single letters separated by spaces (e.g., "E v e r y")
+            s = s.replace(/\b(?:[A-Za-z]\s+){2,}[A-Za-z]\b/g, m => m.replace(/\s+/g, ''));
+            // Collapse multiple spaces into one on each line; trim
+            s = s.split('\n').map(l => l.replace(/\s+/g, ' ').trim()).join('\n');
+            return s.trim();
+        }
+
+        function _sanitizeParagraphs(text) {
+            if (!text) return [];
+            // If the input looks like HTML, strip tags and decode entities
+            const decoded = _cleanHTMLToText(text);
+            const cleaned = _cleanText(decoded);
+
+            // Split into paragraphs using two-or-more newlines as paragraph separator.
+            // Single newlines become spaces inside a paragraph.
+            let paragraphs = cleaned.split(/\n{2,}/).map(p => p.replace(/\n/g, ' ').trim()).filter(Boolean);
+            // Fallback: if there were no paragraph separators, split on single newlines
+            if (paragraphs.length === 0 && cleaned) {
+                paragraphs = cleaned.split(/\n+/).map(p => p.trim()).filter(Boolean);
+            }
+            return paragraphs;
+        }
+
+        function _sanitizeFilename(text) {
+            if (!text) return 'newsletter';
+            return String(text).trim().substring(0, 60).replace(/[^a-zA-Z0-9-_]/g, '_');
+        }
+
+        async function downloadNewsletterPDF(newsletterId, buttonEl) {
+            const button = buttonEl || (typeof event !== 'undefined' && event.target) || null;
+            let originalText = '';
             try {
                 // Show loading state
-                const button = event.target;
-                const originalText = button.textContent;
-                button.disabled = true;
-                button.textContent = 'Generating...';
+                if (button) {
+                    originalText = button.textContent;
+                    button.disabled = true;
+                    button.textContent = 'Generating...';
+                }
 
                 // Fetch newsletter data
                 const response = await fetch(`api/export-newsletter-pdf.php?id=${newsletterId}`);
@@ -587,7 +638,8 @@
                 doc.setTextColor(0, 102, 51); // Dark green
                 doc.setFont(undefined, 'bold');
 
-                const splitTitle = doc.splitTextToSize(newsletter.Title, contentWidth);
+                const titleText = newsletter.Title || '';
+                const splitTitle = doc.splitTextToSize(titleText, contentWidth);
                 doc.text(splitTitle, margin, yPosition);
                 yPosition += (splitTitle.length * 7) + 5;
 
@@ -636,15 +688,21 @@
                     doc.setTextColor(0, 0, 0);
                     doc.setFont(undefined, 'normal');
 
-                    const splitContent = doc.splitTextToSize(newsletter.Content, contentWidth);
+                    // Sanitize content: preserve paragraphs and collapse extra whitespace
+                    const paragraphs = _sanitizeParagraphs(newsletter.Content);
 
-                    splitContent.forEach((line, index) => {
-                        if (yPosition + 7 > pageHeight - margin) {
-                            doc.addPage();
-                            yPosition = margin;
-                        }
-                        doc.text(line, margin, yPosition);
-                        yPosition += 7;
+                    paragraphs.forEach(paragraph => {
+                        const lines = doc.splitTextToSize(paragraph, contentWidth);
+                        lines.forEach(line => {
+                            if (yPosition + 7 > pageHeight - margin) {
+                                doc.addPage();
+                                yPosition = margin;
+                            }
+                            doc.text(line, margin, yPosition);
+                            yPosition += 7;
+                        });
+                        // Add a small gap after each paragraph
+                        yPosition += 4;
                     });
 
                     // Add footer
@@ -654,20 +712,24 @@
                     doc.text(`© 2024 Reboot PH. Document ID: ${newsletter.NewsletterID}`, margin, pageHeight - 10);
 
                     // Download the PDF
-                    const filename = `newsletter_${newsletter.NewsletterID}_${newsletter.Title.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                    const filename = `newsletter_${newsletter.NewsletterID}_${_sanitizeFilename(newsletter.Title)}.pdf`;
                     doc.save(filename);
 
                     // Restore button state
-                    button.disabled = false;
-                    button.textContent = originalText;
+                    if (button) {
+                        button.disabled = false;
+                        button.textContent = originalText;
+                    }
                 }
 
             } catch (error) {
                 console.error('Error downloading PDF:', error);
                 alert('Failed to download PDF: ' + error.message);
                 // Restore button state on error
-                event.target.disabled = false;
-                event.target.textContent = 'Download PDF';
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = originalText || 'Download PDF';
+                }
             }
         }
 
