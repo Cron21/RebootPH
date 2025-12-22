@@ -713,7 +713,7 @@ function getEventAttendance() {
             FROM registration r
             JOIN member m ON r.MemberID = m.MemberID
             JOIN application a ON m.ApplicationID = a.ApplicationID
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID AND r.EventID = ea.EventID
+            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             WHERE r.EventID = ? AND r.RegistrationStatus = 'Confirmed'
             ORDER BY a.LName ASC, a.FName ASC
         ");
@@ -735,7 +735,11 @@ function getEventAttendance() {
             ]
         ]);
     } catch (Exception $e) {
-        throw $e;
+        http_response_code(500);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Error fetching event attendance: ' . $e->getMessage()
+        ]);
     }
 }
 ?>
