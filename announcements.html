@@ -331,6 +331,8 @@
                     const newsletters = data.newsletters;
 
                     const newsLetterCards = newsletters.map(newsletter => {
+                        const title = newsletter.Title || 'No Title';
+                        const content = newsletter.Content || 'No Content';
                         const images = newsletter.images && newsletter.images.length > 0
                             ? newsletter.images
                             : ['assets/image/placeholder.jpg'];
@@ -376,9 +378,9 @@
                                         ${imageHtml}
                                     </div>
                                     <div class="col-md-8">
-                                        <h6 class="fw-bold">${escapeHtml(newsletter.Title)}</h6>
+                                        <h6 class="fw-bold">${escapeHtml(title)}</h6>
                                         <p class="text-muted small mb-3">
-                                            ${escapeHtml(newsletter.Content.substring(0, 200))}...
+                                            ${escapeHtml(content.substring(0, 200))}...
                                         </p>
                                         <button class="btn btn-success btn-sm px-4 rounded-pill" onclick="downloadNewsletterPDF(${newsletter.NewsletterID}, this)">Download PDF</button>
                                     </div>
@@ -393,6 +395,8 @@
                 }
             } catch (error) {
                 console.error('Error loading newsletters:', error);
+                document.getElementById('newsletters-container').innerHTML = '<p class="text-muted text-center">Error loading newsletters</p>';
+            }
             }
         }
 
@@ -406,27 +410,34 @@
                     const container = document.getElementById('announcements-container');
                     const announcements = data.announcements;
 
-                    const announcementCards = announcements.map(announcement => `
+                    const announcementCards = announcements.map(announcement => {
+                        const title = announcement.Title || 'No Title';
+                        const description = announcement.Description || 'No Description';
+                        const author = (announcement.FName || '') + ' ' + (announcement.LName || '');
+                        const status = announcement.Status || 'N/A';
+                        
+                        return `
                         <div class="col-md-6 col-lg-4">
                             <div class="card border-0 shadow-sm p-2 rounded-3 h-100">
                                 <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="fw-bold text-success m-0 flex-grow-1" style="font-size: 0.95rem;">${escapeHtml(announcement.Title.substring(0, 40))}</h6>
+                                        <h6 class="fw-bold text-success m-0 flex-grow-1" style="font-size: 0.95rem;">${escapeHtml(title.substring(0, 40))}</h6>
                                         ${announcement.IsPriority == 1 ? '<span class="badge bg-danger ms-2" style="font-size: 0.7rem;">Priority</span>' : ''}
                                     </div>
                                     <p class="text-muted mb-2" style="font-size: 0.8rem;">
-                                        ${escapeHtml(announcement.Description.substring(0, 70))}...
+                                        ${escapeHtml(description.substring(0, 70))}...
                                     </p>
                                     <small class="text-muted d-block mb-2" style="font-size: 0.75rem;">
-                                        ${escapeHtml(announcement.FName + ' ' + announcement.LName)}
+                                        ${escapeHtml(author.trim())}
                                     </small>
-                                    <button class="btn btn-sm btn-outline-success rounded-pill w-100" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="showAnnouncementDetails('${announcement.AnnouncementID}', '${escapeHtml(announcement.Title)}', '${announcement.IsPriority}', '${escapeHtml(announcement.Status)}', '${escapeHtml(announcement.Description)}', '${escapeHtml(announcement.FName + ' ' + announcement.LName)}', '${announcement.ReviewDate}')">
+                                    <button class="btn btn-sm btn-outline-success rounded-pill w-100" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="showAnnouncementDetails('${announcement.AnnouncementID}', '${escapeHtml(title)}', '${announcement.IsPriority}', '${escapeHtml(status)}', '${escapeHtml(description)}', '${escapeHtml(author.trim())}', '${announcement.ReviewDate}')">
                                         View Details
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                    }).join('');
 
                     container.innerHTML = announcementCards;
                 } else {
@@ -434,6 +445,7 @@
                 }
             } catch (error) {
                 console.error('Error loading announcements:', error);
+                document.getElementById('announcements-container').innerHTML = '<p class="text-muted text-center col-12">Error loading announcements</p>';
             }
         }
 

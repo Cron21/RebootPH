@@ -770,9 +770,9 @@
                                 <div class="mb-3">
                                     ${imageHtml}
                                 </div>
-                                <h3 class="h5 fw-bold text-primary mb-2">${escapeHtml(featuredNewsletter.Title)}</h3>
+                                <h3 class="h5 fw-bold text-primary mb-2">${escapeHtml(featuredNewsletter.Title || 'No Title')}</h3>
                                 <p class="text-muted small mb-3">
-                                    ${escapeHtml(featuredNewsletter.Content.substring(0, 200))}...
+                                    ${escapeHtml((featuredNewsletter.Content || 'No Content').substring(0, 200))}...
                                 </p>
                                 <button type="button" class="btn highlight-btn" onclick="showNewsletterDetails()">Read More</button>
                             </div>
@@ -788,14 +788,17 @@
                     html += `<div class="announcements-wrapper card border-0 shadow-lg h-100 p-4">`;
 
                     featuredAnnouncements.forEach((announcement, idx) => {
+                        const title = announcement.Title || 'No Title';
+                        const description = announcement.Description || 'No Description';
+                        
                         html += `
                             <div class="announcement-card ${idx < featuredAnnouncements.length - 1 ? 'mb-4 pb-3 border-bottom' : ''}">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <h3 class="h6 fw-bold text-primary mb-0">${escapeHtml(announcement.Title.substring(0, 40))}</h3>
+                                    <h3 class="h6 fw-bold text-primary mb-0">${escapeHtml(title.substring(0, 40))}</h3>
                                     ${announcement.IsPriority == 1 ? '<span class="badge bg-danger ms-2" style="font-size: 0.65rem;">Priority</span>' : ''}
                                 </div>
                                 <p class="text-muted small mb-2">
-                                    ${escapeHtml(announcement.Description.substring(0, 80))}...
+                                    ${escapeHtml(description.substring(0, 80))}...
                                 </p>
                                 <a href="#!" class="announcement-link small" onclick="showAnnouncementDetails(${idx}); return false;">View More</a>
                             </div>
