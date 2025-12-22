@@ -215,6 +215,13 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
         #profile p {
             color: #333;
         }
+    </style>        #profile label {
+            color: #555;
+        }
+
+        #profile p {
+            color: #333;
+        }
     </style>
 
 </head>
