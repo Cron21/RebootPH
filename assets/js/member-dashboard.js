@@ -65,47 +65,144 @@ async function loadMemberProfile() {
                     }
 
                     idPreview.innerHTML = `
-                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #0A4FA3 0%, #035996 100%); color: white; padding: 20px; display: flex; flex-direction: column; font-family: 'Segoe UI', Roboto, sans-serif;">
+                        <div style="
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(135deg, #0A4FA3 0%, #035996 100%);
+                            color: white;
+                            padding: 3vw;
+                            display: flex;
+                            flex-direction: column;
+                            font-family: 'Segoe UI', Roboto, sans-serif;
+                            box-sizing: border-box;
+                            font-size: clamp(10px, 2vw, 16px);
+                        ">
                             
                             <!-- Header -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 12px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <img src="assets/image/reboot-logo.png" alt="Reboot Logo" style="height: 40px; width: 40px; border-radius: 50%; background: white; padding: 2px;">
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                margin-bottom: clamp(8px, 2vh, 16px);
+                                border-bottom: 2px solid rgba(255,255,255,0.3);
+                                padding-bottom: clamp(6px, 1.5vh, 12px);
+                                gap: clamp(8px, 1.5vw, 12px);
+                            ">
+                                <div style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: clamp(6px, 1vw, 10px);
+                                    flex-shrink: 0;
+                                ">
+                                    <img src="assets/image/reboot-logo.png" alt="Reboot Logo" style="
+                                        height: clamp(30px, 6vw, 50px);
+                                        width: clamp(30px, 6vw, 50px);
+                                        border-radius: 50%;
+                                        background: white;
+                                        padding: 2px;
+                                    ">
                                 </div>
-                                <div style="text-align: right; font-size: 12px; line-height: 1.3;">
-                                    <div style="font-weight: bold; font-size: 13px;">Reboot Philippines</div>
-                                    <div style="opacity: 0.9; font-size: 11px;">2804, Discovery Centre, Pasig City</div>
+                                <div style="
+                                    text-align: right;
+                                    font-size: clamp(9px, 1.8vw, 13px);
+                                    line-height: 1.3;
+                                ">
+                                    <div style="font-weight: bold; font-size: clamp(11px, 2vw, 15px);">Reboot Philippines</div>
+                                    <div style="opacity: 0.9; font-size: clamp(9px, 1.5vw, 12px);">2804, Discovery Centre, Pasig City</div>
                                 </div>
                             </div>
 
                             <!-- Main Content Row -->
-                            <div style="display: flex; gap: 16px; flex: 1; align-items: center;">
+                            <div style="
+                                display: flex;
+                                gap: clamp(12px, 2vw, 20px);
+                                flex: 1;
+                                align-items: center;
+                                justify-content: space-between;
+                                min-width: 0;
+                            ">
                                 
                                 <!-- Left Side: Photo -->
-                                <div style="flex-shrink: 0;">
-                                    <div style="width: 90px; height: 90px; border-radius: 50%; background: white; border: 3px solid white; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                                <div style="
+                                    flex-shrink: 0;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                ">
+                                    <div style="
+                                        width: clamp(60px, 12vw, 100px);
+                                        height: clamp(60px, 12vw, 100px);
+                                        border-radius: 50%;
+                                        background: white;
+                                        border: 3px solid white;
+                                        overflow: hidden;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        flex-shrink: 0;
+                                    ">
                                         ${photoHtml}
                                     </div>
                                 </div>
 
-                                <!-- Right Side: Info -->
-                                <div style="flex: 1; min-width: 0;">
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 4px; word-break: break-word;">${window.currentMemberName}</div>
-                                    <div style="font-size: 12px; opacity: 0.95; margin-bottom: 8px;">${currentMember.Role || 'Member'}</div>
-                                    <div style="font-size: 11px; opacity: 0.85; margin-bottom: 6px;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</div>
+                                <!-- Center: Info -->
+                                <div style="
+                                    flex: 1;
+                                    min-width: 0;
+                                    padding: 0 clamp(8px, 1vw, 12px);
+                                ">
+                                    <div style="
+                                        font-size: clamp(12px, 2.5vw, 18px);
+                                        font-weight: bold;
+                                        margin-bottom: clamp(2px, 0.5vh, 6px);
+                                        word-break: break-word;
+                                        overflow: hidden;
+                                        display: -webkit-box;
+                                        -webkit-line-clamp: 2;
+                                        -webkit-box-orient: vertical;
+                                    ">${window.currentMemberName}</div>
+                                    <div style="
+                                        font-size: clamp(10px, 1.8vw, 14px);
+                                        opacity: 0.95;
+                                        margin-bottom: clamp(4px, 0.8vh, 8px);
+                                        word-break: break-word;
+                                    ">${currentMember.Role || 'Member'}</div>
+                                    <div style="
+                                        font-size: clamp(9px, 1.5vw, 12px);
+                                        opacity: 0.85;
+                                    ">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</div>
                                 </div>
 
                                 <!-- Right Side: QR Code -->
-                                <div style="flex-shrink: 0;">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
+                                <div style="
+                                    flex-shrink: 0;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                ">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
                                          alt="Member QR Code" 
-                                         style="width: 80px; height: 80px; background: white; padding: 2px; border-radius: 4px;">
+                                         style="
+                                            width: clamp(50px, 10vw, 90px);
+                                            height: clamp(50px, 10vw, 90px);
+                                            background: white;
+                                            padding: 2px;
+                                            border-radius: 4px;
+                                            flex-shrink: 0;
+                                        ">
                                 </div>
 
                             </div>
 
                             <!-- Footer -->
-                            <div style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 12px; margin-top: 12px; font-size: 11px; text-align: center; opacity: 0.9;">
+                            <div style="
+                                border-top: 2px solid rgba(255,255,255,0.3);
+                                padding-top: clamp(8px, 1.5vh, 12px);
+                                margin-top: clamp(8px, 1.5vh, 12px);
+                                font-size: clamp(9px, 1.5vw, 12px);
+                                text-align: center;
+                                opacity: 0.9;
+                            ">
                                 <div>Member Since: ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                                 <div>${currentMember.isActive ? '✓ Active' : 'Inactive'}</div>
                             </div>
