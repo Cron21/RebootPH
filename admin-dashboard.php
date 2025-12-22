@@ -10272,10 +10272,75 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
             });
 
+            // Helper function to calculate event status based on current time
+            function calculateEventStatus(proposedDate, startTime, endTime) {
+                try {
+                    const now = new Date();
+                    
+                    // Parse date string (format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+                    const datePart = proposedDate.split('T')[0]; // Remove any time part if present
+                    const [year, month, day] = datePart.split('-');
+                    
+                    // Parse start time (format: HH:MM:SS)
+                    const [startHour, startMin, startSec] = (startTime || '00:00:00').split(':');
+                    // Parse end time (format: HH:MM:SS)
+                    const [endHour, endMin, endSec] = (endTime || '23:59:59').split(':');
+                    
+                    // Create date objects using local time
+                    const eventStart = new Date(
+                        parseInt(year),
+                        parseInt(month) - 1,
+                        parseInt(day),
+                        parseInt(startHour),
+                        parseInt(startMin),
+                        parseInt(startSec || 0)
+                    );
+                    const eventEnd = new Date(
+                        parseInt(year),
+                        parseInt(month) - 1,
+                        parseInt(day),
+                        parseInt(endHour),
+                        parseInt(endMin),
+                        parseInt(endSec || 0)
+                    );
+                    
+                    // If event end time has passed, mark as Completed
+                    if (now > eventEnd) {
+                        return 'Completed';
+                    }
+                    
+                    // If event has started but not ended, mark as Ongoing
+                    if (now >= eventStart && now <= eventEnd) {
+                        return 'Ongoing';
+                    }
+                    
+                    // Calculate time remaining until event starts (in milliseconds)
+                    const timeUntilStart = eventStart - now;
+                    const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+                    
+                    // If event is within 1 day (close to start time), mark as Near
+                    if (timeUntilStart > 0 && timeUntilStart <= oneDay) {
+                        return 'Near';
+                    }
+                    
+                    // Event is scheduled (more than 1 day away)
+                    return 'Scheduled';
+                } catch (e) {
+                    console.error('Error calculating event status:', e);
+                    return 'Unknown';
+                }
+            }
+
             // Load ongoing events for attendance management
             async function loadOngoingEvents() {
                 try {
                     console.log('Loading ongoing events...');
+                    const select = document.getElementById('attendanceEventSelect');
+                    if (!select) {
+                        console.warn('attendanceEventSelect element not found - attendance section may not be visible');
+                        return;
+                    }
+                    
                     const response = await fetch('api/manage-attendance.php?action=getEvents', {
                         method: 'GET',
                         credentials: 'include',
@@ -10283,30 +10348,32 @@ if ($_SESSION['role'] === 'Member Staff') {
                             'Content-Type': 'application/json'
                         }
                     });
-                    const data = await response.json();
                     
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
                     console.log('Events API response:', data);
 
-                    if (data.success && data.events) {
-                        const select = document.getElementById('attendanceEventSelect');
-                        if (!select) {
-                            console.error('attendanceEventSelect not found');
-                            return;
-                        }
-                        
+                    if (data.success && Array.isArray(data.events)) {
                         const currentValue = select.value;
 
                         // Clear existing options except first
                         select.innerHTML = '<option value="">-- Choose an Event --</option>';
 
-                        // Add event options - filter for ongoing/scheduled status only
+                        // Add event options with calculated status
                         if (data.events.length === 0) {
-                            console.log('No events found');
+                            console.log('No events found in database');
                         } else {
                             data.events.forEach(event => {
                                 const option = document.createElement('option');
                                 option.value = event.EventID;
-                                option.textContent = `${event.EventName} (${event.ProposedDate}) - ${event.status}`;
+                                const eventName = event.EventName || 'Untitled Event';
+                                const eventDate = event.ProposedDate || 'No date';
+                                // Calculate dynamic status based on current time
+                                const dynamicStatus = calculateEventStatus(event.ProposedDate, event.StartTime, event.EndTime);
+                                option.textContent = `${eventName} (${eventDate}) - ${dynamicStatus}`;
                                 select.appendChild(option);
                             });
                             console.log(`Loaded ${data.events.length} events`);
@@ -10317,10 +10384,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                             select.value = currentValue;
                         }
                     } else {
-                        console.error('API returned error:', data.message);
+                        console.error('API returned unexpected response:', data);
                     }
                 } catch (error) {
                     console.error('Error loading ongoing events:', error);
+                    alert('Error loading events: ' + error.message);
                 }
             }
 
@@ -10343,6 +10411,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
 
                 try {
+                    console.log('Loading members for event:', eventId);
                     const response = await fetch(`api/manage-attendance.php?action=getEventAttendance&eventId=${eventId}`, {
                         method: 'GET',
                         credentials: 'include',
@@ -10350,15 +10419,23 @@ if ($_SESSION['role'] === 'Member Staff') {
                             'Content-Type': 'application/json'
                         }
                     });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
                     const data = await response.json();
+                    console.log('Event attendance response:', data);
 
                     if (data.success) {
                         // Update stats
-                        document.getElementById('totalRegisteredCard').textContent = data.stats.totalRegistered;
-                        document.getElementById('totalCheckedInCard').textContent = data.stats.totalAttended;
-                        document.getElementById('attendanceRateCard').textContent = data.stats.totalRegistered > 0 
-                            ? Math.round((data.stats.totalAttended / data.stats.totalRegistered) * 100) + '%'
-                            : '0%';
+                        const totalReg = parseInt(data.stats.totalRegistered) || 0;
+                        const totalAtt = parseInt(data.stats.totalAttended) || 0;
+                        const rate = totalReg > 0 ? Math.round((totalAtt / totalReg) * 100) : 0;
+                        
+                        document.getElementById('totalRegisteredCard').textContent = totalReg;
+                        document.getElementById('totalCheckedInCard').textContent = totalAtt;
+                        document.getElementById('attendanceRateCard').textContent = rate + '%';
                         document.getElementById('attendanceStatsRow').style.display = '';
 
                         // Show QR button
@@ -10367,7 +10444,7 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                         // Populate members table
                         const tbody = document.getElementById('attendanceMembersTableBody');
-                        if (data.attendees && data.attendees.length > 0) {
+                        if (data.attendees && Array.isArray(data.attendees) && data.attendees.length > 0) {
                             tbody.innerHTML = data.attendees.map((attendee, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
@@ -10381,6 +10458,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <td>${attendee.CheckInTime ? new Date(attendee.CheckInTime).toLocaleString() : '-'}</td>
                                 </tr>
                             `).join('');
+                            console.log(`Loaded ${data.attendees.length} attendees`);
                         } else {
                             tbody.innerHTML = `
                                 <tr>
@@ -10390,13 +10468,15 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </tr>
                             `;
                         }
+                    } else {
+                        throw new Error(data.message || 'Failed to load attendance data');
                     }
                 } catch (error) {
                     console.error('Error loading event attendance:', error);
                     document.getElementById('attendanceMembersTableBody').innerHTML = `
                         <tr>
                             <td colspan="5" class="text-center text-danger py-4">
-                                Error loading attendance data
+                                Error loading attendance data: ${error.message}
                             </td>
                         </tr>
                     `;

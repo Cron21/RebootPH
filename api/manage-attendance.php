@@ -79,12 +79,15 @@ function getUpcomingAndOngoingEvents() {
             LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
             LEFT JOIN registration r ON e.EventID = r.EventID
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE e.status IN ('Scheduled', 'Ongoing', 'Near')
-                OR (e.status = 'Completed' AND DATE(p.ProposedDate) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY))
             GROUP BY e.EventID, e.SerialNumber, e.QRCode, e.status, 
                      p.Title, p.ProposedDate, p.StartTime, p.EndTime, 
                      p.Venue, p.TargetParticipants, p.StaffRequired
-            ORDER BY p.ProposedDate DESC, p.StartTime DESC
+            ORDER BY CASE 
+                WHEN e.status IN ('Scheduled', 'Ongoing', 'Near') THEN 0
+                WHEN e.status = 'Completed' AND DATE(p.ProposedDate) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN 1
+                ELSE 2
+            END ASC,
+            p.ProposedDate DESC, p.StartTime DESC
         ");
         
         $stmt->execute();
@@ -705,7 +708,7 @@ function getEventAttendance() {
                 a.LName,
                 a.ApplicantEmail,
                 ea.AttendanceID,
-                ea.AttendanceTime,
+                ea.CheckInTime,
                 ea.ScanType
             FROM registration r
             JOIN member m ON r.MemberID = m.MemberID
