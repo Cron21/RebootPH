@@ -118,31 +118,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Feedback Statistics -->
-                <div class="row g-4 justify-content-center">
-                    <div class="col-12 col-md-4">
-                        <div class="bg-white shadow-sm text-center py-4 px-3" style="border-radius: 18px;">
-                            <div class="mb-2" style="font-size: 2rem; color: #35b34a;">★</div>
-                            <div class="fw-bold" style="font-size: 2rem; color: #0353a4;">4.8</div>
-                            <div class="text-muted small">Average Rating</div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="bg-white shadow-sm text-center py-4 px-3" style="border-radius: 18px;">
-                            <div class="mb-2" style="font-size: 2rem; color: #ffb703;">👍</div>
-                            <div class="fw-bold" style="font-size: 2rem; color: #35b34a;">92%</div>
-                            <div class="text-muted small">Satisfaction Rate</div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="bg-white shadow-sm text-center py-4 px-3" style="border-radius: 18px;">
-                            <div class="mb-2" style="font-size: 2rem; color: #219ebc;">💬</div>
-                            <div class="fw-bold" style="font-size: 2rem; color: #0353a4;">500+</div>
-                            <div class="text-muted small">Feedbacks Received</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </main>
@@ -256,7 +231,8 @@
         // Load completed events on page load
         async function loadCompletedEvents() {
             try {
-                const response = await fetch('api/get-completed-events-feedback.php');
+                // Use the same endpoint as dashboard to ensure consistency
+                const response = await fetch('api/get-member-events.php?type=completed');
                 
                 if (response.status === 401) {
                     // User not authenticated
@@ -372,15 +348,30 @@
             }
 
             const eventSelect = document.getElementById('eventSelect');
-            if (!eventSelect.value) {
+            const eventId = eventSelect.value;
+            
+            if (!eventId) {
                 alert('Please select an event');
                 return;
             }
 
+            // Get attendance ID from selectedEventData or from the select option
+            let attendanceId = null;
+            if (selectedEventData) {
+                attendanceId = selectedEventData.AttendanceID;
+            } else {
+                const selectedOption = eventSelect.options[eventSelect.selectedIndex];
+                if (selectedOption && selectedOption.dataset.attendanceId) {
+                    attendanceId = selectedOption.dataset.attendanceId;
+                }
+            }
+
+            console.log('Form submission - eventId:', eventId, 'attendanceId:', attendanceId, 'selectedEventData:', selectedEventData);
+
             // Collect form data
             const formData = {
-                eventId: parseInt(eventSelect.value),
-                attendanceId: selectedEventData ? parseInt(selectedEventData.AttendanceID) : null,
+                eventId: parseInt(eventId),
+                attendanceId: attendanceId ? parseInt(attendanceId) : null,
                 overallExperience: this.querySelector('input[name="overallExperience"]:checked')?.value,
                 impact: parseInt(this.querySelector('input[name="impact"]:checked')?.value),
                 knowledge: parseInt(this.querySelector('#knowledgeRange').value) || 3,
@@ -439,9 +430,14 @@
             const eventId = urlParams.get('eventId');
             const attendanceId = urlParams.get('attendanceId');
             
+            console.log('checkUrlParameters - eventId:', eventId, 'attendanceId:', attendanceId);
+            console.log('completedEvents:', completedEvents);
+            
             if (eventId && completedEvents.length > 0) {
-                // Find the event in completed events
-                const event = completedEvents.find(e => e.EventID == eventId);
+                // Find the event in completed events (compare as strings to avoid type issues)
+                const event = completedEvents.find(e => String(e.EventID) === String(eventId));
+                
+                console.log('Found event:', event);
                 
                 if (event) {
                     // Hide event selector and show event display
@@ -453,6 +449,9 @@
                     const eventSelect = document.getElementById('eventSelect');
                     eventSelect.value = eventId;
                     
+                    // Store selected event data
+                    selectedEventData = event;
+                    
                     // Trigger change event to load existing feedback if any
                     eventSelect.dispatchEvent(new Event('change'));
                     
@@ -462,12 +461,15 @@
                         selectedOption.dataset.attendanceId = attendanceId;
                     }
                 } else {
-                    // Event not found, show selector
+                    // Event not found in completed events
+                    console.warn('Event not found in completed events list');
+                    // Show selector to allow manual selection
                     document.getElementById('eventSelectContainer').classList.remove('d-none');
                     document.getElementById('eventDisplayContainer').classList.add('d-none');
                 }
             } else {
                 // No URL parameters, show selector
+                console.log('No URL parameters detected');
                 document.getElementById('eventSelectContainer').classList.remove('d-none');
                 document.getElementById('eventDisplayContainer').classList.add('d-none');
             }
