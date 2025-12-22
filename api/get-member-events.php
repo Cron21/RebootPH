@@ -200,6 +200,7 @@ try {
                 $event['EventStatus'] = $eventStatus;
                 $event['Capacity'] = (int)$event['Capacity'];
                 $event['Rating'] = $event['Rating'] ? (int)$event['Rating'] : null;
+                $event['hasFeedback'] = !empty($event['FeedbackID']);
                 $filteredEvents[] = $event;
             }
         }

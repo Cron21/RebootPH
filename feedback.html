@@ -231,8 +231,11 @@
         // Load completed events on page load
         async function loadCompletedEvents() {
             try {
+                console.log('=== loadCompletedEvents started ===');
                 // Use the same endpoint as dashboard to ensure consistency
                 const response = await fetch('api/get-member-events.php?type=completed');
+                
+                console.log('API response status:', response.status);
                 
                 if (response.status === 401) {
                     // User not authenticated
@@ -241,13 +244,16 @@
                     select.disabled = true;
                     document.getElementById('eventSelectHelp').innerHTML = 
                         '<a href="login.html" class="text-primary">Log in</a> to provide feedback on completed events';
+                    console.log('User not authenticated');
                     return false;
                 }
                 
                 const data = await response.json();
+                console.log('API response data:', data);
 
                 if (data.success && data.events && data.events.length > 0) {
                     completedEvents = data.events;
+                    console.log('Loaded completed events:', completedEvents);
                     populateEventSelect(data.events);
                     return true;
                 } else {
@@ -255,6 +261,7 @@
                     select.innerHTML = '<option value="">No completed events available</option>';
                     select.disabled = true;
                     document.getElementById('eventSelectHelp').textContent = 'You need to attend completed events to provide feedback';
+                    console.log('No completed events found');
                     return false;
                 }
             } catch (error) {
@@ -267,6 +274,9 @@
         }
 
         function populateEventSelect(events) {
+            console.log('=== populateEventSelect called ===');
+            console.log('Events to populate:', events);
+            
             const select = document.getElementById('eventSelect');
             select.innerHTML = '<option value="">Choose an event...</option>';
             
@@ -276,28 +286,42 @@
                 option.textContent = `${event.Title} (${new Date(event.ProposedDate).toLocaleDateString()})`;
                 option.dataset.attendanceId = event.AttendanceID;
                 option.dataset.hasFeedback = event.hasFeedback ? '1' : '0';
+                
+                console.log(`Added option: EventID=${event.EventID}, AttendanceID=${event.AttendanceID}, hasFeedback=${event.hasFeedback}`);
+                
                 if (event.hasFeedback) {
                     option.textContent += ' - Feedback already submitted';
                 }
                 select.appendChild(option);
             });
+            
+            console.log('=== populateEventSelect completed ===');
         }
 
         // Handle event selection change
         document.getElementById('eventSelect').addEventListener('change', function() {
+            console.log('=== Event selection changed ===');
             const selectedOption = this.options[this.selectedIndex];
+            console.log('Selected option value:', selectedOption.value);
+            console.log('Selected option text:', selectedOption.text);
+            console.log('Selected option attendanceId:', selectedOption.dataset.attendanceId);
+            
             if (selectedOption.value) {
                 selectedEventData = completedEvents.find(e => e.EventID == selectedOption.value);
+                console.log('Found selectedEventData:', selectedEventData);
                 
                 // If feedback already exists, load it
                 if (selectedEventData && selectedEventData.hasFeedback) {
+                    console.log('Loading existing feedback...');
                     loadExistingFeedback(selectedEventData.EventID);
                 } else {
                     // Reset form for new feedback
+                    console.log('Resetting form for new feedback');
                     document.getElementById('feedbackForm').reset();
                     document.getElementById('knowledgeRange').value = 3;
                 }
             }
+            console.log('=== Event selection change completed ===');
         });
 
         // Load existing feedback
@@ -340,46 +364,65 @@
         document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validate form
-            if (!this.checkValidity()) {
-                e.stopPropagation();
-                this.classList.add('was-validated');
-                return;
-            }
-
+            console.log('=== FORM SUBMISSION STARTED ===');
+            
+            // Get form elements
             const eventSelect = document.getElementById('eventSelect');
+            const overallExpInput = this.querySelector('input[name="overallExperience"]:checked');
+            const impactInput = this.querySelector('input[name="impact"]:checked');
+            const knowledgeInput = this.querySelector('#knowledgeRange');
+            const commentsInput = this.querySelector('#comments');
+            
+            // Validate all required fields
             const eventId = eventSelect.value;
+            console.log('eventId:', eventId);
             
             if (!eventId) {
                 alert('Please select an event');
                 return;
             }
+            
+            if (!overallExpInput) {
+                alert('Please select an overall experience rating');
+                return;
+            }
+            
+            if (!impactInput) {
+                alert('Please select an event impact rating (stars)');
+                return;
+            }
+            
+            console.log('All validations passed');
 
-            // Get attendance ID from selectedEventData or from the select option
+            // Get attendance ID from selectedEventData
             let attendanceId = null;
             if (selectedEventData) {
                 attendanceId = selectedEventData.AttendanceID;
+                console.log('Using attendanceId from selectedEventData:', attendanceId);
             } else {
+                console.warn('selectedEventData is null, trying to get from select option');
                 const selectedOption = eventSelect.options[eventSelect.selectedIndex];
                 if (selectedOption && selectedOption.dataset.attendanceId) {
                     attendanceId = selectedOption.dataset.attendanceId;
+                    console.log('Using attendanceId from select option:', attendanceId);
                 }
             }
-
-            console.log('Form submission - eventId:', eventId, 'attendanceId:', attendanceId, 'selectedEventData:', selectedEventData);
 
             // Collect form data
             const formData = {
                 eventId: parseInt(eventId),
                 attendanceId: attendanceId ? parseInt(attendanceId) : null,
-                overallExperience: this.querySelector('input[name="overallExperience"]:checked')?.value,
-                impact: parseInt(this.querySelector('input[name="impact"]:checked')?.value),
-                knowledge: parseInt(this.querySelector('#knowledgeRange').value) || 3,
-                comments: this.querySelector('#comments').value.trim(),
+                overallExperience: overallExpInput.value,
+                impact: parseInt(impactInput.value),
+                knowledge: parseInt(knowledgeInput.value) || 3,
+                comments: commentsInput.value.trim(),
                 isAnonymous: 0
             };
 
+            console.log('Final form data to submit:', formData);
+
             try {
+                console.log('Sending fetch request...');
                 const response = await fetch('api/manage-feedback.php', {
                     method: 'POST',
                     headers: {
@@ -388,15 +431,30 @@
                     body: JSON.stringify(formData)
                 });
 
+                console.log('Response received - status:', response.status);
+
                 if (response.status === 401) {
                     alert('Please log in to submit feedback. Redirecting to login page...');
                     window.location.href = 'login.html';
                     return;
                 }
                 
-                const result = await response.json();
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse JSON response:', parseError);
+                    alert('Server error: Invalid response format. Check console.');
+                    return;
+                }
+                
+                console.log('Parsed API response:', result);
 
                 if (result.success) {
+                    console.log('Feedback submitted successfully!');
                     // Show success modal
                     const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                     successModal.show();
@@ -408,12 +466,14 @@
                     
                     // Reload events to update feedback status
                     await loadCompletedEvents();
+                    checkUrlParameters();
                 } else {
                     alert('Error submitting feedback: ' + (result.message || 'Unknown error'));
+                    console.error('API error response:', result);
                 }
             } catch (error) {
-                console.error('Error submitting feedback:', error);
-                alert('Error submitting feedback. Please try again.');
+                console.error('Fetch error:', error);
+                alert('Error submitting feedback. ' + error.message);
             }
         });
 
@@ -440,6 +500,9 @@
                 console.log('Found event:', event);
                 
                 if (event) {
+                    // Store selected event data FIRST
+                    selectedEventData = event;
+                    
                     // Hide event selector and show event display
                     document.getElementById('eventSelectContainer').classList.add('d-none');
                     document.getElementById('eventDisplayContainer').classList.remove('d-none');
@@ -449,17 +512,10 @@
                     const eventSelect = document.getElementById('eventSelect');
                     eventSelect.value = eventId;
                     
-                    // Store selected event data
-                    selectedEventData = event;
-                    
                     // Trigger change event to load existing feedback if any
                     eventSelect.dispatchEvent(new Event('change'));
                     
-                    // Pre-fill attendance ID in the form (add hidden field if needed)
-                    const selectedOption = eventSelect.options[eventSelect.selectedIndex];
-                    if (selectedOption) {
-                        selectedOption.dataset.attendanceId = attendanceId;
-                    }
+                    console.log('Event pre-selected - selectedEventData:', selectedEventData);
                 } else {
                     // Event not found in completed events
                     console.warn('Event not found in completed events list');
