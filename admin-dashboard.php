@@ -5959,8 +5959,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
 
                 const proposalStatus = document.getElementById('propStatus').textContent;
-                if (proposalStatus !== 'Rejected') {
-                    alert('Proposals can only be deleted if they are Rejected.');
+                if (proposalStatus !== 'Rejected' && proposalStatus !== 'Postponed') {
+                    alert('Proposals can only be deleted if they are Rejected or Postponed. Current status: ' + proposalStatus);
                     return;
                 }
 
@@ -5997,9 +5997,9 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Delete proposal from table
             async function deleteProposalFromTable(proposalId, proposalTitle, proposalStatus) {
-                // Check if proposal is Rejected
-                if (proposalStatus !== 'Rejected'|| proposalStatus !== 'Postponed') {
-                    alert('Proposals can only be deleted if they are Rejected. Current status: ' + proposalStatus);
+                // Check if proposal is Rejected or Postponed
+                if (proposalStatus !== 'Rejected' && proposalStatus !== 'Postponed') {
+                    alert('Proposals can only be deleted if they are Rejected or Postponed. Current status: ' + proposalStatus);
                     return;
                 }
 
