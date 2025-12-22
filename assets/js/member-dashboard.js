@@ -64,18 +64,26 @@ async function loadMemberProfile() {
                         photoHtml = `<div class="h-100 d-flex align-items-center justify-content-center text-muted">2x2 Photo</div>`;
                     }
 
+                    idPreview.style.cssText = `
+                        width: 100%;
+                        height: auto;
+                        max-width: 350px;
+                        aspect-ratio: 3.5 / 4.5;
+                        margin: 0 auto;
+                    `;
+
                     idPreview.innerHTML = `
                         <div style="
                             width: 100%;
                             height: 100%;
                             background: linear-gradient(135deg, #0A4FA3 0%, #035996 100%);
                             color: white;
-                            padding: 3vw;
+                            padding: 20px;
                             display: flex;
                             flex-direction: column;
                             font-family: 'Segoe UI', Roboto, sans-serif;
                             box-sizing: border-box;
-                            font-size: clamp(10px, 2vw, 16px);
+                            border-radius: 12px;
                         ">
                             
                             <!-- Header -->
@@ -83,20 +91,20 @@ async function loadMemberProfile() {
                                 display: flex;
                                 align-items: center;
                                 justify-content: space-between;
-                                margin-bottom: clamp(8px, 2vh, 16px);
+                                margin-bottom: 16px;
                                 border-bottom: 2px solid rgba(255,255,255,0.3);
-                                padding-bottom: clamp(6px, 1.5vh, 12px);
-                                gap: clamp(8px, 1.5vw, 12px);
+                                padding-bottom: 12px;
+                                gap: 8px;
                             ">
                                 <div style="
                                     display: flex;
                                     align-items: center;
-                                    gap: clamp(6px, 1vw, 10px);
+                                    gap: 8px;
                                     flex-shrink: 0;
                                 ">
                                     <img src="assets/image/reboot-logo.png" alt="Reboot Logo" style="
-                                        height: clamp(30px, 6vw, 50px);
-                                        width: clamp(30px, 6vw, 50px);
+                                        height: 40px;
+                                        width: 40px;
                                         border-radius: 50%;
                                         background: white;
                                         padding: 2px;
@@ -104,34 +112,31 @@ async function loadMemberProfile() {
                                 </div>
                                 <div style="
                                     text-align: right;
-                                    font-size: clamp(9px, 1.8vw, 13px);
+                                    font-size: 12px;
                                     line-height: 1.3;
+                                    flex: 1;
                                 ">
-                                    <div style="font-weight: bold; font-size: clamp(11px, 2vw, 15px);">Reboot Philippines</div>
-                                    <div style="opacity: 0.9; font-size: clamp(9px, 1.5vw, 12px);">2804, Discovery Centre, Pasig City</div>
+                                    <div style="font-weight: bold; font-size: 13px;">Reboot Philippines</div>
+                                    <div style="opacity: 0.9; font-size: 11px;">2804, Discovery Centre, Pasig</div>
                                 </div>
                             </div>
 
                             <!-- Main Content Row -->
                             <div style="
                                 display: flex;
-                                gap: clamp(12px, 2vw, 20px);
+                                gap: 16px;
                                 flex: 1;
                                 align-items: center;
-                                justify-content: space-between;
                                 min-width: 0;
                             ">
                                 
                                 <!-- Left Side: Photo -->
                                 <div style="
                                     flex-shrink: 0;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
                                 ">
                                     <div style="
-                                        width: clamp(60px, 12vw, 100px);
-                                        height: clamp(60px, 12vw, 100px);
+                                        width: 90px;
+                                        height: 90px;
                                         border-radius: 50%;
                                         background: white;
                                         border: 3px solid white;
@@ -139,7 +144,6 @@ async function loadMemberProfile() {
                                         display: flex;
                                         align-items: center;
                                         justify-content: center;
-                                        flex-shrink: 0;
                                     ">
                                         ${photoHtml}
                                     </div>
@@ -149,12 +153,11 @@ async function loadMemberProfile() {
                                 <div style="
                                     flex: 1;
                                     min-width: 0;
-                                    padding: 0 clamp(8px, 1vw, 12px);
                                 ">
                                     <div style="
-                                        font-size: clamp(12px, 2.5vw, 18px);
+                                        font-size: 16px;
                                         font-weight: bold;
-                                        margin-bottom: clamp(2px, 0.5vh, 6px);
+                                        margin-bottom: 4px;
                                         word-break: break-word;
                                         overflow: hidden;
                                         display: -webkit-box;
@@ -162,13 +165,19 @@ async function loadMemberProfile() {
                                         -webkit-box-orient: vertical;
                                     ">${window.currentMemberName}</div>
                                     <div style="
-                                        font-size: clamp(10px, 1.8vw, 14px);
+                                        font-size: 12px;
                                         opacity: 0.95;
-                                        margin-bottom: clamp(4px, 0.8vh, 8px);
+                                        margin-bottom: 8px;
+                                    ">Role:</div>
+                                    <div style="
+                                        font-size: 14px;
+                                        font-weight: 600;
+                                        opacity: 0.95;
+                                        margin-bottom: 6px;
                                         word-break: break-word;
                                     ">${currentMember.Role || 'Member'}</div>
                                     <div style="
-                                        font-size: clamp(9px, 1.5vw, 12px);
+                                        font-size: 11px;
                                         opacity: 0.85;
                                     ">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</div>
                                 </div>
@@ -176,19 +185,15 @@ async function loadMemberProfile() {
                                 <!-- Right Side: QR Code -->
                                 <div style="
                                     flex-shrink: 0;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
                                 ">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
                                          alt="Member QR Code" 
                                          style="
-                                            width: clamp(50px, 10vw, 90px);
-                                            height: clamp(50px, 10vw, 90px);
+                                            width: 80px;
+                                            height: 80px;
                                             background: white;
                                             padding: 2px;
                                             border-radius: 4px;
-                                            flex-shrink: 0;
                                         ">
                                 </div>
 
@@ -197,13 +202,15 @@ async function loadMemberProfile() {
                             <!-- Footer -->
                             <div style="
                                 border-top: 2px solid rgba(255,255,255,0.3);
-                                padding-top: clamp(8px, 1.5vh, 12px);
-                                margin-top: clamp(8px, 1.5vh, 12px);
-                                font-size: clamp(9px, 1.5vw, 12px);
+                                padding-top: 12px;
+                                margin-top: 12px;
+                                font-size: 11px;
                                 text-align: center;
                                 opacity: 0.9;
+                                line-height: 1.4;
                             ">
-                                <div>Member Since: ${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                                <div>Member Since:</div>
+                                <div style="font-weight: 600;">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                                 <div>${currentMember.isActive ? '✓ Active' : 'Inactive'}</div>
                             </div>
 
