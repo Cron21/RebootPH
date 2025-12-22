@@ -10276,7 +10276,13 @@ if ($_SESSION['role'] === 'Member Staff') {
             async function loadOngoingEvents() {
                 try {
                     console.log('Loading ongoing events...');
-                    const response = await fetch('api/manage-attendance.php?action=getEvents');
+                    const response = await fetch('api/manage-attendance.php?action=getEvents', {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
                     const data = await response.json();
                     
                     console.log('Events API response:', data);
@@ -10337,7 +10343,13 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
 
                 try {
-                    const response = await fetch(`api/manage-attendance.php?action=getEventAttendance&eventId=${eventId}`);
+                    const response = await fetch(`api/manage-attendance.php?action=getEventAttendance&eventId=${eventId}`, {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
                     const data = await response.json();
 
                     if (data.success) {
