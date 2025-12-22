@@ -604,7 +604,7 @@ function populateRegisteredEventsTab(events) {
 
         // Add attendance button for ongoing events
         const attendanceBtn = isOngoing && !attended
-            ? `<button class="btn btn-sm btn-success" onclick="showAttendanceCheckInModal(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}', ${window.currentMemberId}, '${window.currentMemberName}')"><i class="bi bi-qr-code"></i> Scan Attendance QR</button>`
+            ? `<button class="btn btn-sm btn-success" onclick="openAttendanceModal(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}', '${event.ProposedDate}', '${event.StartTime}')"><i class="bi bi-qr-code"></i> Scan Attendance QR</button>`
             : '';
 
         return `

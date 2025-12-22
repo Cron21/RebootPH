@@ -409,8 +409,9 @@ function populateUpcomingEventsList(events) {
                         ${capacityBadge}
                         <span class="badge bg-secondary">${event.RegisteredCount} registered</span>
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 flex-wrap">
                         <button class="btn btn-sm btn-outline-secondary view-event-btn" data-event-id="${event.EventID}" data-event-title="${escapeHtml(event.Title)}">View Details</button>
+                        ${event.MemberRegistered === 1 ? `<button class="btn btn-sm btn-info scan-qr-btn" data-event-id="${event.EventID}" title="Scan QR Code for attendance"><i class="bi bi-qr-code"></i> Scan QR</button>` : ''}
                         ${registerBtn}
                     </div>
                 </div>
@@ -1116,6 +1117,68 @@ function openAttendanceModal(eventId, eventTitle, eventDate, startTime) {
     // Show the modal
     const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
     modal.show();
+    
+    // Start QR code scanner after modal is shown
+    setTimeout(() => {
+        startQRScannerForAttendance(eventId);
+    }, 500);
+}
+
+// Start QR code scanner for attendance
+function startQRScannerForAttendance(eventId) {
+    try {
+        // Check if scanner is already running
+        if (window.html5QrcodeScanner) {
+            window.html5QrcodeScanner.clear();
+        }
+        
+        const scannerElement = document.getElementById('qr-reader');
+        if (!scannerElement) {
+            console.warn('QR reader element not found, creating it');
+            const modalBody = document.querySelector('#attendanceModal .modal-body');
+            if (modalBody) {
+                const readerDiv = document.createElement('div');
+                readerDiv.id = 'qr-reader';
+                readerDiv.style.width = '100%';
+                readerDiv.style.height = '300px';
+                readerDiv.style.marginBottom = '10px';
+                modalBody.insertBefore(readerDiv, modalBody.firstChild);
+            }
+        }
+        
+        window.html5QrcodeScanner = new Html5QrcodeScanner(
+            'qr-reader',
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            false
+        );
+        
+        window.html5QrcodeScanner.render(
+            (decodedText) => {
+                // QR code scanned successfully
+                document.getElementById('serialNumber').value = decodedText;
+                console.log('QR Code Scanned:', decodedText);
+            },
+            (error) => {
+                // Ignore errors during scanning
+                console.debug('QR scan error:', error);
+            }
+        );
+    } catch (error) {
+        console.error('Error starting QR scanner:', error);
+        alert('Could not start QR code scanner. You can enter the serial number manually instead.');
+    }
+}
+
+// Stop QR code scanner
+function stopQRScanner() {
+    try {
+        if (window.html5QrcodeScanner) {
+            window.html5QrcodeScanner.clear();
+            window.html5QrcodeScanner = null;
+        }
+    } catch (error) {
+        console.error('Error stopping QR scanner:', error);
+    }
 }
 
 function openFeedbackForm(eventId, attendanceId, hasFeedback) {
@@ -1522,6 +1585,16 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// Event listener for scan QR code buttons using data attributes
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('scan-qr-btn')) {
+        const btn = e.target;
+        const eventId = btn.dataset.eventId;
+        
+        showQRScanModal(eventId);
+    }
+});
+
 // Event listener for activities tab register buttons using data attributes
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('register-btn-tab')) {
@@ -1532,6 +1605,175 @@ document.addEventListener('click', function(e) {
         showEventConfirmationTab(eventId);
     }
 });
+
+// ===== QR CODE AND ATTENDANCE FUNCTIONS =====
+
+// Show QR code scan modal for attendance
+async function showQRScanModal(eventId) {
+    try {
+        // You can show a modal or start QR scanning here
+        // For now, we'll open the attendance section and select the event
+        const select = document.getElementById('attendanceEventSelect');
+        if (select) {
+            select.value = eventId;
+            // Trigger change event
+            select.dispatchEvent(new Event('change'));
+            
+            // Navigate to attendance section
+            const attendanceNav = document.querySelector('a[href="#attendance"]');
+            if (attendanceNav) {
+                attendanceNav.click();
+            }
+        }
+    } catch (error) {
+        console.error('Error showing QR scan modal:', error);
+    }
+}
+
+// Load ongoing events for attendance
+async function loadOngoingEventsForAttendance() {
+    try {
+        const response = await fetch('api/manage-attendance.php?action=getUpcomingAndOngoingEvents');
+        const data = await response.json();
+        
+        if (data.success && data.events) {
+            // Filter for only ongoing/near events
+            const ongoingEvents = data.events.filter(e => 
+                e.status === 'Ongoing' || e.status === 'Near'
+            );
+            
+            const select = document.getElementById('attendanceEventSelect');
+            const container = document.getElementById('attendanceTableContainer');
+            const noEventMsg = document.getElementById('noEventMessage');
+            
+            if (ongoingEvents.length === 0) {
+                select.innerHTML = '<option value="">-- Choose an Event --</option>';
+                container.style.display = 'none';
+                noEventMsg.style.display = 'block';
+                document.getElementById('scanQRBtn').disabled = true;
+            } else {
+                select.innerHTML = '<option value="">-- Choose an Event --</option>' + 
+                    ongoingEvents.map(e => 
+                        `<option value="${e.EventID}" data-serial="${e.SerialNumber}">${e.EventName} (${e.status})</option>`
+                    ).join('');
+                noEventMsg.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading ongoing events:', error);
+    }
+}
+
+// Handle event selection change
+async function handleAttendanceEventChange(eventId) {
+    if (!eventId) {
+        document.getElementById('attendanceTableContainer').style.display = 'none';
+        document.getElementById('scanQRBtn').disabled = true;
+        return;
+    }
+    
+    try {
+        const response = await fetch(`api/manage-attendance.php?action=getEventDetailsWithAttendance&eventId=${eventId}`);
+        const data = await response.json();
+        
+        if (data.success && data.eventDetails) {
+            const eventDetails = data.eventDetails;
+            document.getElementById('selectedEventTitle').textContent = 
+                `${eventDetails.EventName} - ${eventDetails.Venue}`;
+            
+            // Populate attendance table
+            const tbody = document.getElementById('attendanceTableBody');
+            if (eventDetails.registrations && eventDetails.registrations.length > 0) {
+                tbody.innerHTML = eventDetails.registrations.map((reg, idx) => `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${reg.MemberName || 'N/A'}</td>
+                        <td>${reg.Email || 'N/A'}</td>
+                        <td>
+                            <span class="badge ${reg.Status === 'Checked In' ? 'bg-success' : 'bg-warning'}">
+                                ${reg.Status || 'Not Checked'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success" onclick="markMemberAttendance(${reg.RegistrationID})">
+                                Mark Present
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No registered members</td></tr>';
+            }
+            
+            document.getElementById('attendanceTableContainer').style.display = 'block';
+            document.getElementById('scanQRBtn').disabled = false;
+        }
+    } catch (error) {
+        console.error('Error loading event details:', error);
+    }
+}
+
+// Scan QR code for attendance
+function scanQRCodeForAttendance() {
+    const eventId = document.getElementById('attendanceEventSelect').value;
+    if (!eventId) {
+        alert('Please select an event first');
+        return;
+    }
+    
+    // Start QR code scanner
+    try {
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "qrReaderAttendance",
+            { fps: 10, qrbox: 250 },
+            false
+        );
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+    } catch (error) {
+        console.error('Error starting QR scanner:', error);
+        alert('Could not start QR code scanner. Please try again.');
+    }
+}
+
+// Mark member attendance
+async function markMemberAttendance(registrationId) {
+    try {
+        const response = await fetch('api/manage-attendance.php?action=recordAttendance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                registrationId: registrationId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Attendance marked successfully');
+            // Reload the attendance table
+            const eventId = document.getElementById('attendanceEventSelect').value;
+            handleAttendanceEventChange(eventId);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+    }
+}
+
+// Initialize attendance event listener
+document.addEventListener('DOMContentLoaded', function() {
+    const attendanceEventSelect = document.getElementById('attendanceEventSelect');
+    if (attendanceEventSelect) {
+        attendanceEventSelect.addEventListener('change', function() {
+            handleAttendanceEventChange(this.value);
+        });
+    }
+});
+
 
 // Event listener for unregister buttons using data attributes
 document.addEventListener('click', function(e) {

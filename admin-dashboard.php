@@ -2122,19 +2122,26 @@ if ($_SESSION['role'] === 'Member Staff') {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <p>Please enter your serial number for:</p>
+                    <h5 class="modal-title">Mark Attendance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="stopQRScanner()"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please scan the QR code or enter your serial number for:</p>
                     <p class="fw-bold" id="modalActivityTitle"></p>
                     <p class="text-muted small" id="modalActivityDate"></p>
+                    
+                    <!-- QR Scanner -->
+                    <div id="qr-reader" style="width: 100%; height: 300px; margin-bottom: 15px;"></div>
+                    
                     <div class="mb-3">
                         <label for="serialNumber" class="form-label">Serial Number</label>
                         <input type="text" class="form-control" id="serialNumber" placeholder="e.g., RPH-123456-ABCD"
                             required>
-                        <div class="form-text">Enter the serial number you received when registering for this activity
-                        </div>
+                        <div class="form-text">Scan the QR code or enter the serial number you received when registering</div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="stopQRScanner()">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="verifyAttendance()">Verify
                         Attendance</button>
                 </div>
@@ -3317,6 +3324,90 @@ if ($_SESSION['role'] === 'Member Staff') {
                 });
                 document.getElementById('serialNumber').value = '';
                 modal.show();
+                
+                // Start QR scanner after modal is shown
+                setTimeout(() => {
+                    startQRScannerForAttendance();
+                }, 500);
+            }
+
+            // Open attendance modal with QR scanner
+            function openAttendanceModal(eventId, eventTitle, eventDate, startTime) {
+                // Set modal content
+                document.getElementById('modalActivityTitle').textContent = eventTitle;
+                document.getElementById('modalActivityDate').textContent = `${new Date(eventDate).toLocaleDateString()} at ${startTime}`;
+                
+                // Store event ID for verification
+                window.currentEventId = eventId;
+                
+                // Clear previous serial number input
+                document.getElementById('serialNumber').value = '';
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
+                modal.show();
+                
+                // Start QR code scanner after modal is shown
+                setTimeout(() => {
+                    startQRScannerForAttendance(eventId);
+                }, 500);
+            }
+
+            // Start QR code scanner for attendance
+            function startQRScannerForAttendance(eventId) {
+                try {
+                    // Check if scanner is already running
+                    if (window.html5QrcodeScanner) {
+                        window.html5QrcodeScanner.clear();
+                    }
+                    
+                    const scannerElement = document.getElementById('qr-reader');
+                    if (!scannerElement) {
+                        console.warn('QR reader element not found, creating it');
+                        const modalBody = document.querySelector('#attendanceModal .modal-body');
+                        if (modalBody) {
+                            const readerDiv = document.createElement('div');
+                            readerDiv.id = 'qr-reader';
+                            readerDiv.style.width = '100%';
+                            readerDiv.style.height = '300px';
+                            readerDiv.style.marginBottom = '10px';
+                            modalBody.insertBefore(readerDiv, modalBody.querySelector('.mb-3'));
+                        }
+                    }
+                    
+                    window.html5QrcodeScanner = new Html5QrcodeScanner(
+                        'qr-reader',
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
+                        false
+                    );
+                    
+                    window.html5QrcodeScanner.render(
+                        (decodedText) => {
+                            // QR code scanned successfully
+                            document.getElementById('serialNumber').value = decodedText;
+                            console.log('QR Code Scanned:', decodedText);
+                        },
+                        (error) => {
+                            // Ignore errors during scanning
+                            console.debug('QR scan error:', error);
+                        }
+                    );
+                } catch (error) {
+                    console.error('Error starting QR scanner:', error);
+                    alert('Could not start QR code scanner. You can enter the serial number manually instead.');
+                }
+            }
+
+            // Stop QR code scanner
+            function stopQRScanner() {
+                try {
+                    if (window.html5QrcodeScanner) {
+                        window.html5QrcodeScanner.clear();
+                        window.html5QrcodeScanner = null;
+                    }
+                } catch (error) {
+                    console.error('Error stopping QR scanner:', error);
+                }
             }
 
             function verifyAttendance() {
@@ -10184,28 +10275,43 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Load ongoing events for attendance management
             async function loadOngoingEvents() {
                 try {
+                    console.log('Loading ongoing events...');
                     const response = await fetch('api/manage-attendance.php?action=getEvents');
                     const data = await response.json();
+                    
+                    console.log('Events API response:', data);
 
                     if (data.success && data.events) {
                         const select = document.getElementById('attendanceEventSelect');
+                        if (!select) {
+                            console.error('attendanceEventSelect not found');
+                            return;
+                        }
+                        
                         const currentValue = select.value;
 
                         // Clear existing options except first
                         select.innerHTML = '<option value="">-- Choose an Event --</option>';
 
                         // Add event options - filter for ongoing/scheduled status only
-                        data.events.forEach(event => {
-                            const option = document.createElement('option');
-                            option.value = event.EventID;
-                            option.textContent = `${event.EventName} (${event.ProposedDate})`;
-                            select.appendChild(option);
-                        });
+                        if (data.events.length === 0) {
+                            console.log('No events found');
+                        } else {
+                            data.events.forEach(event => {
+                                const option = document.createElement('option');
+                                option.value = event.EventID;
+                                option.textContent = `${event.EventName} (${event.ProposedDate}) - ${event.status}`;
+                                select.appendChild(option);
+                            });
+                            console.log(`Loaded ${data.events.length} events`);
+                        }
 
                         // Restore previous selection if still available
                         if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
                             select.value = currentValue;
                         }
+                    } else {
+                        console.error('API returned error:', data.message);
                     }
                 } catch (error) {
                     console.error('Error loading ongoing events:', error);

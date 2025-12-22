@@ -249,6 +249,9 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                         <a class="nav-link" href="#activities">My Activities</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="#attendance">Attendance</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#history">Activity History</a>
                     </li>
                     <li class="nav-item">
@@ -552,6 +555,48 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                 </div>
             </div>
 
+            <!-- Event Attendance Management Section -->
+            <div id="attendance" class="d-none active-section">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h4 mb-4">Event Attendance Management</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="attendanceEventSelect" class="form-label">Select Ongoing Event</label>
+                                <select id="attendanceEventSelect" class="form-select">
+                                    <option value="">-- Choose an Event --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-primary w-100" onclick="scanQRCodeForAttendance()" id="scanQRBtn" disabled>
+                                    <i class="bi bi-qr-code"></i> Scan QR Code
+                                </button>
+                            </div>
+                        </div>
+                        <div id="attendanceTableContainer" class="table-responsive" style="display:none;">
+                            <h5 class="mb-3" id="selectedEventTitle"></h5>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Member Name</th>
+                                        <th>Email</th>
+                                        <th>Attendance Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noEventMessage" class="text-center text-muted py-4">
+                            <p>No events available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Event Registration Modal -->
             <div class="modal fade" id="eventRegistrationModal" tabindex="-1">
                 <div class="modal-dialog">
@@ -740,25 +785,27 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Attendance</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">Mark Attendance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="stopQRScanner()"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Please enter your serial number for:</p>
+                    <p>Please scan the QR code or enter your serial number for:</p>
                     <p class="fw-bold" id="modalActivityTitle"></p>
                     <p class="text-muted small" id="modalActivityDate"></p>
+                    
+                    <!-- QR Scanner -->
+                    <div id="qr-reader" style="width: 100%; height: 300px; margin-bottom: 15px;"></div>
+                    
                     <div class="mb-3">
                         <label for="serialNumber" class="form-label">Serial Number</label>
                         <input type="text" class="form-control" id="serialNumber" placeholder="e.g., RPH-123456-ABCD"
                             required>
-                        <div class="form-text">Enter the serial number you received when registering for this activity
-                        </div>
+                        <div class="form-text">Scan the QR code or enter the serial number you received when registering</div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="verifyAttendance()">Verify
-                        Attendance</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="stopQRScanner()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="verifyAttendance()">Verify Attendance</button>
                 </div>
             </div>
         </div>
