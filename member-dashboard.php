@@ -941,6 +941,139 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                 });
             });
         });
+
+        // ===== ATTENDANCE MARKING FUNCTIONS =====
+
+        // Open attendance modal with QR scanner
+        function openAttendanceModal(eventId, eventTitle, eventDate, startTime) {
+            // Set modal content
+            document.getElementById('modalActivityTitle').textContent = eventTitle;
+            document.getElementById('modalActivityDate').textContent = `${new Date(eventDate).toLocaleDateString()} at ${startTime}`;
+            
+            // Store event ID for verification
+            window.currentEventId = eventId;
+            
+            // Clear previous serial number input
+            document.getElementById('serialNumber').value = '';
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
+            modal.show();
+            
+            // Add event listener to stop scanner when modal is hidden
+            const attendanceModalEl = document.getElementById('attendanceModal');
+            attendanceModalEl.addEventListener('hidden.bs.modal', stopQRScanner, { once: true });
+            
+            // Start QR code scanner after modal is shown
+            setTimeout(() => {
+                startQRScannerForAttendance(eventId);
+            }, 500);
+        }
+
+        // Start QR code scanner for attendance
+        function startQRScannerForAttendance(eventId) {
+            try {
+                // Check if scanner is already running
+                if (window.html5QrcodeScanner) {
+                    window.html5QrcodeScanner.clear();
+                }
+                
+                const scannerElement = document.getElementById('qr-reader');
+                if (!scannerElement) {
+                    console.warn('QR reader element not found, creating it');
+                    const modalBody = document.querySelector('#attendanceModal .modal-body');
+                    if (modalBody) {
+                        const readerDiv = document.createElement('div');
+                        readerDiv.id = 'qr-reader';
+                        readerDiv.style.width = '100%';
+                        readerDiv.style.height = '300px';
+                        readerDiv.style.marginBottom = '10px';
+                        modalBody.insertBefore(readerDiv, modalBody.firstChild);
+                    }
+                }
+                
+                window.html5QrcodeScanner = new Html5QrcodeScanner(
+                    'qr-reader',
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    false
+                );
+                
+                window.html5QrcodeScanner.render(
+                    (decodedText) => {
+                        // QR code scanned successfully
+                        document.getElementById('serialNumber').value = decodedText;
+                        console.log('QR Code Scanned:', decodedText);
+                    },
+                    (error) => {
+                        // Ignore errors during scanning
+                        console.debug('QR scan error:', error);
+                    }
+                );
+            } catch (error) {
+                console.error('Error starting QR scanner:', error);
+                alert('Could not start QR code scanner. You can enter the serial number manually instead.');
+            }
+        }
+
+        // Stop QR code scanner
+        function stopQRScanner() {
+            try {
+                if (window.html5QrcodeScanner) {
+                    window.html5QrcodeScanner.clear();
+                    window.html5QrcodeScanner = null;
+                }
+            } catch (error) {
+                console.error('Error stopping QR scanner:', error);
+            }
+        }
+
+        // Verify attendance
+        async function verifyAttendance() {
+            const serialNumber = document.getElementById('serialNumber').value.trim();
+            const eventId = window.currentEventId;
+
+            if (!serialNumber) {
+                alert('Please enter a serial number or scan a QR code');
+                return;
+            }
+
+            if (!eventId) {
+                alert('Error: Event ID not found. Please try again.');
+                return;
+            }
+
+            try {
+                // Mark attendance using the member's ID
+                const response = await fetch('api/manage-attendance.php?action=markAttendance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        eventId: eventId,
+                        memberId: parseInt(serialNumber) || serialNumber
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Attendance marked successfully!');
+                    stopQRScanner();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                    modal.hide();
+                    
+                    // Reload registered events to update the UI
+                    loadRegisteredEventsTab();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to mark attendance'));
+                }
+            } catch (error) {
+                console.error('Error verifying attendance:', error);
+                alert('Error: ' + error.message);
+            }
+        }
     </script>
 </body>
 

@@ -1118,6 +1118,10 @@ function openAttendanceModal(eventId, eventTitle, eventDate, startTime) {
     const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
     modal.show();
     
+    // Add event listener to stop scanner when modal is hidden
+    const attendanceModalEl = document.getElementById('attendanceModal');
+    attendanceModalEl.addEventListener('hidden.bs.modal', stopQRScanner, { once: true });
+    
     // Start QR code scanner after modal is shown
     setTimeout(() => {
         startQRScannerForAttendance(eventId);
@@ -1270,12 +1274,7 @@ async function verifyAttendance() {
     const eventId = window.currentEventId;
 
     if (!serialNumber) {
-        alert('Please enter a serial number');
-        return;
-    }
-
-    if (!serialNumber.match(/^RPH-\d{6}-[A-Z0-9]{4}$/)) {
-        alert('Invalid serial number format. Please check and try again.');
+        alert('Please enter a serial number or scan a QR code');
         return;
     }
 
@@ -1285,8 +1284,8 @@ async function verifyAttendance() {
     }
 
     try {
-        // Call the API to record attendance
-        const response = await fetch('api/manage-attendance.php?action=recordAttendance', {
+        // First, mark attendance using the serial number (which is the registration ID or member ID)
+        const response = await fetch('api/manage-attendance.php?action=markAttendance', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1294,21 +1293,22 @@ async function verifyAttendance() {
             credentials: 'include',
             body: JSON.stringify({
                 eventId: eventId,
-                serialNumber: serialNumber
+                memberId: parseInt(serialNumber) || serialNumber
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            alert('Attendance verified successfully!');
+            alert('Attendance marked successfully!');
+            stopQRScanner();
             const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
             modal.hide();
             
-            // Reload completed events to update the UI
-            loadCompletedEventsTab();
+            // Reload registered events to update the UI
+            loadRegisteredEventsTab();
         } else {
-            alert('Error: ' + (data.message || 'Failed to record attendance'));
+            alert('Error: ' + (data.message || 'Failed to mark attendance'));
         }
     } catch (error) {
         console.error('Error verifying attendance:', error);
