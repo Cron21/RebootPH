@@ -26,6 +26,8 @@ if (!$eventId) {
 }
 
 try {
+    error_log("Debug: Checking attendance for memberId=$memberId, eventId=$eventId");
+    
     // Check if member has registration for this event
     $regStmt = $conn->prepare("
         SELECT r.RegistrationID, r.EventID, r.MemberID, r.RegistrationDate, r.Status
@@ -34,44 +36,56 @@ try {
     ");
     $regStmt->execute([$eventId, $memberId]);
     $registration = $regStmt->fetch(PDO::FETCH_ASSOC);
+    error_log("Registration lookup: " . ($registration ? "Found RegistrationID=" . $registration['RegistrationID'] : "No registration found"));
     
     // Check if member has attendance for this event
     $attStmt = $conn->prepare("
-        SELECT ea.AttendanceID, ea.RegistrationID, ea.AttendanceTime, ea.Status
+        SELECT ea.AttendanceID, ea.RegistrationID, ea.AttendanceTime
         FROM eventattendance ea
-        JOIN registration r ON ea.RegistrationID = r.RegistrationID
-        WHERE r.EventID = ? AND r.MemberID = ?
+        WHERE ea.RegistrationID IN (
+            SELECT r.RegistrationID FROM registration r 
+            WHERE r.EventID = ? AND r.MemberID = ?
+        )
         ORDER BY ea.AttendanceTime DESC
     ");
     $attStmt->execute([$eventId, $memberId]);
     $attendance = $attStmt->fetchAll(PDO::FETCH_ASSOC);
+    error_log("Attendance lookup: Found " . count($attendance) . " record(s)");
     
     // Check if member has feedback for this event
     $fbStmt = $conn->prepare("
         SELECT f.FeedbackID, f.SubmissionDate, f.Rating, f.Comments
         FROM feedback f
-        JOIN eventattendance ea ON f.AttendanceID = ea.AttendanceID
-        JOIN registration r ON ea.RegistrationID = r.RegistrationID
-        WHERE r.EventID = ? AND r.MemberID = ?
+        WHERE f.AttendanceID IN (
+            SELECT ea.AttendanceID FROM eventattendance ea
+            WHERE ea.RegistrationID IN (
+                SELECT r.RegistrationID FROM registration r 
+                WHERE r.EventID = ? AND r.MemberID = ?
+            )
+        )
     ");
     $fbStmt->execute([$eventId, $memberId]);
     $feedback = $fbStmt->fetchAll(PDO::FETCH_ASSOC);
+    error_log("Feedback lookup: Found " . count($feedback) . " record(s)");
     
     echo json_encode([
         'success' => true,
         'memberId' => $memberId,
         'eventId' => $eventId,
-        'registration' => $registration,
-        'attendance' => $attendance,
-        'feedback' => $feedback,
+        'registration' => $registration ?: null,
+        'attendance' => $attendance ?: [],
+        'feedback' => $feedback ?: [],
         'attendanceCount' => count($attendance)
     ], JSON_PRETTY_PRINT);
     
 } catch (Exception $e) {
+    error_log('Debug attendance error: ' . $e->getMessage());
+    error_log('Debug attendance trace: ' . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => 'Database error: ' . $e->getMessage(),
+        'error' => $e->getMessage()
     ]);
 }
 ?>

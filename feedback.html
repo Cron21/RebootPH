@@ -504,12 +504,36 @@
             }
             
             try {
+                console.log('Debug: Fetching debug data for eventId:', eventId);
                 const response = await fetch(`api/debug-attendance.php?eventId=${eventId}`, {
                     credentials: 'include'
                 });
                 
-                const debugData = await response.json();
+                console.log('Debug API response status:', response.status);
+                const responseText = await response.text();
+                console.log('Debug API response text:', responseText);
+                
+                if (!response.ok) {
+                    console.error('Debug API error:', response.status, responseText);
+                    alert(`Debug API Error (${response.status}):\n${responseText}\n\nCheck browser console (F12) for details.`);
+                    return;
+                }
+                
+                let debugData;
+                try {
+                    debugData = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse debug response:', parseError);
+                    alert('Server returned invalid JSON. Check console.');
+                    return;
+                }
+                
                 console.log('=== DEBUG DATA ===', debugData);
+                
+                if (!debugData.success) {
+                    alert('Debug Error: ' + (debugData.message || 'Unknown error'));
+                    return;
+                }
                 
                 let message = `DEBUG INFO FOR EVENT ${eventId}\n\n`;
                 message += `Member ID: ${debugData.memberId}\n`;
@@ -520,8 +544,8 @@
                     message += `  - Status: ${debugData.registration.Status}\n`;
                 }
                 
-                message += `\nAttendance Records: ${debugData.attendanceCount}\n`;
-                if (debugData.attendance.length > 0) {
+                message += `\nAttendance Records: ${debugData.attendanceCount || 0}\n`;
+                if (debugData.attendance && debugData.attendance.length > 0) {
                     debugData.attendance.forEach((att, i) => {
                         message += `  ${i+1}. AttendanceID: ${att.AttendanceID}, Time: ${att.AttendanceTime}\n`;
                     });
@@ -529,14 +553,14 @@
                     message += `  ⚠️  NO ATTENDANCE RECORD - Member must scan event QR code first!\n`;
                 }
                 
-                message += `\nExisting Feedback: ${debugData.feedback.length > 0 ? 'YES' : 'NO'}\n`;
+                message += `\nExisting Feedback: ${(debugData.feedback && debugData.feedback.length > 0) ? 'YES' : 'NO'}\n`;
                 
                 message += `\n[Full debug data in console]`;
                 
                 alert(message);
             } catch (error) {
-                console.error('Debug error:', error);
-                alert('Debug error: ' + error.message);
+                console.error('Debug fetch error:', error);
+                alert('Debug error: ' + error.message + '\n\nCheck browser console (F12) for details.');
             }
         });
 
