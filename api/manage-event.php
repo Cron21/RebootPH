@@ -51,7 +51,9 @@ try {
         $checkStmt = $conn->prepare("SELECT EventID FROM event WHERE ProposalID = ?");
         $checkStmt->execute([$proposalId]);
         if ($checkStmt->rowCount() > 0) {
-            throw new Exception('Event already created for this proposal');
+            // Event already exists - just return success since the goal is achieved
+            echo json_encode(['success' => true, 'message' => 'Event already exists for this proposal - no new event created']);
+            exit;
         }
 
         // Calculate registration deadline (12 hours before event start)

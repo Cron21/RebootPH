@@ -5269,7 +5269,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         if (approveData.message.includes('Security Alert')) {
                             alert(approveData.message);
                         } else if (approveData.message.includes('already')) {
-                            alert('Event already exists for this proposal.\n\nPlease check the Events section.\n\nTo fix: Refresh the page or contact administrator if you need to re-create the event.');
+                            alert('Event already exists for this proposal.\n\nThe proposal has been updated to Approved status.');
                             loadEventProposals();
                             if (typeof loadEvents === 'function') loadEvents();
                         } else {
@@ -5310,7 +5310,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     } else {
                         // Handle case where event already exists
                         if (eventData.message.includes('already')) {
-                            alert('Event already exists for this proposal.\n\nThe proposal has been approved but the event was not created because it already exists.\n\nPlease check the Events section.');
+                            alert('Event already exists for this proposal.\n\nThe proposal has been approved.\n\nPlease check the Events section.');
                             loadEventProposals();
                             if (typeof loadEvents === 'function') loadEvents();
                         } else {
