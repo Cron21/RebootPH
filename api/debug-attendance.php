@@ -30,7 +30,7 @@ try {
     
     // Check if member has registration for this event
     $regStmt = $conn->prepare("
-        SELECT r.RegistrationID, r.EventID, r.MemberID, r.RegistrationDate, r.Status
+        SELECT r.RegistrationID, r.EventID, r.MemberID, r.RegistrationDate
         FROM registration r
         WHERE r.EventID = ? AND r.MemberID = ?
     ");
