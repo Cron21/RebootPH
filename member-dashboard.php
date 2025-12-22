@@ -1051,17 +1051,58 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             }
 
             try {
-                // Mark attendance using the serial number
-                const response = await fetch('api/manage-attendance.php?action=markAttendance', {
+                // First, verify/decode the registration serial number to get memberId and registrationId
+                const verifyResponse = await fetch('api/manage-attendance.php?action=verifyRegistration', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        eventId: eventId,
-                        serialNumber: serialNumber
-                    })
+                    body: `memberSerialNumber=${encodeURIComponent(serialNumber)}&eventId=${encodeURIComponent(eventId)}`
+                });
+
+                const verifyData = await verifyResponse.json();
+
+                if (!verifyData.valid) {
+                    // Show error message
+                    const modalBody = document.querySelector('#attendanceModal .modal-body');
+                    const qrReader = document.getElementById('qr-reader');
+                    if (qrReader) {
+                        qrReader.style.display = 'none';
+                    }
+                    const verifyBtn = document.querySelector('#attendanceModal .modal-footer .btn-primary');
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'none';
+                    }
+                    
+                    modalBody.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="display-1 text-danger">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading">Invalid Registration</h6>
+                        <p class="mb-0">${verifyData.message || 'Your serial number could not be verified.'}</p>
+                    </div>`;
+                    
+                    // Close modal after 3 seconds
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }, 3000);
+                    return;
+                }
+
+                // Now record the attendance with the verified member data
+                const member = verifyData.data;
+                const response = await fetch('api/manage-attendance.php?action=recordAttendance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `registrationId=${encodeURIComponent(member.registrationId)}&memberId=${encodeURIComponent(member.memberId)}&eventId=${encodeURIComponent(eventId)}&scanType=QR`
                 });
 
                 const data = await response.json();
