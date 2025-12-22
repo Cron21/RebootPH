@@ -233,7 +233,9 @@
             try {
                 console.log('=== loadCompletedEvents started ===');
                 // Use the same endpoint as dashboard to ensure consistency
-                const response = await fetch('api/get-member-events.php?type=completed');
+                const response = await fetch('api/get-member-events.php?type=completed', {
+                    credentials: 'include'
+                });
                 
                 console.log('API response status:', response.status);
                 
@@ -327,7 +329,9 @@
         // Load existing feedback
         async function loadExistingFeedback(eventId) {
             try {
-                const response = await fetch(`api/manage-feedback.php?eventId=${eventId}`);
+                const response = await fetch(`api/manage-feedback.php?eventId=${eventId}`, {
+                    credentials: 'include'
+                });
                 const data = await response.json();
 
                 if (data.success && data.feedback) {
@@ -428,6 +432,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData)
                 });
 
