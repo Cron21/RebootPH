@@ -28,9 +28,15 @@ try {
         case 'register':
             $memberId = $input['memberId'] ?? null;
             $eventId = $input['eventId'] ?? null;
+            $registrationType = $input['registrationType'] ?? 'Attendee'; // Default to Attendee
 
             if (!$memberId || !$eventId) {
                 throw new Exception('Missing required fields');
+            }
+
+            // Validate registration type
+            if (!in_array($registrationType, ['Staff', 'Attendee'])) {
+                throw new Exception('Invalid registration type. Must be Staff or Attendee');
             }
 
             // Check if already registered
@@ -50,9 +56,9 @@ try {
                 throw new Exception('Event not found');
             }
 
-            // Insert registration
-            $stmt = $pdo->prepare("INSERT INTO registration (MemberID, EventID, RegistrationDate) VALUES (?, ?, NOW())");
-            $stmt->execute([$memberId, $eventId]);
+            // Insert registration with registration type
+            $stmt = $pdo->prepare("INSERT INTO registration (MemberID, EventID, RegistrationDate, RegistrationType) VALUES (?, ?, NOW(), ?)");
+            $stmt->execute([$memberId, $eventId, $registrationType]);
 
             // Return QR code (blob data as base64)
             $qrCodeBase64 = $event['QRCode'] ? base64_encode($event['QRCode']) : null;

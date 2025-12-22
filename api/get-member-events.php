@@ -112,6 +112,7 @@ try {
                 p.Description,
                 r.RegistrationID,
                 r.RegistrationDate,
+                COALESCE(r.RegistrationType, 'Attendee') as RegistrationType,
                 COUNT(DISTINCT ea.AttendanceID) as AttendanceCount
             FROM registration r
             JOIN event e ON r.EventID = e.EventID
@@ -123,7 +124,7 @@ try {
                      e.RegistrationDeadline, p.ProposalID, p.Title, 
                      p.ProposedDate, p.StartTime, p.EndTime, p.Venue, 
                      p.TargetParticipants, p.StaffRequired, p.Status, p.Description,
-                     r.RegistrationID, r.RegistrationDate
+                     r.RegistrationID, r.RegistrationDate, r.RegistrationType
             ORDER BY p.ProposedDate DESC, p.StartTime DESC
         ");
         

@@ -398,128 +398,58 @@ async function registerForEventDashboard(eventId, eventTitle, eventDate, startTi
         return;
     }
 
-    try {
-        const response = await fetch('api/manage-registration.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'register',
-                memberId: window.currentMemberId,
-                eventId: eventId
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            alert('Successfully registered for ' + eventTitle + '!');
-            loadUpcomingEvents();
-            loadDashboardStats();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    } catch (error) {
-        console.error('Error registering for event:', error);
-        alert('Error registering for event');
-    }
-}
-
-// ===== MY ACTIVITIES TAB =====
-
-// Load upcoming events for My Activities tab (shows ALL upcoming events)
-async function loadUpcomingEventsTab(memberId = null) {
-    try {
-        const container = document.getElementById('upcomingEventsList');
-        if (!container) return;
-
-        const url = memberId ? `api/get-member-events.php?type=upcoming&memberId=${memberId}` : 'api/get-member-events.php?type=upcoming';
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`API responded with status ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success && data.events) {
-            // Sort events by date (nearest first) for display
-            const sortedEvents = data.events.sort((a, b) => {
-                const dateA = new Date(a.ProposedDate + ' ' + a.StartTime);
-                const dateB = new Date(b.ProposedDate + ' ' + b.StartTime);
-                return dateA - dateB;
-            });
-            populateUpcomingEventsTab(sortedEvents);
-        } else {
-            container.innerHTML = '<div class="text-center text-muted py-4">No upcoming events available</div>';
-        }
-    } catch (error) {
-        console.error('Error loading upcoming events:', error);
-        const container = document.getElementById('upcomingEventsList');
-        if (container) {
-            container.innerHTML = `<div class="text-center text-danger py-4">Error loading events: ${error.message}</div>`;
-        }
-    }
-}
-
-// Populate upcoming events tab
-function populateUpcomingEventsTab(events) {
-    const container = document.getElementById('upcomingEventsList');
-    if (!container) return;
-
-    // Filter out events the user is already registered for
-    const unregisteredEvents = events.filter(event => event.MemberRegistered === 0);
-
-    if (!unregisteredEvents || unregisteredEvents.length === 0) {
-        container.innerHTML = '<div class="text-center text-muted py-4">No upcoming events available</div>';
-        return;
-    }
-
-    // Check if we're in admin view
-    const isAdminView = document.body.classList.contains('admin-view') || window.isAdminView;
-
-    container.innerHTML = unregisteredEvents.map(event => {
-        const eventDate = new Date(event.ProposedDate);
-        const today = new Date();
-        const daysUntil = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
-
-        let timeBadge = '';
-        if (daysUntil === 0) timeBadge = '<span class="badge bg-danger">Today</span>';
-        else if (daysUntil === 1) timeBadge = '<span class="badge bg-warning">Tomorrow</span>';
-        else if (daysUntil <= 7) timeBadge = `<span class="badge bg-info">In ${daysUntil} days</span>`;
-        else timeBadge = `<span class="badge bg-primary">In ${Math.ceil(daysUntil / 7)} weeks</span>`;
-
-        const spotsLeft = event.Capacity - event.RegisteredCount;
-        const capacityText = spotsLeft > 0 ? `${spotsLeft} spots available` : 'Event Full';
-
-        // Hide register button if in admin view
-        const registerBtnHtml = isAdminView
-            ? ''
-            : `<button class="btn btn-sm btn-outline-primary" onclick="registerForEventTab(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}', '${event.ProposedDate}', '${event.StartTime}', '${event.EndTime}', '${event.Venue}')">Register Now</button>`;
-
-        return `
-            <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between align-items-start mb-2">
-                    <h6 class="mb-1">${event.Title}</h6>
-                    ${timeBadge}
-                </div>
-                <p class="mb-2 text-muted small">
-                    📅 ${eventDate.toLocaleDateString()} | ⏰ ${event.StartTime} - ${event.EndTime}<br>
-                    📍 ${event.Venue}<br>
-                    Capacity: ${event.RegisteredCount}/${event.Capacity} (${capacityText})
-                </p>
-                ${event.Description ? `<p class="mb-2 small">${event.Description}</p>` : ''}
-                <div class="d-flex gap-2">
-                    ${registerBtnHtml}
-                </div>
-            </div>
-        `;
-    }).join('');
+    // Show registration type selection modal
+    showRegistrationTypeModal(eventId, eventTitle);
 }
 
 // Register for event from activities tab
 async function registerForEventTab(eventId, eventTitle, eventDate, startTime, endTime, venue) {
+    // Show registration type selection modal
+    showRegistrationTypeModal(eventId, eventTitle);
+}
+
+// Show modal to select registration type (Staff or Attendee)
+function showRegistrationTypeModal(eventId, eventTitle) {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'registrationTypeModal_' + eventId;
+    modal.innerHTML = `
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register for Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="mb-3">${eventTitle}</h6>
+                    <p class="text-muted small mb-3">How would you like to register?</p>
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary text-start p-3 mb-2" onclick="submitRegistration(${eventId}, 'Staff', '${eventTitle}')">
+                            <div class="fw-bold">👔 Register as Staff</div>
+                            <div class="small text-muted">You will be registered as event staff</div>
+                        </button>
+                        <button type="button" class="btn btn-outline-success text-start p-3" onclick="submitRegistration(${eventId}, 'Attendee', '${eventTitle}')">
+                            <div class="fw-bold">👥 Register as Attendee</div>
+                            <div class="small text-muted">You will be registered as a general participant</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+
+    // Remove modal from DOM when hidden
+    modal.addEventListener('hidden.bs.modal', function () {
+        modal.remove();
+    });
+}
+
+// Submit registration with type
+async function submitRegistration(eventId, registrationType, eventTitle) {
     try {
         const response = await fetch('api/manage-registration.php', {
             method: 'POST',
@@ -529,14 +459,21 @@ async function registerForEventTab(eventId, eventTitle, eventDate, startTime, en
             body: JSON.stringify({
                 action: 'register',
                 memberId: window.currentMemberId,
-                eventId: eventId
+                eventId: eventId,
+                registrationType: registrationType
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            alert('Successfully registered for ' + eventTitle + '!');
+            alert(`Successfully registered for ${eventTitle} as ${registrationType}!`);
+            // Close the modal
+            const modal = document.getElementById('registrationTypeModal_' + eventId);
+            if (modal) {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
+            }
             // Reload both tabs
             loadUpcomingEventsTab();
             loadRegisteredEventsTab();
@@ -622,12 +559,21 @@ function populateRegisteredEventsTab(events) {
             : '';
 
         const regDate = new Date(event.RegistrationDate);
+        
+        // Display registration type badge
+        const registrationType = event.RegistrationType || 'Attendee';
+        const registrationTypeBadge = registrationType === 'Staff' 
+            ? '<span class="badge bg-info">👔 Staff</span>'
+            : '<span class="badge bg-secondary">👥 Attendee</span>';
 
         return `
             <div class="list-group-item">
                 <div class="d-flex w-100 justify-content-between align-items-start mb-2">
                     <h6 class="mb-1">${event.Title}</h6>
-                    ${statusBadge}
+                    <div class="d-flex gap-2">
+                        ${registrationTypeBadge}
+                        ${statusBadge}
+                    </div>
                 </div>
                 <p class="mb-2 text-muted small">
                     📅 ${eventDate.toLocaleDateString()} | ⏰ ${event.StartTime} - ${event.EndTime}<br>
