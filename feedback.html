@@ -10,41 +10,7 @@
 </head>
 
 <body class="bg-light d-flex flex-column min-vh-100" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg"> ">
-        <div class="container d-flex align-items-center justify-content-between">
-            <a class="navbar-brand d-flex align-items-center gap-2 brand-logo" href="index.html">
-                <img style="width: 6rem; height: 3rem" src="assets/image/reboot2-logo.png" alt="Reboot PH logo">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-lg-auto header-nav mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="initiatives.html">Initiatives</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="announcements.html">Newsletters & Announcements</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="feedback.html">Event Feedback</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.html">About Us</a>
-                    </li>
-                </ul>
-                <div class="d-flex justify-content-center justify-content-lg-end">
-                    <a href="login.html" class="btn btn-success rounded-pill px-4 header-login fw-bold">Log In</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <main class="pt-5">
+    <main class="pt-0">
         <!-- Page header -->
         <section class="py-5" style="background-color: #e7f1fb;">
             <div class="container">
@@ -65,13 +31,18 @@
                              style="border-radius: 18px; border: 2px solid #35b34a;">
                             <form id="feedbackForm" novalidate>
                                 <!-- Select Event -->
-                                <div class="mb-4">
+                                <div class="mb-4" id="eventSelectContainer">
                                     <label for="eventSelect" class="form-label fw-semibold text-primary mb-1">Select Event</label>
                                     <select class="form-control border-0 border rounded-3 py-2" id="eventSelect" required>
                                         <option value="">Choose an event...</option>
                                         <!-- Events will be loaded dynamically -->
                                     </select>
                                     <div id="eventSelectHelp" class="form-text text-muted">Only completed events you attended are shown</div>
+                                </div>
+                                <!-- Selected Event Display (for dashboard navigation) -->
+                                <div class="mb-4 d-none" id="eventDisplayContainer">
+                                    <label class="form-label fw-semibold text-primary mb-1">Event</label>
+                                    <p class="form-control-plaintext fw-bold" id="eventDisplayName"></p>
                                 </div>
 
                                 <!-- Overall Experience -->
@@ -469,9 +440,36 @@
             const attendanceId = urlParams.get('attendanceId');
             
             if (eventId && completedEvents.length > 0) {
-                const eventSelect = document.getElementById('eventSelect');
-                eventSelect.value = eventId;
-                eventSelect.dispatchEvent(new Event('change'));
+                // Find the event in completed events
+                const event = completedEvents.find(e => e.EventID == eventId);
+                
+                if (event) {
+                    // Hide event selector and show event display
+                    document.getElementById('eventSelectContainer').classList.add('d-none');
+                    document.getElementById('eventDisplayContainer').classList.remove('d-none');
+                    document.getElementById('eventDisplayName').textContent = event.Title;
+                    
+                    // Pre-select the event in the hidden select for form submission
+                    const eventSelect = document.getElementById('eventSelect');
+                    eventSelect.value = eventId;
+                    
+                    // Trigger change event to load existing feedback if any
+                    eventSelect.dispatchEvent(new Event('change'));
+                    
+                    // Pre-fill attendance ID in the form (add hidden field if needed)
+                    const selectedOption = eventSelect.options[eventSelect.selectedIndex];
+                    if (selectedOption) {
+                        selectedOption.dataset.attendanceId = attendanceId;
+                    }
+                } else {
+                    // Event not found, show selector
+                    document.getElementById('eventSelectContainer').classList.remove('d-none');
+                    document.getElementById('eventDisplayContainer').classList.add('d-none');
+                }
+            } else {
+                // No URL parameters, show selector
+                document.getElementById('eventSelectContainer').classList.remove('d-none');
+                document.getElementById('eventDisplayContainer').classList.add('d-none');
             }
         }
 
