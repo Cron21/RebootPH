@@ -10494,44 +10494,85 @@ if ($_SESSION['role'] === 'Member Staff') {
             let qrScannerInstance = null;
 
             function showOrganizerQRCode() {
-                const eventId = document.getElementById('attendanceEventSelect').value;
-                const eventSelect = document.getElementById('attendanceEventSelect');
-                const eventName = eventSelect.options[eventSelect.selectedIndex].text;
-                
-                if (!eventId) {
-                    alert('Please select an event first');
-                    return;
-                }
-                
-                // Generate organizer QR code
-                const qrData = JSON.stringify({
-                    type: 'organizer',
-                    eventId: eventId,
-                    timestamp: new Date().toISOString(),
-                    organizerId: 'ORG-' + Date.now()
-                });
-                
-                // Show modal with QR code
-                const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
-                modal.show();
-                
-                // Generate QR code after modal is shown
-                setTimeout(() => {
-                    const qrContainer = document.getElementById('organizerQRCode');
-                    qrContainer.innerHTML = ''; // Clear previous QR
-                    new QRCode(qrContainer, {
-                        text: qrData,
-                        width: 250,
-                        height: 250,
-                        colorDark: '#1a7f0d',
-                        colorLight: '#ffffff'
+                try {
+                    const eventId = document.getElementById('attendanceEventSelect').value;
+                    const eventSelect = document.getElementById('attendanceEventSelect');
+                    
+                    if (!eventId) {
+                        alert('Please select an event first');
+                        return;
+                    }
+                    
+                    const eventName = eventSelect.options[eventSelect.selectedIndex].text;
+                    console.log('Generating QR code for event:', eventId, eventName);
+                    
+                    // Generate organizer QR code data
+                    const qrData = JSON.stringify({
+                        type: 'organizer',
+                        eventId: eventId,
+                        eventName: eventName,
+                        timestamp: new Date().toISOString(),
+                        organizerId: 'ORG-' + Date.now()
                     });
-                }, 200);
+                    
+                    console.log('QR Data:', qrData);
+                    
+                    // Show modal with QR code
+                    const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+                    modal.show();
+                    
+                    // Generate QR code after modal is shown
+                    setTimeout(() => {
+                        try {
+                            const qrContainer = document.getElementById('organizerQRCode');
+                            if (!qrContainer) {
+                                console.error('QR container element not found');
+                                return;
+                            }
+                            
+                            qrContainer.innerHTML = ''; // Clear previous QR
+                            
+                            // Check if QRCode library is loaded
+                            if (typeof QRCode === 'undefined') {
+                                console.error('QRCode library not loaded');
+                                qrContainer.innerHTML = '<div class="alert alert-danger">QR Code library not loaded</div>';
+                                return;
+                            }
+                            
+                            // Generate the QR code
+                            new QRCode(qrContainer, {
+                                text: qrData,
+                                width: 250,
+                                height: 250,
+                                colorDark: '#1a7f0d',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                            
+                            console.log('QR code generated successfully');
+                        } catch (error) {
+                            console.error('Error generating QR code:', error);
+                            const qrContainer = document.getElementById('organizerQRCode');
+                            if (qrContainer) {
+                                qrContainer.innerHTML = '<div class="alert alert-danger">Error generating QR code: ' + error.message + '</div>';
+                            }
+                        }
+                    }, 300);
+                } catch (error) {
+                    console.error('Error in showOrganizerQRCode:', error);
+                    alert('Error generating QR code: ' + error.message);
+                }
             }
 
             function closeOrganizerQR() {
-                const qrContainer = document.getElementById('organizerQRCode');
-                qrContainer.innerHTML = '';
+                try {
+                    const qrContainer = document.getElementById('organizerQRCode');
+                    if (qrContainer) {
+                        qrContainer.innerHTML = '';
+                    }
+                } catch (error) {
+                    console.error('Error closing QR code:', error);
+                }
             }
 
         </script>
