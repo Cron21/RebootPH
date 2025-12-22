@@ -223,7 +223,18 @@ try {
 
         $proposalId = $eventRow['ProposalID'];
 
-        // Delete attendance records first (they reference registrations)
+        // Delete feedback first (it references eventattendance)
+        $deleteFeedbackStmt = $conn->prepare("
+            DELETE FROM feedback 
+            WHERE AttendanceID IN (
+                SELECT ea.AttendanceID FROM eventattendance ea
+                JOIN registration r ON ea.RegistrationID = r.RegistrationID
+                WHERE r.EventID = ?
+            )
+        ");
+        $deleteFeedbackStmt->execute([$eventId]);
+
+        // Delete attendance records (they reference registrations)
         $deleteAttendanceStmt = $conn->prepare("
             DELETE FROM eventattendance 
             WHERE RegistrationID IN (SELECT RegistrationID FROM registration WHERE EventID = ?)
@@ -233,10 +244,6 @@ try {
         // Delete registrations related to this event
         $deleteRegStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
         $deleteRegStmt->execute([$eventId]);
-
-        // Delete feedback related to this event
-        $deleteFeedbackStmt = $conn->prepare("DELETE FROM feedback WHERE EventID = ?");
-        $deleteFeedbackStmt->execute([$eventId]);
 
         // Delete the event itself
         $deleteEventStmt = $conn->prepare("DELETE FROM event WHERE EventID = ?");

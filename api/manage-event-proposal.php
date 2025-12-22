@@ -303,8 +303,15 @@ try {
             $delAttStmt = $conn->prepare("DELETE FROM registration WHERE EventID = ?");
             $delAttStmt->execute([$eventId]);
 
-            // Delete feedback
-            $delFeedStmt = $conn->prepare("DELETE FROM feedback WHERE EventID = ?");
+            // Delete feedback (linked through eventattendance and registration)
+            $delFeedStmt = $conn->prepare("
+                DELETE FROM feedback 
+                WHERE AttendanceID IN (
+                    SELECT ea.AttendanceID FROM eventattendance ea
+                    JOIN registration r ON ea.RegistrationID = r.RegistrationID
+                    WHERE r.EventID = ?
+                )
+            ");
             $delFeedStmt->execute([$eventId]);
 
             // Delete event
