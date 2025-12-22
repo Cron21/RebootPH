@@ -846,91 +846,73 @@ if ($_SESSION['role'] === 'Member Staff') {
                 <div id="event-attendance" class="d-none active-section admin-section">
                     <div class="card">
                         <div class="card-body">
-                            <h2 class="h4 mb-0">Event Attendance Management</h2>
+                            <h2 class="h4 mb-4">Event Attendance Management</h2>
 
-                            <!-- Event List -->
-                            <div class="table-responsive mt-4">
-                                <table class="table">
+                            <!-- Event Selection and QR Button -->
+                            <div class="row mb-4">
+                                <div class="col-md-8">
+                                    <label for="attendanceEventSelect" class="form-label">Select Ongoing Event</label>
+                                    <select id="attendanceEventSelect" class="form-select"
+                                        onchange="loadEventAttendanceMembers()">
+                                        <option value="">-- Choose an Event --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-success w-100 d-none" id="showQRButton" onclick="showOrganizerQRCode()">
+                                        <i class="bi bi-qr-code"></i> Show Attendance QR
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Attendance Stats -->
+                            <div class="row mb-4" id="attendanceStatsRow" style="display: none;">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-muted">Total Registered</h6>
+                                            <h2 class="display-6 mb-0" id="totalRegisteredCard">-</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-muted">Checked In</h6>
+                                            <h2 class="display-6 mb-0" id="totalCheckedInCard">-</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title text-muted">Attendance Rate</h6>
+                                            <h2 class="display-6 mb-0" id="attendanceRateCard">-</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Members Attendance List -->
+                            <div class="table-responsive">
+                                <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Event Name</th>
-                                            <th>Date & Time</th>
-                                            <th>Location</th>
-                                            <th>Registered</th>
-                                            <th>Checked In</th>
-                                            <th>Actions</th>
+                                            <th>#</th>
+                                            <th>Member Name</th>
+                                            <th>Email</th>
+                                            <th>Attendance Status</th>
+                                            <th>Check-in Time</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="attendanceMembersTableBody">
                                         <tr>
-                                            <td>Environmental Awareness Workshop</td>
-                                            <td>Today<br>9:00 AM - 12:00 PM</td>
-                                            <td>Virtual Event via Zoom</td>
-                                            <td>50</td>
-                                            <td>32</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary"
-                                                    onclick="showAttendanceCheckingForm('ENV-001', 'Environmental Awareness Workshop')">
-                                                    Check Attendance
-                                                </button>
+                                            <td colspan="5" class="text-center text-muted py-4">
+                                                Select an event to view registered members
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
-
-                            <!-- Attendance Checking Form (Initially Hidden) -->
-                            <div id="attendanceCheckingForm" class="d-none mt-4">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 class="card-title mb-0">Attendance Checking: <span
-                                                    id="selectedEventName"></span></h5>
-                                            <button type="button" class="btn-close"
-                                                onclick="hideAttendanceCheckingForm()"></button>
-                                        </div>
-
-                                        <!-- Show Organizer QR Code Button -->
-                                        <div class="mb-4">
-                                            <button type="button" class="btn btn-success w-100" onclick="showOrganizerQRCode()">
-                                                <i class="bi bi-qr-code"></i> Show Attendance QR Code
-                                            </button>
-                                            <small class="text-muted d-block mt-2">Members will scan this QR code to mark their attendance</small>
-                                        </div>
-
-                                        <!-- Manual Check -->
-                                        <div class="row g-3">
-                                            <div class="col-md-8">
-                                                <input type="text" class="form-control" id="serialNumberInput"
-                                                    placeholder="Enter member serial number (e.g., RPH-123456-ABCD)">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <button class="btn btn-primary w-100" onclick="checkAttendance()">
-                                                    Verify Attendance
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Attendance List -->
-                                        <div id="attendanceList" class="mt-4 d-none">
-                                            <h6>Attendance Status</h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Member Name</th>
-                                                            <th>Email</th>
-                                                            <th>Status</th>
-                                                            <th>Check-in Time</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="attendanceListBody">
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -10199,15 +10181,127 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
             });
 
+            // Load ongoing events for attendance management
+            async function loadOngoingEvents() {
+                try {
+                    const response = await fetch('api/manage-attendance.php?action=getEvents');
+                    const data = await response.json();
+
+                    if (data.success && data.events) {
+                        const select = document.getElementById('attendanceEventSelect');
+                        const currentValue = select.value;
+
+                        // Clear existing options except first
+                        select.innerHTML = '<option value="">-- Choose an Event --</option>';
+
+                        // Add event options
+                        data.events.forEach(event => {
+                            const option = document.createElement('option');
+                            option.value = event.EventID;
+                            option.textContent = `${event.EventName} (${event.ProposedDate})`;
+                            select.appendChild(option);
+                        });
+
+                        // Restore previous selection if still available
+                        if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                            select.value = currentValue;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading ongoing events:', error);
+                }
+            }
+
+            // Load members for selected event
+            async function loadEventAttendanceMembers() {
+                const eventId = document.getElementById('attendanceEventSelect').value;
+                const showQRBtn = document.getElementById('showQRButton');
+
+                if (!eventId) {
+                    document.getElementById('attendanceMembersTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                Select an event to view registered members
+                            </td>
+                        </tr>
+                    `;
+                    document.getElementById('attendanceStatsRow').style.display = 'none';
+                    showQRBtn.classList.add('d-none');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`api/manage-attendance.php?action=getEventAttendance&eventId=${eventId}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update stats
+                        document.getElementById('totalRegisteredCard').textContent = data.stats.totalRegistered;
+                        document.getElementById('totalCheckedInCard').textContent = data.stats.totalAttended;
+                        document.getElementById('attendanceRateCard').textContent = data.stats.totalRegistered > 0 
+                            ? Math.round((data.stats.totalAttended / data.stats.totalRegistered) * 100) + '%'
+                            : '0%';
+                        document.getElementById('attendanceStatsRow').style.display = '';
+
+                        // Show QR button
+                        showQRBtn.classList.remove('d-none');
+                        showQRBtn.dataset.eventId = eventId;
+
+                        // Populate members table
+                        const tbody = document.getElementById('attendanceMembersTableBody');
+                        if (data.attendees && data.attendees.length > 0) {
+                            tbody.innerHTML = data.attendees.map((attendee, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${attendee.FName} ${attendee.LName}</td>
+                                    <td>${attendee.ApplicantEmail}</td>
+                                    <td>
+                                        <span class="badge ${attendee.AttendanceID ? 'bg-success' : 'bg-warning'}">
+                                            ${attendee.AttendanceID ? 'Checked In' : 'Pending'}
+                                        </span>
+                                    </td>
+                                    <td>${attendee.CheckInTime ? new Date(attendee.CheckInTime).toLocaleString() : '-'}</td>
+                                </tr>
+                            `).join('');
+                        } else {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        No registered members for this event
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading event attendance:', error);
+                    document.getElementById('attendanceMembersTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center text-danger py-4">
+                                Error loading attendance data
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+
+            // Initialize attendance management on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                loadOngoingEvents();
+                // Refresh ongoing events every 30 seconds
+                setInterval(loadOngoingEvents, 30000);
+            });
+
             // QR Scanner for admin attendance
             let qrScannerInstance = null;
 
             function showOrganizerQRCode() {
-                const form = document.getElementById('attendanceCheckingForm');
-                const eventId = form.dataset.eventId;
+                const eventId = document.getElementById('attendanceEventSelect').value;
+                const eventSelect = document.getElementById('attendanceEventSelect');
+                const eventName = eventSelect.options[eventSelect.selectedIndex].text;
                 
                 if (!eventId) {
-                    alert('No event selected');
+                    alert('Please select an event first');
                     return;
                 }
                 

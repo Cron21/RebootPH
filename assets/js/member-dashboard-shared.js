@@ -670,33 +670,107 @@ async function unregisterFromEvent(eventId, eventTitle) {
 // Show QR scanner modal for member to scan organizer's attendance QR code
 function showAttendanceCheckInModal(eventId, eventTitle, memberId, memberName) {
     try {
-        // Create scanner modal HTML
+        // Create permission request modal HTML
         const modalHtml = `
-            <div class="modal fade" id="memberQRScannerModal" tabindex="-1">
+            <div class="modal fade" id="attendancePermissionModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-info text-white">
-                            <h5 class="modal-title"><i class="bi bi-qr-code-scan"></i> Scan Event QR Code</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeAttendanceScanner()"></button>
+                            <h5 class="modal-title"><i class="bi bi-camera-video"></i> Camera Permission Required</h5>
                         </div>
-                        <div class="modal-body">
-                            <p class="text-muted mb-3">Ask the event organizer to show their QR code and scan it below</p>
-                            <div id="memberQRScannerContainer" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                        <div class="modal-body text-center py-4">
+                            <p class="mb-3">To scan the attendance QR code, we need access to your camera.</p>
+                            <p class="text-muted">You will be prompted to allow camera access.</p>
                             <div class="alert alert-info mt-3">
-                                <small><i class="bi bi-lightbulb"></i> Make sure camera permissions are enabled</small>
+                                <small><i class="bi bi-lightbulb"></i> Make sure the admin is showing the attendance QR code before scanning</small>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeAttendanceScanner()">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="requestCameraAndStartScanning(${eventId}, ${memberId}, '${eventTitle.replace(/'/g, "\\'")}')">
+                                <i class="bi bi-camera-video"></i> Allow Camera & Scan
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
         
-        // Remove any existing modal
-        const existingModal = document.getElementById('memberQRScannerModal');
-        if (existingModal) existingModal.remove();
+        // Remove any existing modals
+        const existingPermission = document.getElementById('attendancePermissionModal');
+        if (existingPermission) existingPermission.remove();
+        const existingScanner = document.getElementById('memberQRScannerModal');
+        if (existingScanner) existingScanner.remove();
+        
+        // Add modal to document
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Show permission modal
+        const permissionModal = new bootstrap.Modal(document.getElementById('attendancePermissionModal'));
+        permissionModal.show();
+        
+    } catch (error) {
+        console.error('Error showing attendance permission modal:', error);
+        alert('Error opening attendance check-in');
+    }
+}
+
+// Request camera permission and start scanning
+async function requestCameraAndStartScanning(eventId, memberId, eventTitle) {
+    try {
+        // Request camera permission
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        
+        // Stop the stream - we just needed to request permission
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Close permission modal
+        const permissionModal = bootstrap.Modal.getInstance(document.getElementById('attendancePermissionModal'));
+        if (permissionModal) permissionModal.hide();
+        
+        // Show scanner modal
+        showQRScannerModal(eventId, memberId, eventTitle);
+        
+    } catch (error) {
+        if (error.name === 'NotAllowedError') {
+            alert('Camera permission denied. Please enable camera access in your browser settings and try again.');
+        } else {
+            console.error('Error requesting camera permission:', error);
+            alert('Error accessing camera: ' + error.message);
+        }
+    }
+}
+
+// Show QR scanner modal
+function showQRScannerModal(eventId, memberId, eventTitle) {
+    try {
+        // Create scanner modal HTML
+        const modalHtml = `
+            <div class="modal fade" id="memberQRScannerModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title"><i class="bi bi-qr-code-scan"></i> Scan Event QR Code</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeAttendanceScanner()"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted mb-3">Ask the event organizer to show their QR code and scan it below</p>
+                            <div id="memberQRScannerContainer" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                            <div class="alert alert-success mt-3">
+                                <small><i class="bi bi-check-circle"></i> Point your camera at the QR code displayed by the organizer</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeAttendanceScanner()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove any existing scanner modal
+        const existingScanner = document.getElementById('memberQRScannerModal');
+        if (existingScanner) existingScanner.remove();
         
         // Add modal to document
         document.body.insertAdjacentHTML('beforeend', modalHtml);
@@ -715,7 +789,7 @@ function showAttendanceCheckInModal(eventId, eventTitle, memberId, memberName) {
         setTimeout(() => startAttendanceScanner(eventId, memberId, eventTitle), 500);
         
     } catch (error) {
-        console.error('Error showing attendance scanner:', error);
+        console.error('Error showing scanner modal:', error);
         alert('Error opening QR scanner');
     }
 }
