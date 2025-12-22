@@ -5910,9 +5910,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                     return;
                 }
 
-                const eventStatus = document.getElementById('emEventStatus').textContent;
+                // Get the status from the form dataset which is more reliable
+                const eventStatus = form.dataset.originalStatus || document.getElementById('emEventStatus').textContent.trim();
                 if (eventStatus !== 'Postponed') {
-                    alert('Events can only be deleted if they are Postponed. Please postpone the event first.');
+                    alert('Events can only be deleted if they are Postponed. Current status: ' + eventStatus + '.\\n\\nPlease postpone the event first.');
                     return;
                 }
 
