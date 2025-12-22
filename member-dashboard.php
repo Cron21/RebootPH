@@ -1037,7 +1037,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
 
         // Verify attendance
         async function verifyAttendance() {
-            const serialNumber = document.getElementById('serialNumber').value.trim();
+            let serialNumber = document.getElementById('serialNumber').value.trim();
             const eventId = window.currentEventId;
 
             if (!serialNumber) {
@@ -1051,19 +1051,25 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             }
 
             try {
-                // First, verify/decode the registration serial number to get memberId and registrationId
-                const verifyResponse = await fetch('api/manage-attendance.php?action=verifyRegistration', {
+                // Extract MemberID from QR code format: RPH-[MemberID]
+                let memberId = serialNumber;
+                if (serialNumber.startsWith('RPH-')) {
+                    memberId = parseInt(serialNumber.substring(4)); // Extract digits after "RPH-"
+                }
+
+                // Look up the registration using MemberID and EventID
+                const lookupResponse = await fetch('api/manage-attendance.php?action=getEventAttendance', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `memberSerialNumber=${encodeURIComponent(serialNumber)}&eventId=${encodeURIComponent(eventId)}`
+                    body: `eventId=${encodeURIComponent(eventId)}&memberId=${encodeURIComponent(memberId)}`
                 });
 
-                const verifyData = await verifyResponse.json();
+                const lookupData = await lookupResponse.json();
 
-                if (!verifyData.valid) {
-                    // Show error message
+                if (!lookupData.success || !lookupData.data || lookupData.data.length === 0) {
+                    // Show error message - member not registered
                     const modalBody = document.querySelector('#attendanceModal .modal-body');
                     const qrReader = document.getElementById('qr-reader');
                     if (qrReader) {
@@ -1081,8 +1087,8 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                         </div>
                     </div>
                     <div class="alert alert-danger">
-                        <h6 class="alert-heading">Invalid Registration</h6>
-                        <p class="mb-0">${verifyData.message || 'Your serial number could not be verified.'}</p>
+                        <h6 class="alert-heading">Not Registered</h6>
+                        <p class="mb-0">You are not registered for this event.</p>
                     </div>`;
                     
                     // Close modal after 3 seconds
@@ -1095,14 +1101,51 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                     return;
                 }
 
-                // Now record the attendance with the verified member data
-                const member = verifyData.data;
+                // Get registration details
+                const registration = lookupData.data[0];
+                const registrationId = registration.RegistrationID;
+
+                // Check if already attended
+                if (registration.AttendanceID) {
+                    // Show already attended message
+                    const modalBody = document.querySelector('#attendanceModal .modal-body');
+                    const qrReader = document.getElementById('qr-reader');
+                    if (qrReader) {
+                        qrReader.style.display = 'none';
+                    }
+                    const verifyBtn = document.querySelector('#attendanceModal .modal-footer .btn-primary');
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'none';
+                    }
+                    
+                    modalBody.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="display-1 text-warning">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">Already Attended</h6>
+                        <p class="mb-0">You have already checked in at ${new Date(registration.AttendanceTime).toLocaleTimeString()}</p>
+                    </div>`;
+                    
+                    // Close modal after 3 seconds
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }, 3000);
+                    return;
+                }
+
+                // Record the attendance
                 const response = await fetch('api/manage-attendance.php?action=recordAttendance', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `registrationId=${encodeURIComponent(member.registrationId)}&memberId=${encodeURIComponent(member.memberId)}&eventId=${encodeURIComponent(eventId)}&scanType=QR`
+                    body: `registrationId=${encodeURIComponent(registrationId)}&memberId=${encodeURIComponent(memberId)}&eventId=${encodeURIComponent(eventId)}&scanType=QR`
                 });
 
                 const data = await response.json();
@@ -1133,7 +1176,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                     <div class="alert alert-success">
                         <h6 class="alert-heading">Attendance Marked Successfully!</h6>
                         <hr>
-                        <p class="mb-0">Your attendance has been recorded for this event.</p>
+                        <p class="mb-0">Checked in at ${new Date().toLocaleTimeString()}</p>
                     </div>`;
                     
                     // Close modal after 2 seconds
