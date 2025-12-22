@@ -592,11 +592,25 @@ function populateRegisteredEventsTab(events) {
     container.innerHTML = events.map(event => {
         const eventDate = new Date(event.ProposedDate);
         const today = new Date();
-        const isUpcoming = eventDate > today;
         const attended = event.AttendanceCount > 0;
+
+        // Parse start and end times for proper comparison
+        const [startHour, startMin, startSec] = event.StartTime.split(':').map(Number);
+        const [endHour, endMin, endSec] = event.EndTime.split(':').map(Number);
+        
+        const eventStartTime = new Date(eventDate);
+        eventStartTime.setHours(startHour, startMin, startSec || 0);
+        
+        const eventEndTime = new Date(eventDate);
+        eventEndTime.setHours(endHour, endMin, endSec || 0);
+        
+        const now = new Date();
+        const isOngoing = now >= eventStartTime && now <= eventEndTime;
+        const isUpcoming = eventStartTime > now;
 
         let statusBadge = '';
         if (attended) statusBadge = '<span class="badge bg-success">✓ Attended</span>';
+        else if (isOngoing) statusBadge = '<span class="badge bg-warning">Ongoing</span>';
         else if (isUpcoming) statusBadge = '<span class="badge bg-primary">Upcoming</span>';
         else statusBadge = '<span class="badge bg-secondary">Completed</span>';
 
