@@ -9089,60 +9089,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
             });
 
-            // Load Event Attendance Management
-            async function loadEventAttendance() {
-                try {
-                    const response = await fetch('api/manage-attendance.php?action=getEvents');
-                    const data = await response.json();
-
-                    if (data.success) {
-                        populateEventAttendanceTable(data.events);
-                    } else {
-                        alert('Error loading events: ' + data.message);
-                    }
-                } catch (error) {
-                    console.error('Error loading event attendance:', error);
-                    alert('Error loading event attendance');
-                }
-            }
-
-            // Populate event attendance table
-            function populateEventAttendanceTable(events) {
-                const tbody = document.querySelector('#event-attendance table tbody');
-
-                if (events.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No events available</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = events.map(event => `
-                <tr>
-                    <td><strong>${event.EventName}</strong></td>
-                    <td>
-                        ${new Date(event.ProposedDate).toLocaleDateString()}<br>
-                        <small class="text-muted">${event.StartTime} - ${event.EndTime}</small>
-                    </td>
-                    <td>${event.Venue}</td>
-                    <td>
-                        <span class="badge bg-primary">${event.RegisteredCount}</span>
-                    </td>
-                    <td>
-                        <span class="badge bg-success">${event.CheckedInCount}</span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="showAttendanceCheckingForm(${event.EventID}, '${event.EventName}', '${event.SerialNumber}')">
-                            Check Attendance
-                        </button>
-                        <button class="btn btn-sm btn-info" onclick="viewEventAttendanceDetails(${event.EventID})">
-                            View Details
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-            }
-
-            // Updated function - now accepts event serial number
-            function showAttendanceCheckingForm(eventId, eventName, eventSerialNumber) {
+            // Load ongoing events for attendance management dropdown
+            async function loadOngoingEvents() {
                 // Store the current event details
                 const form = document.getElementById('attendanceCheckingForm');
                 form.dataset.eventId = eventId;
@@ -9484,7 +9432,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const attendanceLink = document.querySelector('a[href="#event-attendance"]');
                 if (attendanceLink) {
                     attendanceLink.addEventListener('click', function () {
-                        setTimeout(() => loadEventAttendance(), 100);
+                        setTimeout(() => loadOngoingEvents(), 100);
                     });
                 }
             });
@@ -10463,8 +10411,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             const statusBadge = isCheckedIn 
                                 ? '<span class="badge bg-success">Checked In</span>' 
                                 : '<span class="badge bg-warning">Pending</span>';
-                            const checkInTime = attendee.CheckInTime 
-                                ? new Date(attendee.CheckInTime).toLocaleString() 
+                            const checkInTime = attendee.AttendanceTime 
+                                ? new Date(attendee.AttendanceTime).toLocaleString() 
                                 : '-';
                             
                             return `
