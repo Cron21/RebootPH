@@ -34,6 +34,12 @@ try {
         case 'getAttendanceStats':
             getAttendanceStats();
             break;
+        case 'markAttendance':
+            markAttendanceQR();
+            break;
+        case 'scanQRCode':
+            scanQRCode();
+            break;
         default:
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid action']);
@@ -474,6 +480,197 @@ function getAttendanceStats() {
             'success' => true,
             'overallStats' => $stats,
             'eventStats' => $eventStats
+        ]);
+    } catch (Exception $e) {
+        throw $e;
+    }
+}
+
+/**
+ * Mark attendance from member QR display (member confirms attendance)
+ */
+function markAttendanceQR() {
+    global $conn;
+    
+    $eventId = $_POST['eventId'] ?? null;
+    $memberId = $_POST['memberId'] ?? null;
+    $checkInMethod = $_POST['checkInMethod'] ?? 'qr_scan'; // qr_scan or direct
+    
+    if (!$eventId || !$memberId) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Event ID and Member ID are required']);
+        return;
+    }
+    
+    try {
+        // Verify member is registered for this event
+        $regStmt = $conn->prepare("
+            SELECT r.RegistrationID
+            FROM registration r
+            WHERE r.EventID = ? AND r.MemberID = ?
+            LIMIT 1
+        ");
+        
+        $regStmt->execute([$eventId, $memberId]);
+        $registration = $regStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$registration) {
+            echo json_encode(['success' => false, 'message' => 'Member is not registered for this event']);
+            return;
+        }
+        
+        // Check if already marked attendance
+        $checkStmt = $conn->prepare("
+            SELECT AttendanceID 
+            FROM eventattendance 
+            WHERE RegistrationID = ?
+            LIMIT 1
+        ");
+        
+        $checkStmt->execute([$registration['RegistrationID']]);
+        $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existing) {
+            echo json_encode([
+                'success' => true,
+                'alreadyMarked' => true,
+                'message' => 'Attendance already marked for this event'
+            ]);
+            return;
+        }
+        
+        // Record attendance from member QR scan
+        $insertStmt = $conn->prepare("
+            INSERT INTO eventattendance (RegistrationID, AttendanceTime, ScanType)
+            VALUES (?, NOW(), ?)
+        ");
+        
+        $insertStmt->execute([$registration['RegistrationID'], $checkInMethod]);
+        $attendanceId = $conn->lastInsertId();
+        
+        // Get member details
+        $memberStmt = $conn->prepare("
+            SELECT 
+                m.MemberID,
+                a.FName,
+                a.LName,
+                p.Title as EventName
+            FROM member m
+            JOIN application a ON m.ApplicationID = a.ApplicationID
+            JOIN event e ON e.EventID = ?
+            LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
+            WHERE m.MemberID = ?
+        ");
+        
+        $memberStmt->execute([$eventId, $memberId]);
+        $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Attendance marked successfully',
+            'attendanceId' => $attendanceId,
+            'memberName' => $member['FName'] . ' ' . $member['LName'],
+            'eventName' => $member['EventName']
+        ]);
+    } catch (Exception $e) {
+        throw $e;
+    }
+}
+
+/**
+ * Scan QR code from member and mark attendance (admin scanning member's phone)
+ */
+function scanQRCode() {
+    global $conn;
+    
+    $qrData = $_POST['qrData'] ?? null;
+    
+    if (!$qrData) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'QR data is required']);
+        return;
+    }
+    
+    try {
+        // Decode QR data (should be JSON)
+        $decodedData = json_decode($qrData, true);
+        
+        if (!$decodedData || !isset($decodedData['eventId']) || !isset($decodedData['memberId'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid QR code data format']);
+            return;
+        }
+        
+        $eventId = $decodedData['eventId'];
+        $memberId = $decodedData['memberId'];
+        
+        // Verify member is registered for this event
+        $regStmt = $conn->prepare("
+            SELECT r.RegistrationID
+            FROM registration r
+            WHERE r.EventID = ? AND r.MemberID = ?
+            LIMIT 1
+        ");
+        
+        $regStmt->execute([$eventId, $memberId]);
+        $registration = $regStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$registration) {
+            echo json_encode(['success' => false, 'message' => 'Member is not registered for this event']);
+            return;
+        }
+        
+        // Check if already marked attendance
+        $checkStmt = $conn->prepare("
+            SELECT AttendanceID 
+            FROM eventattendance 
+            WHERE RegistrationID = ?
+            LIMIT 1
+        ");
+        
+        $checkStmt->execute([$registration['RegistrationID']]);
+        $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existing) {
+            echo json_encode([
+                'success' => true,
+                'alreadyMarked' => true,
+                'message' => 'Attendance already marked'
+            ]);
+            return;
+        }
+        
+        // Record attendance from QR scan
+        $insertStmt = $conn->prepare("
+            INSERT INTO eventattendance (RegistrationID, AttendanceTime, ScanType)
+            VALUES (?, NOW(), 'QR_Scan')
+        ");
+        
+        $insertStmt->execute([$registration['RegistrationID']]);
+        $attendanceId = $conn->lastInsertId();
+        
+        // Get member details
+        $memberStmt = $conn->prepare("
+            SELECT 
+                m.MemberID,
+                a.FName,
+                a.LName,
+                p.Title as EventName
+            FROM member m
+            JOIN application a ON m.ApplicationID = a.ApplicationID
+            JOIN event e ON e.EventID = ?
+            LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
+            WHERE m.MemberID = ?
+        ");
+        
+        $memberStmt->execute([$eventId, $memberId]);
+        $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Attendance marked successfully',
+            'attendanceId' => $attendanceId,
+            'memberName' => $member['FName'] . ' ' . $member['LName'],
+            'eventName' => $member['EventName']
         ]);
     } catch (Exception $e) {
         throw $e;

@@ -2,6 +2,42 @@
 // File: assets/js/member-dashboard-shared.js
 // Used by both member-dashboard.html and admin-dashboard.html (member view)
 
+// ===== UTILITY FUNCTIONS =====
+
+// Check if an event is currently ongoing
+function isEventOngoing(eventDate, startTime, endTime) {
+    try {
+        const now = new Date();
+        const eventDateTime = new Date(eventDate);
+        
+        // Parse start and end times (format: HH:MM)
+        const [startHour, startMin] = startTime.split(':').map(Number);
+        const [endHour, endMin] = endTime.split(':').map(Number);
+        
+        const eventStart = new Date(eventDateTime);
+        eventStart.setHours(startHour, startMin, 0, 0);
+        
+        const eventEnd = new Date(eventDateTime);
+        eventEnd.setHours(endHour, endMin, 59, 999);
+        
+        return now >= eventStart && now <= eventEnd;
+    } catch (e) {
+        console.error('Error checking if event is ongoing:', e);
+        return false;
+    }
+}
+
+// Generate organizer QR code for attendance (used by admin)
+function generateOrganizerQRCode(eventId) {
+    const qrData = JSON.stringify({
+        type: 'organizer',
+        eventId: eventId,
+        timestamp: new Date().toISOString(),
+        organizerId: 'ORG-' + Date.now()
+    });
+    return qrData;
+}
+
 // ===== MEMBER PROFILE MANAGEMENT =====
 
 async function loadMemberProfile() {
@@ -566,6 +602,11 @@ function populateRegisteredEventsTab(events) {
             ? '<span class="badge bg-info">👔 Staff</span>'
             : '<span class="badge bg-secondary">👥 Attendee</span>';
 
+        // Add attendance button for ongoing events
+        const attendanceBtn = isOngoing && !attended
+            ? `<button class="btn btn-sm btn-success" onclick="showAttendanceCheckInModal(${event.EventID}, '${event.Title.replace(/'/g, "\\'")}', ${window.currentMemberId}, '${window.currentMemberName}')"><i class="bi bi-qr-code"></i> Mark Attendance</button>`
+            : '';
+
         return `
             <div class="list-group-item">
                 <div class="d-flex w-100 justify-content-between align-items-start mb-2">
@@ -583,6 +624,7 @@ function populateRegisteredEventsTab(events) {
                 ${event.Description ? `<p class="mb-2 small">${event.Description}</p>` : ''}
 
                 <div class="d-flex gap-2">
+                    ${attendanceBtn}
                     ${unregisterBtn}
                 </div>
             </div>
@@ -622,6 +664,150 @@ async function unregisterFromEvent(eventId, eventTitle) {
     } catch (error) {
         console.error('Error unregistering:', error);
         alert('Error cancelling registration');
+    }
+}
+
+// Show QR scanner modal for member to scan organizer's attendance QR code
+function showAttendanceCheckInModal(eventId, eventTitle, memberId, memberName) {
+    try {
+        // Create scanner modal HTML
+        const modalHtml = `
+            <div class="modal fade" id="memberQRScannerModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title"><i class="bi bi-qr-code-scan"></i> Scan Event QR Code</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeAttendanceScanner()"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted mb-3">Ask the event organizer to show their QR code and scan it below</p>
+                            <div id="memberQRScannerContainer" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                            <div class="alert alert-info mt-3">
+                                <small><i class="bi bi-lightbulb"></i> Make sure camera permissions are enabled</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeAttendanceScanner()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove any existing modal
+        const existingModal = document.getElementById('memberQRScannerModal');
+        if (existingModal) existingModal.remove();
+        
+        // Add modal to document
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Store event info in modal for use in scanner callback
+        const modal = document.getElementById('memberQRScannerModal');
+        modal.dataset.eventId = eventId;
+        modal.dataset.memberId = memberId;
+        modal.dataset.eventTitle = eventTitle;
+        
+        // Show modal
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Start scanner after modal is shown
+        setTimeout(() => startAttendanceScanner(eventId, memberId, eventTitle), 500);
+        
+    } catch (error) {
+        console.error('Error showing attendance scanner:', error);
+        alert('Error opening QR scanner');
+    }
+}
+
+// Member QR Scanner Functions
+let memberAttendanceScannerInstance = null;
+
+async function startAttendanceScanner(eventId, memberId, eventTitle) {
+    const scannerElement = document.getElementById('memberQRScannerContainer');
+    if (!scannerElement) return;
+
+    try {
+        const html5QrcodeScanner = new Html5Qrcode("memberQRScannerContainer");
+        
+        await html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => onAttendanceQRScanSuccess(decodedText, eventId, memberId),
+            (error) => onAttendanceQRScanFailure(error)
+        );
+        
+        memberAttendanceScannerInstance = html5QrcodeScanner;
+    } catch (err) {
+        console.error('Error starting attendance scanner:', err);
+        alert('Error starting QR scanner. Please ensure camera permissions are granted.');
+    }
+}
+
+function onAttendanceQRScanSuccess(decodedText, eventId, memberId) {
+    try {
+        const qrData = JSON.parse(decodedText);
+        
+        // Check if it's an organizer QR code
+        if (qrData.type === 'organizer' && qrData.eventId) {
+            // Stop scanner
+            if (memberAttendanceScannerInstance) {
+                memberAttendanceScannerInstance.stop();
+                memberAttendanceScannerInstance = null;
+            }
+            
+            // Close scanner modal
+            const scannerModal = bootstrap.Modal.getInstance(document.getElementById('memberQRScannerModal'));
+            if (scannerModal) scannerModal.hide();
+            
+            // Submit attendance marking
+            submitAttendanceCheckIn(eventId, memberId);
+        }
+    } catch (err) {
+        console.error('Invalid QR data:', err);
+        // Continue scanning
+    }
+}
+
+function onAttendanceQRScanFailure(error) {
+    // Silently ignore scan failures
+}
+
+function closeAttendanceScanner() {
+    if (memberAttendanceScannerInstance) {
+        memberAttendanceScannerInstance.stop();
+        memberAttendanceScannerInstance = null;
+    }
+}
+
+// Submit attendance confirmation after QR scan
+async function submitAttendanceCheckIn(eventId, memberId) {
+    try {
+        const response = await fetch('api/manage-attendance.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'markAttendance',
+                eventId: eventId,
+                memberId: memberId,
+                checkInMethod: 'qr_scan'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✓ Attendance marked successfully!');
+            loadRegisteredEventsTab();
+            loadCompletedEventsTab();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error submitting attendance:', error);
+        alert('Error marking attendance');
     }
 }
 

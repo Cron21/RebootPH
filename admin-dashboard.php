@@ -890,26 +890,43 @@ if ($_SESSION['role'] === 'Member Staff') {
                                                 onclick="hideAttendanceCheckingForm()"></button>
                                         </div>
 
-                                        <!-- QR Scanner -->
+                                        <!-- Show Organizer QR Code Button -->
                                         <div class="mb-4">
-                                            <button class="btn btn-outline-primary w-100" onclick="toggleScanner()">
-                                                <i class="bi bi-qr-code-scan"></i> Toggle QR Scanner
+                                            <button type="button" class="btn btn-success w-100" onclick="showOrganizerQRCode()">
+                                                <i class="bi bi-qr-code"></i> Show Attendance QR Code
                                             </button>
-                                            <div id="qr-scanner" class="d-none mt-3">
-                                                <div id="reader"></div>
-                                            </div>
+                                            <small class="text-muted d-block mt-2">Members will scan this QR code to mark their attendance</small>
                                         </div>
 
                                         <!-- Manual Check -->
                                         <div class="row g-3">
                                             <div class="col-md-8">
                                                 <input type="text" class="form-control" id="serialNumberInput"
-                                                    placeholder="Enter serial number (e.g., RPH-123456-ABCD)">
+                                                    placeholder="Enter member serial number (e.g., RPH-123456-ABCD)">
                                             </div>
                                             <div class="col-md-4">
                                                 <button class="btn btn-primary w-100" onclick="checkAttendance()">
                                                     Verify Attendance
                                                 </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Attendance List -->
+                                        <div id="attendanceList" class="mt-4 d-none">
+                                            <h6>Attendance Status</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Member Name</th>
+                                                            <th>Email</th>
+                                                            <th>Status</th>
+                                                            <th>Check-in Time</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="attendanceListBody">
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
@@ -2086,6 +2103,28 @@ if ($_SESSION['role'] === 'Member Staff') {
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="updateAdminPassword()">Update
                         Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal for Admin Attendance -->
+    <div class="modal fade" id="qrScannerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-qr-code"></i> Event Attendance QR Code</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="closeOrganizerQR()"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="text-muted mb-3">Ask members to scan this QR code with their phone to mark attendance</p>
+                    <div id="organizerQRCode" class="d-flex justify-content-center mb-3"></div>
+                    <div class="alert alert-info">
+                        <small><i class="bi bi-info-circle"></i> Members will scan this QR code to automatically mark their attendance</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeOrganizerQR()">Close</button>
                 </div>
             </div>
         </div>
@@ -10159,6 +10198,49 @@ if ($_SESSION['role'] === 'Member Staff') {
                     });
                 }
             });
+
+            // QR Scanner for admin attendance
+            let qrScannerInstance = null;
+
+            function showOrganizerQRCode() {
+                const form = document.getElementById('attendanceCheckingForm');
+                const eventId = form.dataset.eventId;
+                
+                if (!eventId) {
+                    alert('No event selected');
+                    return;
+                }
+                
+                // Generate organizer QR code
+                const qrData = JSON.stringify({
+                    type: 'organizer',
+                    eventId: eventId,
+                    timestamp: new Date().toISOString(),
+                    organizerId: 'ORG-' + Date.now()
+                });
+                
+                // Show modal with QR code
+                const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+                modal.show();
+                
+                // Generate QR code after modal is shown
+                setTimeout(() => {
+                    const qrContainer = document.getElementById('organizerQRCode');
+                    qrContainer.innerHTML = ''; // Clear previous QR
+                    new QRCode(qrContainer, {
+                        text: qrData,
+                        width: 250,
+                        height: 250,
+                        colorDark: '#1a7f0d',
+                        colorLight: '#ffffff'
+                    });
+                }, 200);
+            }
+
+            function closeOrganizerQR() {
+                const qrContainer = document.getElementById('organizerQRCode');
+                qrContainer.innerHTML = '';
+            }
 
         </script>
 </body>
