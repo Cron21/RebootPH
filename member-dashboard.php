@@ -157,7 +157,10 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             background: #ffffff;
             border: 2px solid #035996;
             border-radius: 12px;
-            max-width: 330px;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 85 / 54;
+            object-fit: contain;
         }
 
         #profile label {
@@ -391,7 +394,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
                                 <h3 class="text-center fw-bold mb-4" style="color:#035996;">Member ID Preview</h3>
 
                                 <div class="id-card mx-auto shadow border" id="idPreview"
-                                    style="width: 100%; max-width: 500px; height: 300px; background-color: white; border-radius: 20px; overflow: hidden; position: relative; font-family: sans-serif;">
+                                    style="background-color: white; border-radius: 20px; overflow: hidden; position: relative; font-family: sans-serif;">
 
                                     <div class="d-flex align-items-center justify-content-center h-100">
                                         <div class="spinner-border text-primary" role="status">
