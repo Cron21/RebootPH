@@ -319,8 +319,8 @@
                             <p class="fw-bold m-0" id="announcementModalEndTime"></p>
                         </div>
                         <div class="col-md-3">
-                            <label class="text-muted small d-block">STATUS</label>
-                            <div id="announcementModalStatus"></div>
+                            <label class="text-muted small d-block">TOTAL REGISTERED</label>
+                            <p class="fw-bold m-0" id="announcementModalTotalRegistered">0</p>
                         </div>
                     </div>
 
@@ -884,13 +884,6 @@
             // Set description
             document.getElementById('announcementModalDescription').textContent = escapeHtml(announcement.Description || 'N/A');
 
-            // Set status with badge
-            const statusText = announcement.Status || 'N/A';
-            let statusClass = 'bg-secondary';
-            if (statusText.toLowerCase() === 'approved') statusClass = 'bg-success';
-            else if (statusText.toLowerCase() === 'pending') statusClass = 'bg-warning';
-            document.getElementById('announcementModalStatus').innerHTML = `<span class="badge ${statusClass}">${escapeHtml(statusText)}</span>`;
-
             // Format event date
             let formattedDate = 'N/A';
             if (announcement.ProposedDate) {
@@ -929,6 +922,10 @@
             // Set attendee count
             const attendeeCount = parseInt(announcement.AttendeeRegistered) || 0;
             document.getElementById('announcementModalAttendeeCount').textContent = attendeeCount;
+
+            // Set total registered (staff + attendee)
+            const totalRegistered = staffCount + attendeeCount;
+            document.getElementById('announcementModalTotalRegistered').textContent = totalRegistered;
 
             // Set priority badge
             const priorityBadge = document.getElementById('announcementModalPriority');

@@ -118,8 +118,8 @@
                             <p class="fw-bold m-0" id="announcementEndTime"></p>
                         </div>
                         <div class="col-md-3">
-                            <label class="text-muted small d-block">STATUS</label>
-                            <div id="announcementStatus"></div>
+                            <label class="text-muted small d-block">TOTAL REGISTERED</label>
+                            <p class="fw-bold m-0" id="announcementTotalRegistered">0</p>
                         </div>
                     </div>
 
@@ -439,13 +439,6 @@
                     // Set description
                     document.getElementById('announcementDescription').textContent = escapeHtml(announcement.Description || description || 'N/A');
 
-                    // Set status with badge
-                    const statusText = announcement.Status || status || 'N/A';
-                    let statusClass = 'bg-secondary';
-                    if (statusText.toLowerCase() === 'approved') statusClass = 'bg-success';
-                    else if (statusText.toLowerCase() === 'pending') statusClass = 'bg-warning';
-                    document.getElementById('announcementStatus').innerHTML = `<span class="badge ${statusClass}">${escapeHtml(statusText)}</span>`;
-
                     // Format event date
                     let formattedDate = 'N/A';
                     if (announcement.ProposedDate) {
@@ -486,6 +479,10 @@
                     const attendeeCount = parseInt(announcement.AttendeeRegistered) || 0;
                     document.getElementById('announcementAttendeeCount').textContent = attendeeCount;
 
+                    // Set total registered (staff + attendee)
+                    const totalRegistered = staffCount + attendeeCount;
+                    document.getElementById('announcementTotalRegistered').textContent = totalRegistered;
+
                     // Set priority badge
                     const priorityValue = announcement.IsPriority || isPriority;
                     const priorityBadge = document.getElementById('priorityBadge');
@@ -498,7 +495,7 @@
                     // Fallback to passed parameters if API fails
                     document.getElementById('announcementTitle').textContent = escapeHtml(title || 'N/A');
                     document.getElementById('announcementDescription').textContent = escapeHtml(description || 'N/A');
-                    document.getElementById('announcementStatus').innerHTML = `<span class="badge bg-secondary">${escapeHtml(status || 'N/A')}</span>`;
+                    document.getElementById('announcementTotalRegistered').textContent = '0';
                     document.getElementById('announcementDate').textContent = 'N/A';
                     document.getElementById('announcementStartTime').textContent = 'N/A';
                     document.getElementById('announcementEndTime').textContent = 'N/A';
@@ -524,7 +521,7 @@
                 // Fallback to basic display
                 document.getElementById('announcementTitle').textContent = escapeHtml(title || 'N/A');
                 document.getElementById('announcementDescription').textContent = escapeHtml(description || 'N/A');
-                document.getElementById('announcementStatus').innerHTML = `<span class="badge bg-secondary">${escapeHtml(status || 'N/A')}</span>`;
+                document.getElementById('announcementTotalRegistered').textContent = '0';
 
                 const modal = new bootstrap.Modal(document.getElementById('announcementDetailsModal'));
                 modal.show();
