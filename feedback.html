@@ -108,10 +108,14 @@
                                 </div>
 
                                 <!-- Submit Button -->
-                                <div class="text-center">
+                                <div class="text-center d-flex gap-2 justify-content-center">
                                     <button type="submit" class="btn px-4 py-2 fw-semibold"
                                             style="background-color: #35b34a; border-radius: 999px; color: #fff;">
                                         Submit Feedback
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary px-4 py-2 fw-semibold"
+                                            id="debugBtn" style="border-radius: 999px;">
+                                        Debug
                                     </button>
                                 </div>
                             </form>
@@ -473,12 +477,66 @@
                     await loadCompletedEvents();
                     checkUrlParameters();
                 } else {
-                    alert('Error submitting feedback: ' + (result.message || 'Unknown error'));
+                    const errorMsg = result.message || 'Unknown error';
                     console.error('API error response:', result);
+                    console.log('Error details:', {
+                        attendanceId: formData.attendanceId,
+                        eventId: formData.eventId,
+                        memberId: 'check session',
+                        apiMessage: errorMsg
+                    });
+                    alert('Error submitting feedback:\n' + errorMsg + '\n\nPlease check the browser console (F12) for more details.');
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
                 alert('Error submitting feedback. ' + error.message);
+            }
+        });
+
+        // Debug button handler
+        document.getElementById('debugBtn').addEventListener('click', async function() {
+            const eventSelect = document.getElementById('eventSelect');
+            const eventId = eventSelect.value || (selectedEventData ? selectedEventData.EventID : null);
+            
+            if (!eventId) {
+                alert('Please select an event first');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`api/debug-attendance.php?eventId=${eventId}`, {
+                    credentials: 'include'
+                });
+                
+                const debugData = await response.json();
+                console.log('=== DEBUG DATA ===', debugData);
+                
+                let message = `DEBUG INFO FOR EVENT ${eventId}\n\n`;
+                message += `Member ID: ${debugData.memberId}\n`;
+                message += `Registration Found: ${debugData.registration ? 'YES' : 'NO'}\n`;
+                
+                if (debugData.registration) {
+                    message += `  - Registration ID: ${debugData.registration.RegistrationID}\n`;
+                    message += `  - Status: ${debugData.registration.Status}\n`;
+                }
+                
+                message += `\nAttendance Records: ${debugData.attendanceCount}\n`;
+                if (debugData.attendance.length > 0) {
+                    debugData.attendance.forEach((att, i) => {
+                        message += `  ${i+1}. AttendanceID: ${att.AttendanceID}, Time: ${att.AttendanceTime}\n`;
+                    });
+                } else {
+                    message += `  ⚠️  NO ATTENDANCE RECORD - Member must scan event QR code first!\n`;
+                }
+                
+                message += `\nExisting Feedback: ${debugData.feedback.length > 0 ? 'YES' : 'NO'}\n`;
+                
+                message += `\n[Full debug data in console]`;
+                
+                alert(message);
+            } catch (error) {
+                console.error('Debug error:', error);
+                alert('Debug error: ' + error.message);
             }
         });
 

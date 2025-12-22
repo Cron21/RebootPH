@@ -29,9 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $impact = isset($data['impact']) ? (int)$data['impact'] : null;
     $knowledge = isset($data['knowledge']) ? (int)$data['knowledge'] : null;
     
+    // Debug logging
+    error_log("Feedback submission - memberId: $memberId, eventId: $eventId, attendanceId: $attendanceId, impact: $impact");
+    
     try {
         // If attendanceId is not provided, try to find it from eventId and memberId
         if (!$attendanceId && $eventId) {
+            error_log("Looking up attendance - eventId: $eventId, memberId: $memberId");
+            
             $attendanceStmt = $conn->prepare("
                 SELECT ea.AttendanceID
                 FROM eventattendance ea
@@ -42,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $attendanceStmt->execute([$eventId, $memberId]);
             $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);
+            
+            error_log("Attendance lookup result: " . ($attendance ? "Found AttendanceID=" . $attendance['AttendanceID'] : "No attendance record found"));
             
             if ($attendance) {
                 $attendanceId = (int)$attendance['AttendanceID'];
