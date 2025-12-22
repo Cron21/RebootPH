@@ -689,7 +689,9 @@ function scanQRCode() {
 function getEventAttendance() {
     global $conn;
     
-    $eventId = $_GET['eventId'] ?? null;
+    // Accept eventId from GET or POST
+    $eventId = $_GET['eventId'] ?? $_POST['eventId'] ?? null;
+    $memberId = $_GET['memberId'] ?? $_POST['memberId'] ?? null;
     
     if (!$eventId) {
         http_response_code(400);
@@ -698,42 +700,87 @@ function getEventAttendance() {
     }
     
     try {
-        // Get all registered members for this event with attendance status
-        $stmt = $conn->prepare("
-            SELECT 
-                r.RegistrationID,
-                r.MemberID,
-                r.RegistrationDate,
-                a.FName,
-                a.LName,
-                a.ApplicantEmail,
-                ea.AttendanceID,
-                ea.AttendanceTime,
-                ea.ScanType
-            FROM registration r
-            JOIN member m ON r.MemberID = m.MemberID
-            JOIN application a ON m.ApplicationID = a.ApplicationID
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE r.EventID = ?
-            ORDER BY a.LName ASC, a.FName ASC
-        ");
+        // If memberId is provided, get only that member's registration (for member self check-in)
+        if ($memberId) {
+            $stmt = $conn->prepare("
+                SELECT 
+                    r.RegistrationID,
+                    r.MemberID,
+                    r.RegistrationDate,
+                    m.MemberID,
+                    a.FName,
+                    a.LName,
+                    a.ApplicantEmail,
+                    ea.AttendanceID,
+                    ea.AttendanceTime,
+                    ea.ScanType
+                FROM registration r
+                JOIN member m ON r.MemberID = m.MemberID
+                JOIN application a ON m.ApplicationID = a.ApplicationID
+                LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                WHERE r.EventID = ? AND r.MemberID = ?
+                LIMIT 1
+            ");
+            
+            $stmt->execute([$eventId, $memberId]);
+        } else {
+            // Get all registered members for this event with attendance status (admin view)
+            $stmt = $conn->prepare("
+                SELECT 
+                    r.RegistrationID,
+                    r.MemberID,
+                    r.RegistrationDate,
+                    a.FName,
+                    a.LName,
+                    a.ApplicantEmail,
+                    ea.AttendanceID,
+                    ea.AttendanceTime,
+                    ea.ScanType
+                FROM registration r
+                JOIN member m ON r.MemberID = m.MemberID
+                JOIN application a ON m.ApplicationID = a.ApplicationID
+                LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                WHERE r.EventID = ?
+                ORDER BY a.LName ASC, a.FName ASC
+            ");
+            
+            $stmt->execute([$eventId]);
+        }
         
-        $stmt->execute([$eventId]);
         $attendees = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        $totalAttended = count(array_filter($attendees, fn($a) => $a['AttendanceID']));
+        // If memberId provided and no results, return not found
+        if ($memberId && empty($attendees)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Member is not registered for this event',
+                'data' => []
+            ]);
+            return;
+        }
         
-        echo json_encode([
-            'success' => true,
-            'attendees' => $attendees,
-            'stats' => [
-                'totalRegistered' => count($attendees),
-                'totalAttended' => $totalAttended,
-                'attendanceRate' => count($attendees) > 0 
-                    ? round(($totalAttended / count($attendees)) * 100, 2)
-                    : 0
-            ]
-        ]);
+        if ($memberId) {
+            // Single member lookup - return as array with one item
+            echo json_encode([
+                'success' => true,
+                'data' => $attendees
+            ]);
+        } else {
+            // Admin view - return stats
+            $totalAttended = count(array_filter($attendees, fn($a) => $a['AttendanceID']));
+            
+            echo json_encode([
+                'success' => true,
+                'attendees' => $attendees,
+                'stats' => [
+                    'totalRegistered' => count($attendees),
+                    'totalAttended' => $totalAttended,
+                    'attendanceRate' => count($attendees) > 0 
+                        ? round(($totalAttended / count($attendees)) * 100, 2)
+                        : 0
+                ]
+            ]);
+        }
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
