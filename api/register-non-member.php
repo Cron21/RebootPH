@@ -92,10 +92,21 @@ try {
             
             // Resend email
             if ($nonMember && $event) {
-                $settingsStmt = $conn->prepare("SELECT SettingValue FROM systemsettings WHERE SettingName = 'SenderEmail' LIMIT 1");
-                $settingsStmt->execute();
-                $setting = $settingsStmt->fetch(PDO::FETCH_ASSOC);
-                $senderEmail = $setting['SettingValue'] ?? 'noreply@rebootph.com';
+                // Get sender email (with fallback)
+                $senderEmail = 'noreply@rebootph.com';
+                try {
+                    $settingsStmt = $conn->prepare("SELECT SettingValue FROM systemsettings WHERE SettingName = 'SenderEmail' LIMIT 1");
+                    if ($settingsStmt) {
+                        $settingsStmt->execute();
+                        $setting = $settingsStmt->fetch(PDO::FETCH_ASSOC);
+                        if ($setting && $setting['SettingValue']) {
+                            $senderEmail = $setting['SettingValue'];
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Table doesn't exist, use default
+                    error_log("systemsettings table not found, using default sender email");
+                }
                 
                 $eventDate = new DateTime($event['ProposedDate']);
                 $formattedDate = $eventDate->format('F j, Y');
