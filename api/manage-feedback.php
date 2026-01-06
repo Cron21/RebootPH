@@ -11,13 +11,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Submit feedback
     $data = json_decode(file_get_contents('php://input'), true);
     
-    if (!isset($_SESSION['memberID'])) {
+    // Check if this is a non-member feedback submission
+    $nonMemberId = isset($data['nonMemberId']) ? (int)$data['nonMemberId'] : null;
+    $memberId = $nonMemberId ? null : ($_SESSION['memberID'] ?? null);
+    
+    // Non-members don't need session, but members do
+    if (!$nonMemberId && !isset($_SESSION['memberID'])) {
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Not authenticated']);
         exit;
     }
     
-    $memberId = $_SESSION['memberID'];
+    if (!$nonMemberId) {
+        $memberId = $_SESSION['memberID'];
+    }
+    
     $attendanceId = isset($data['attendanceId']) ? (int)$data['attendanceId'] : null;
     $eventId = isset($data['eventId']) ? (int)$data['eventId'] : null;
     $rating = isset($data['rating']) ? (int)$data['rating'] : null;
@@ -30,22 +38,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $knowledge = isset($data['knowledge']) ? (int)$data['knowledge'] : null;
     
     // Debug logging
-    error_log("Feedback submission - memberId: $memberId, eventId: $eventId, attendanceId: $attendanceId, impact: $impact");
+    error_log("Feedback submission - memberId: $memberId, nonMemberId: $nonMemberId, eventId: $eventId, attendanceId: $attendanceId, impact: $impact");
     
     try {
-        // If attendanceId is not provided, try to find it from eventId and memberId
+        // If attendanceId is not provided, try to find it from eventId
         if (!$attendanceId && $eventId) {
-            error_log("Looking up attendance - eventId: $eventId, memberId: $memberId");
+            if ($nonMemberId) {
+                error_log("Looking up non-member attendance - eventId: $eventId, nonMemberId: $nonMemberId");
+                
+                // For non-members: find attendance from non_member registration
+                $attendanceStmt = $conn->prepare("
+                    SELECT ea.AttendanceID
+                    FROM eventattendance ea
+                    JOIN registration r ON ea.RegistrationID = r.RegistrationID
+                    WHERE r.EventID = ? AND r.non_MemberID = ?
+                    ORDER BY ea.AttendanceTime DESC
+                    LIMIT 1
+                ");
+                $attendanceStmt->execute([$eventId, $nonMemberId]);
+            } else {
+                error_log("Looking up member attendance - eventId: $eventId, memberId: $memberId");
+                
+                // For members: find attendance from member registration
+                $attendanceStmt = $conn->prepare("
+                    SELECT ea.AttendanceID
+                    FROM eventattendance ea
+                    JOIN registration r ON ea.RegistrationID = r.RegistrationID
+                    WHERE r.EventID = ? AND r.MemberID = ?
+                    ORDER BY ea.AttendanceTime DESC
+                    LIMIT 1
+                ");
+                $attendanceStmt->execute([$eventId, $memberId]);
+            }
             
-            $attendanceStmt = $conn->prepare("
-                SELECT ea.AttendanceID
-                FROM eventattendance ea
-                JOIN registration r ON ea.RegistrationID = r.RegistrationID
-                WHERE r.EventID = ? AND r.MemberID = ?
-                ORDER BY ea.AttendanceTime DESC
-                LIMIT 1
-            ");
-            $attendanceStmt->execute([$eventId, $memberId]);
             $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);
             
             error_log("Attendance lookup result: " . ($attendance ? "Found AttendanceID=" . $attendance['AttendanceID'] : "No attendance record found"));

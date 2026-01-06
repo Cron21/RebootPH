@@ -231,44 +231,85 @@
     <script>
         let completedEvents = [];
         let selectedEventData = null;
+        let isNonMember = false;
+        let currentNonMemberId = null;
 
         // Load completed events on page load
         async function loadCompletedEvents() {
             try {
                 console.log('=== loadCompletedEvents started ===');
-                // Use the same endpoint as dashboard to ensure consistency
-                const response = await fetch('api/get-member-events.php?type=completed', {
-                    credentials: 'include'
-                });
                 
-                console.log('API response status:', response.status);
+                // Check if this is a non-member accessing feedback
+                const urlParams = new URLSearchParams(window.location.search);
+                const nonMemberId = urlParams.get('nonMemberId');
                 
-                if (response.status === 401) {
-                    // User not authenticated
-                    const select = document.getElementById('eventSelect');
-                    select.innerHTML = '<option value="">Please log in to provide feedback</option>';
-                    select.disabled = true;
-                    document.getElementById('eventSelectHelp').innerHTML = 
-                        '<a href="login.html" class="text-primary">Log in</a> to provide feedback on completed events';
-                    console.log('User not authenticated');
-                    return false;
-                }
-                
-                const data = await response.json();
-                console.log('API response data:', data);
-
-                if (data.success && data.events && data.events.length > 0) {
-                    completedEvents = data.events;
-                    console.log('Loaded completed events:', completedEvents);
-                    populateEventSelect(data.events);
-                    return true;
+                if (nonMemberId) {
+                    // Non-member feedback flow
+                    currentNonMemberId = parseInt(nonMemberId);
+                    isNonMember = true;
+                    console.log('Non-member feedback detected - ID:', currentNonMemberId);
+                    
+                    // Load non-member events
+                    const response = await fetch('api/get-non-member-events.php?id=' + currentNonMemberId);
+                    
+                    if (response.status === 404) {
+                        const select = document.getElementById('eventSelect');
+                        select.innerHTML = '<option value="">Non-member not found</option>';
+                        select.disabled = true;
+                        return false;
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.events && data.events.length > 0) {
+                        // Filter to only completed events that have been attended
+                        completedEvents = data.events.filter(e => 
+                            e.EventStatus === 'Completed' && e.HasAttended
+                        );
+                        console.log('Loaded non-member completed events:', completedEvents);
+                        populateEventSelect(completedEvents);
+                        return true;
+                    } else {
+                        const select = document.getElementById('eventSelect');
+                        select.innerHTML = '<option value="">No completed events available</option>';
+                        select.disabled = true;
+                        return false;
+                    }
                 } else {
-                    const select = document.getElementById('eventSelect');
-                    select.innerHTML = '<option value="">No completed events available</option>';
-                    select.disabled = true;
-                    document.getElementById('eventSelectHelp').textContent = 'You need to attend completed events to provide feedback';
-                    console.log('No completed events found');
-                    return false;
+                    // Member feedback flow
+                    const response = await fetch('api/get-member-events.php?type=completed', {
+                        credentials: 'include'
+                    });
+                    
+                    console.log('API response status:', response.status);
+                    
+                    if (response.status === 401) {
+                        // User not authenticated
+                        const select = document.getElementById('eventSelect');
+                        select.innerHTML = '<option value="">Please log in to provide feedback</option>';
+                        select.disabled = true;
+                        document.getElementById('eventSelectHelp').innerHTML = 
+                            '<a href="login.html" class="text-primary">Log in</a> to provide feedback on completed events';
+                        console.log('User not authenticated');
+                        return false;
+                    }
+                    
+                    const data = await response.json();
+                    console.log('API response data:', data);
+
+                    if (data.success && data.events && data.events.length > 0) {
+                        completedEvents = data.events;
+                        console.log('Loaded completed events:', completedEvents);
+                        populateEventSelect(data.events);
+                        return true;
+                    } else {
+                        const select = document.getElementById('eventSelect');
+                        select.innerHTML = '<option value="">No completed events available</option>';
+                        select.disabled = true;
+                        document.getElementById('eventSelectHelp').textContent = 'You need to attend completed events to provide feedback';
+                        console.log('No completed events found');
+                        return false;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading events:', error);
@@ -374,6 +415,7 @@
             
             console.log('=== FORM SUBMISSION STARTED ===');
             console.log('selectedEventData:', selectedEventData);
+            console.log('isNonMember:', isNonMember);
             
             // Get form elements
             const eventSelect = document.getElementById('eventSelect');
@@ -383,7 +425,6 @@
             const commentsInput = this.querySelector('#comments');
             
             // Validate all required fields
-            // Try to get eventId from selectedEventData (URL params) first, then from select
             let eventId = null;
             if (selectedEventData) {
                 eventId = selectedEventData.EventID;
@@ -435,6 +476,12 @@
                 isAnonymous: 0
             };
 
+            // Add non-member ID if applicable
+            if (isNonMember && currentNonMemberId) {
+                formData.nonMemberId = currentNonMemberId;
+                console.log('Non-member feedback - added nonMemberId:', currentNonMemberId);
+            }
+
             console.log('Final form data to submit:', formData);
 
             try {
@@ -476,9 +523,13 @@
                     const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                     successModal.show();
 
-                    // Redirect to member dashboard after 2 seconds
+                    // Redirect based on user type
                     setTimeout(() => {
-                        window.location.href = 'member-dashboard.php';
+                        if (isNonMember) {
+                            window.location.href = 'announcements.html';
+                        } else {
+                            window.location.href = 'member-dashboard.php';
+                        }
                     }, 2000);
                 } else {
                     const errorMsg = result.message || 'Unknown error';
@@ -486,7 +537,7 @@
                     console.log('Error details:', {
                         attendanceId: formData.attendanceId,
                         eventId: formData.eventId,
-                        memberId: 'check session',
+                        nonMemberId: formData.nonMemberId,
                         apiMessage: errorMsg
                     });
                     alert('Error submitting feedback:\n' + errorMsg + '\n\nPlease check the browser console (F12) for more details.');

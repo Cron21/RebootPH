@@ -1184,16 +1184,34 @@
                 localStorage.setItem('rebootph_device_id', deviceId);
                 localStorage.setItem('rebootph_non_member_id', nonMemberId);
 
+                // Step 3: Send confirmation email
+                try {
+                    const emailRes = await fetch('api/send-registration-email.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            non_memberID: nonMemberId,
+                            eventID: currentEventForRegistration.EventID
+                        })
+                    });
+                    
+                    const emailData = await emailRes.json();
+                    if (!emailData.success) {
+                        console.error('Email sending failed:', emailData.message);
+                    }
+                } catch (emailError) {
+                    console.error('Error sending email:', emailError);
+                }
+
                 // Close modal and show confirmation
                 const modal = bootstrap.Modal.getInstance(document.getElementById('nonMemberInfoModal'));
                 modal.hide();
 
-                alert('Registration successful! Your QR code and serial number have been saved.');
+                alert('Registration successful! A confirmation email has been sent to ' + email + ' with your event details and links to mark attendance and submit feedback.');
                 
-                // Optionally show QR code
-                if (regData.qrCodeImage) {
-                    console.log('QR Code:', regData.qrCodeImage);
-                    console.log('Serial Number:', regData.serialNumber);
+                // Reload newsletters section to update the display
+                if (typeof loadNewslettersSection === 'function') {
+                    loadNewslettersSection();
                 }
 
             } catch (error) {
