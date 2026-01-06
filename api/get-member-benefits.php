@@ -5,7 +5,7 @@ header('Access-Control-Allow-Origin: *');
 require_once 'config.php';
 
 try {
-    $stmt = $conn->prepare("SELECT BenefitID, Title, Description, IconClass, `Order`, isActive FROM member_benefits ORDER BY `Order` ASC");
+    $stmt = $conn->prepare("SELECT BenefitsID, Title, Description, IconClass, `Order`, isActive FROM member_benefits ORDER BY `Order` ASC");
     $stmt->execute();
     $benefits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
