@@ -94,8 +94,6 @@ try {
         
         if (empty($answer)) {
             $errors[] = "Answer to question $answerIndex is required";
-        } elseif (strlen($answer) < 100) {
-            $errors[] = "Answer to question $answerIndex must be at least 100 characters";
         } else {
             $answers[] = [
                 'index' => $answerIndex,

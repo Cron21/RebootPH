@@ -543,21 +543,11 @@
                                 placeholder="Please provide your answer..."
                                 required
                             ></textarea>
-                            <div class="form-text small">Minimum 100 characters required</div>
                         </div>
                     `;
                 });
 
                 container.innerHTML = html;
-
-                // Add event listeners for character count to dynamically created textareas
-                document.querySelectorAll('.question-textarea').forEach(textarea => {
-                    textarea.addEventListener('input', function() {
-                        const count = this.value.length;
-                        const status = count >= 100 ? '✓' : '';
-                        this.parentElement.querySelector('.form-text').textContent = `${status} ${count} characters (Minimum 100 required)`;
-                    });
-                });
             }
         } catch (error) {
             console.error('Error loading questionnaires:', error);
