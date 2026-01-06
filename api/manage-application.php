@@ -39,9 +39,10 @@ try {
                 throw new Exception('Application ID is required');
             }
 
-            // Only Executive Director can approve members
-            if ($userRole !== 'Executive Director') {
-                throw new Exception('Unauthorized: Only Executive Director can approve members');
+            // Only Admin and Executive Director can approve members
+            $rolesCanApprove = ['Admin', 'Executive Director'];
+            if (!in_array($userRole, $rolesCanApprove)) {
+                throw new Exception('Unauthorized: Only Admin and Executive Director can approve members');
             }
 
             // Get applicant details and current status

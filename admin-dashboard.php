@@ -2590,7 +2590,7 @@ if ($_SESSION['role'] === 'Member Staff') {
     </div>
 
     <div class="modal fade" id="memberBenefitModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="memberBenefitModalTitle">Add Benefit</h5>
@@ -2608,8 +2608,16 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <textarea id="benefitDescription" class="form-control" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Icon Class (e.g., bi bi-book)</label>
-                            <input type="text" id="benefitIconClass" class="form-control">
+                            <label class="form-label">Icon</label>
+                            <div class="input-group mb-2">
+                                <input type="text" id="benefitIconClass" class="form-control" placeholder="Selected icon class" readonly>
+                                <button type="button" class="btn btn-outline-secondary" onclick="openBenefitIconPicker()">
+                                    <i class="bi bi-palette"></i> Choose Icon
+                                </button>
+                            </div>
+                            <div id="benefitIconPreview" style="display: inline-block; font-size: 32px; margin-top: 8px;">
+                                <i class="bi bi-square"></i>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Order</label>
@@ -2622,8 +2630,28 @@ if ($_SESSION['role'] === 'Member Staff') {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button class="btn btn-primary" onclick="saveMemberBenefit()">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMemberBenefit()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Icon Picker Modal for Member Benefits -->
+    <div class="modal fade" id="benefitIconPickerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Icon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" id="benefitIconSearch" class="form-control" placeholder="Search icons...">
+                    </div>
+                    <div id="benefitIconGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 8px; max-height: 400px; overflow-y: auto;">
+                        <!-- Icons will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -5102,9 +5130,10 @@ if ($_SESSION['role'] === 'Member Staff') {
             async function approveApplication() {
                 if (!currentApplicationId) return;
 
-                // Only Executive Director can approve members
-                if (window.currentUserRole !== 'Executive Director') {
-                    alert('You do not have authority to approve members. Only Executive Director can approve members.');
+                // Admin and Executive Director can approve members
+                const rolesCanApprove = ['Admin', 'Executive Director'];
+                if (!rolesCanApprove.includes(window.currentUserRole)) {
+                    alert('You do not have authority to approve members. Only Admin and Executive Director can approve members.');
                     return;
                 }
 
@@ -7795,7 +7824,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('memberBenefitModalTitle').textContent = 'Add Benefit';
                 document.getElementById('memberBenefitForm').reset();
                 document.getElementById('benefitId').value = '';
+                document.getElementById('benefitIconClass').value = '';
+                document.getElementById('benefitIconPreview').innerHTML = '<i class="bi bi-square"></i>';
                 document.getElementById('benefitIsActive').checked = false;
+                document.getElementById('benefitOrder').value = '0';
                 new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
             }
 
@@ -7811,6 +7843,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     document.getElementById('benefitTitle').value = b.Title || '';
                     document.getElementById('benefitDescription').value = b.Description || '';
                     document.getElementById('benefitIconClass').value = b.IconClass || '';
+                    const iconClass = b.IconClass || 'bi-square';
+                    document.getElementById('benefitIconPreview').innerHTML = `<i class="bi ${iconClass}"></i>`;
                     document.getElementById('benefitOrder').value = parseInt(b.Order) || 0;
                     document.getElementById('benefitIsActive').checked = (b.isActive == 1);
                     new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
@@ -7841,11 +7875,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const data = await res.json();
                     if (data.success) {
                         alert(data.message);
-                        // hide only the member benefit modal
+                        // Hide the modal
                         const modalEl = document.getElementById('memberBenefitModal');
-                        const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        modalInst.hide();
-                        // reload table
+                        const modalInst = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInst) modalInst.hide();
+                        // Reload table
                         if (typeof loadMemberBenefitsAdmin === 'function') loadMemberBenefitsAdmin();
                     } else {
                         alert('Error: ' + data.message);
@@ -7886,6 +7920,100 @@ if ($_SESSION['role'] === 'Member Staff') {
                     } else alert('Error: ' + data.message);
                 } catch (e) { console.error(e); alert('Error setting active'); }
             }
+
+            // Icon picker for member benefits
+            function openBenefitIconPicker() {
+                new bootstrap.Modal(document.getElementById('benefitIconPickerModal')).show();
+            }
+
+            function loadBenefitIconGrid(icons) {
+                const container = document.getElementById('benefitIconGrid');
+                if (!container) return;
+
+                container.innerHTML = icons.map(iconClass => `
+                    <div class="icon-item" data-icon="bi-${iconClass}" style="display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; border: 1px solid #e0e0e0; border-radius: 4px; transition: all 0.2s; background: white;" title="bi-${iconClass}">
+                        <i class="bi bi-${iconClass}" style="font-size: 20px;"></i>
+                    </div>
+                `).join('');
+
+                // Add click and hover effects
+                document.querySelectorAll('#benefitIconGrid .icon-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const iconClass = item.getAttribute('data-icon');
+                        selectBenefitIcon(iconClass);
+                    });
+
+                    item.addEventListener('mouseover', () => {
+                        item.style.backgroundColor = '#f0f7ff';
+                        item.style.borderColor = '#035996';
+                    });
+
+                    item.addEventListener('mouseout', () => {
+                        item.style.backgroundColor = 'white';
+                        item.style.borderColor = '#e0e0e0';
+                    });
+                });
+            }
+
+            function selectBenefitIcon(iconClass) {
+                // Update the input field
+                document.getElementById('benefitIconClass').value = iconClass;
+                
+                // Update the preview
+                document.getElementById('benefitIconPreview').innerHTML = `<i class="bi ${iconClass}"></i>`;
+                
+                // Close the icon picker modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('benefitIconPickerModal'));
+                if (modal) modal.hide();
+                
+                console.log('Icon selected:', iconClass);
+            }
+
+            // Initialize icon picker for member benefits
+            document.addEventListener('DOMContentLoaded', function () {
+                // Initialize when icon picker modal is first shown
+                const benefitIconModal = document.getElementById('benefitIconPickerModal');
+                if (benefitIconModal) {
+                    benefitIconModal.addEventListener('show.bs.modal', async function () {
+                        // Check if icons are already loaded
+                        if (document.getElementById('benefitIconGrid').innerHTML.trim() === '') {
+                            try {
+                                // Reuse the same icon list from values or load it
+                                if (_bootstrapIcons && _bootstrapIcons.length > 0) {
+                                    const popularKeywords = [
+                                        'people', 'handshake', 'heart', 'star', 'lightbulb', 'target', 'book',
+                                        'shield', 'chart', 'check', 'award', 'link', 'network', 'globe',
+                                        'growth', 'trust', 'unity', 'vision', 'team', 'collaborate', 'gift',
+                                        'medical', 'building', 'briefcase', 'graduation', 'bicycle'
+                                    ];
+                                    const popularIcons = _bootstrapIcons.filter(icon =>
+                                        popularKeywords.some(keyword => icon.includes(keyword))
+                                    ).slice(0, 100);
+                                    loadBenefitIconGrid(popularIcons);
+
+                                    // Set up search for benefit icon picker
+                                    const searchInput = document.getElementById('benefitIconSearch');
+                                    if (searchInput) {
+                                        searchInput.addEventListener('input', function () {
+                                            const query = this.value.toLowerCase();
+                                            if (query.length === 0) {
+                                                loadBenefitIconGrid(popularIcons);
+                                            } else {
+                                                const filtered = _bootstrapIcons.filter(icon => icon.includes(query));
+                                                loadBenefitIconGrid(filtered.slice(0, 200));
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    console.log('Bootstrap icons not yet loaded, will load on initialization');
+                                }
+                            } catch (error) {
+                                console.error('Error initializing benefit icon picker:', error);
+                            }
+                        }
+                    });
+                }
+            });
 
             // Ensure loadMemberBenefitsAdmin() is invoked when Content Management tab is opened.
             // Call it on page load as well:
