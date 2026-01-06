@@ -6935,12 +6935,14 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('initiativeImagePreview').innerHTML = '';
                 document.getElementById('initiativeImageInput').value = '';
 
-                // Load categories and show modal
-                await loadCategories();
+                // Load categories first - ensure it completes before showing modal
+                try {
+                    await loadCategories();
+                } catch (error) {
+                    console.error('Error loading categories:', error);
+                }
                 
-                // Small delay to ensure DOM is updated
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
+                // Show modal after categories are loaded and rendered
                 const modal = new bootstrap.Modal(document.getElementById('newInitiativeModal'));
                 modal.show();
             }
@@ -6950,9 +6952,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                 try {
                     // Load categories first and wait for it to complete
                     await loadCategories();
-
-                    // Small delay to ensure DOM is updated
-                    await new Promise(resolve => setTimeout(resolve, 100));
 
                     const response = await fetch(`api/get-initiatives.php?id=${initiativeId}`);
                     const data = await response.json();
@@ -6964,10 +6963,18 @@ if ($_SESSION['role'] === 'Member Staff') {
                         document.getElementById('initiativeId').value = initiative.InitiativeID;
                         document.getElementById('initiativeTitle').value = initiative.Title;
 
-                        // Set category with the correct CategoryID value
+                        // Set category - use selectedIndex method for better compatibility
                         const categorySelect = document.getElementById('initiativeCategory');
-                        if (categorySelect) {
-                            categorySelect.value = initiative.CategoryID;
+                        if (categorySelect && initiative.CategoryID) {
+                            // Find the option with matching CategoryID and select it
+                            for (let i = 0; i < categorySelect.options.length; i++) {
+                                if (parseInt(categorySelect.options[i].value) === parseInt(initiative.CategoryID)) {
+                                    categorySelect.selectedIndex = i;
+                                    categorySelect.value = initiative.CategoryID;
+                                    break;
+                                }
+                            }
+                            console.log('Category set to:', categorySelect.value, 'CategoryID:', initiative.CategoryID);
                         }
 
                         document.getElementById('initiativeDescription').value = initiative.Description;
