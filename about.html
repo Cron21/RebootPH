@@ -289,24 +289,28 @@
                     });
 
                     if (filteredMembers.length > 0) {
-                        // Sort members by role hierarchy
-                        const roleHierarchy = {
-                            'Executive Director': 1,
-                            'Regional Convenor': 2,
-                            'Local Coordinator': 2,
-                            'Program Officer': 3,
-                            'Finance Officer': 3,
-                            'Meal Officer': 3
+                        // Group members by role hierarchy
+                        const groups = {
+                            'executive': [],      // Executive Director
+                            'regional': [],       // Regional Convenor, Local Coordinator
+                            'officers': []        // Other officers
                         };
 
-                        filteredMembers.sort((a, b) => {
-                            const roleA = roleHierarchy[a.Role] || 99;
-                            const roleB = roleHierarchy[b.Role] || 99;
-                            return roleA - roleB;
+                        filteredMembers.forEach(member => {
+                            const role = member.Role || '';
+                            if (role === 'Executive Director') {
+                                groups.executive.push(member);
+                            } else if (role === 'Regional Convenor' || role === 'Local Coordinator') {
+                                groups.regional.push(member);
+                            } else {
+                                groups.officers.push(member);
+                            }
                         });
 
                         container.innerHTML = '';
-                        filteredMembers.forEach(member => {
+
+                        // Helper function to create member card
+                        const createMemberCard = (member) => {
                             const photoPath = member.ProfileImage || 'assets/image/default-avatar.png';
                             const photoHtml = photoPath && photoPath !== 'assets/image/default-avatar.png'
                                 ? `<img src="${escapeHtml(photoPath)}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
@@ -315,7 +319,7 @@
                             const fullName = `${escapeHtml(member.FName || '')} ${escapeHtml(member.LName || '')}`;
                             const role = escapeHtml(member.Role || '');
 
-                            container.innerHTML += `
+                            return `
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <div class="bg-white shadow-lg text-center p-4" style="border-radius: 18px; background-color:#f1fff2;">
                                         <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
@@ -327,7 +331,34 @@
                                     </div>
                                 </div>
                             `;
-                        });
+                        };
+
+                        // Display Executive Director layer
+                        if (groups.executive.length > 0) {
+                            container.innerHTML += `<div class="row w-100 g-4 justify-content-center mb-4">`;
+                            groups.executive.forEach(member => {
+                                container.innerHTML += createMemberCard(member);
+                            });
+                            container.innerHTML += `</div>`;
+                        }
+
+                        // Display Regional Convenor and Local Coordinator layer
+                        if (groups.regional.length > 0) {
+                            container.innerHTML += `<div class="row w-100 g-4 justify-content-center mb-4">`;
+                            groups.regional.forEach(member => {
+                                container.innerHTML += createMemberCard(member);
+                            });
+                            container.innerHTML += `</div>`;
+                        }
+
+                        // Display Other Officers layer
+                        if (groups.officers.length > 0) {
+                            container.innerHTML += `<div class="row w-100 g-4 justify-content-center">`;
+                            groups.officers.forEach(member => {
+                                container.innerHTML += createMemberCard(member);
+                            });
+                            container.innerHTML += `</div>`;
+                        }
                     } else {
                         container.innerHTML = '<p class="text-center text-muted">No team members to display.</p>';
                     }
