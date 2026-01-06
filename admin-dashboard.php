@@ -6937,6 +6937,10 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                 // Load categories and show modal
                 await loadCategories();
+                
+                // Small delay to ensure DOM is updated
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 const modal = new bootstrap.Modal(document.getElementById('newInitiativeModal'));
                 modal.show();
             }
@@ -6946,6 +6950,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                 try {
                     // Load categories first and wait for it to complete
                     await loadCategories();
+
+                    // Small delay to ensure DOM is updated
+                    await new Promise(resolve => setTimeout(resolve, 100));
 
                     const response = await fetch(`api/get-initiatives.php?id=${initiativeId}`);
                     const data = await response.json();
@@ -6959,7 +6966,9 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                         // Set category with the correct CategoryID value
                         const categorySelect = document.getElementById('initiativeCategory');
-                        categorySelect.value = initiative.CategoryID;
+                        if (categorySelect) {
+                            categorySelect.value = initiative.CategoryID;
+                        }
 
                         document.getElementById('initiativeDescription').value = initiative.Description;
                         document.getElementById('pinToHighlights').checked = initiative.isHighlighted == 1;
@@ -7091,7 +7100,11 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                     if (result.success) {
                         alert(result.message);
-                        bootstrap.Modal.getInstance(document.getElementById('newInitiativeModal')).hide();
+                        // Properly close the modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('newInitiativeModal'));
+                        if (modal) {
+                            modal.hide();
+                        }
                         loadInitiatives();
                     } else {
                         alert('Error: ' + result.message);
@@ -7100,6 +7113,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                 } catch (error) {
                     console.error('Error saving initiative:', error);
                     alert('Error saving initiative: ' + error.message);
+                } finally {
+                    // Ensure no modal backdrop is left behind
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
                 }
             }
 
@@ -7224,6 +7240,18 @@ if ($_SESSION['role'] === 'Member Staff') {
                 if (contentLink) {
                     contentLink.addEventListener('click', function () {
                         setTimeout(() => loadInitiatives(), 100);
+                    });
+                }
+
+                // Cleanup modal backdrop when initiative modal is hidden
+                const initiativeModal = document.getElementById('newInitiativeModal');
+                if (initiativeModal) {
+                    initiativeModal.addEventListener('hidden.bs.modal', function () {
+                        // Remove any leftover backdrops
+                        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                        // Restore body scroll if it was disabled
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
                     });
                 }
             });
