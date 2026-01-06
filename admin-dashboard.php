@@ -423,6 +423,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         <option value="Local Coordinator">Local Coordinator</option>
                                         <option value="Finance Officer">Finance Officer</option>
                                         <option value="Meal Officer">Meal Officer</option>
+                                        <option value="Admin">Admin</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -4621,7 +4622,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         <td>
                             ${isCurrentUser ? (
                             '<span class="text-muted small">Cannot change own role</span>'
-                        ) : window.currentUserRole !== 'Executive Director' ? (
+                        ) : (window.currentUserRole !== 'Executive Director' && window.currentUserRole !== 'Admin') ? (
                             '<span class="text-muted small">' + member.Role + '</span>'
                         ) : (
                             `<select class="form-select" data-role-select title="Change member role" onchange="updateMemberRole(${member.MemberID}, this.value)">
@@ -4633,6 +4634,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <option value="Local Coordinator" ${member.Role === 'Local Coordinator' ? 'selected' : ''}>Local Coordinator</option>
                                     <option value="Finance Officer" ${member.Role === 'Finance Officer' ? 'selected' : ''}>Finance Officer</option>
                                     <option value="Meal Officer" ${member.Role === 'Meal Officer' ? 'selected' : ''}>Meal Officer</option>
+                                    ${member.Role === 'Admin' ? '<option value="Admin" selected>Admin</option>' : ''}
                                 </select>`
                         )}
                         </td>
@@ -4711,9 +4713,16 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Update member role
             async function updateMemberRole(memberId, newRole) {
-                // Only Executive Director can change roles
-                if (window.currentUserRole !== 'Executive Director') {
-                    alert('You do not have authority to change member roles. Only Executive Director can change roles.');
+                // Only Executive Director and Admin can change roles
+                if (window.currentUserRole !== 'Executive Director' && window.currentUserRole !== 'Admin') {
+                    alert('You do not have authority to change member roles. Only Executive Director and Admin can change roles.');
+                    loadMembers();
+                    return;
+                }
+
+                // Prevent assigning Admin role through UI (Admin can only be set in database)
+                if (newRole === 'Admin') {
+                    alert('Admin role cannot be assigned through the interface. Admin role can only be set directly in the database.');
                     loadMembers();
                     return;
                 }
@@ -6593,27 +6602,40 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Load all categories
             async function loadCategories() {
                 try {
+                    // Verify the dropdown element exists
+                    const categorySelect = document.getElementById('initiativeCategory');
+                    if (!categorySelect) {
+                        console.error('Category dropdown element not found!');
+                        return;
+                    }
+
                     const response = await fetch('api/get-categories.php');
                     const data = await response.json();
 
+                    console.log('Category API response:', data);
+
                     if (data.success && data.categories && data.categories.length > 0) {
-                        const categorySelect = document.getElementById('initiativeCategory');
+                        // Clear existing options
                         categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
 
+                        // Add each category as an option
                         data.categories.forEach(category => {
                             const option = document.createElement('option');
                             option.value = category.CategoryID;
                             option.textContent = category.CategoryName;
                             categorySelect.appendChild(option);
                         });
-                        console.log('Categories loaded:', data.categories);
+                        console.log('Categories loaded successfully:', data.categories.length, 'categories');
                     } else {
-                        console.warn('No categories returned from API');
-                        alert('Error: No categories available. Please contact administrator.');
+                        console.warn('No categories returned from API', data);
+                        categorySelect.innerHTML = '<option value="">-- No Categories Available --</option>';
                     }
                 } catch (error) {
                     console.error('Error loading categories:', error);
-                    alert('Error loading categories: ' + error.message);
+                    const categorySelect = document.getElementById('initiativeCategory');
+                    if (categorySelect) {
+                        categorySelect.innerHTML = '<option value="">-- Error Loading Categories --</option>';
+                    }
                 }
             }
 
@@ -6927,6 +6949,7 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Open add initiative modal
             async function openAddInitiativeModal() {
+                console.log('Opening Add Initiative Modal');
                 document.getElementById('initiativeModalTitle').textContent = 'Add New Initiative';
                 document.getElementById('initiativeForm').reset();
                 document.getElementById('initiativeId').value = '';
@@ -6936,25 +6959,33 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('initiativeImageInput').value = '';
 
                 // Load categories first - ensure it completes before showing modal
-                try {
-                    await loadCategories();
-                } catch (error) {
-                    console.error('Error loading categories:', error);
-                }
+                console.log('Loading categories...');
+                await loadCategories();
                 
-                // Show modal after categories are loaded and rendered
+                // Verify dropdown was populated
+                const categorySelect = document.getElementById('initiativeCategory');
+                console.log('Category dropdown options count:', categorySelect.options.length);
+                
+                // Show modal after categories are loaded
+                console.log('Showing modal...');
                 const modal = new bootstrap.Modal(document.getElementById('newInitiativeModal'));
                 modal.show();
+            }
             }
 
             // Edit initiative
             async function editInitiative(initiativeId) {
                 try {
+                    console.log('Opening Edit Initiative Modal for ID:', initiativeId);
+                    
                     // Load categories first and wait for it to complete
+                    console.log('Loading categories...');
                     await loadCategories();
 
                     const response = await fetch(`api/get-initiatives.php?id=${initiativeId}`);
                     const data = await response.json();
+
+                    console.log('Initiative data:', data);
 
                     if (data.success && data.initiatives && data.initiatives.length > 0) {
                         const initiative = data.initiatives[0];
@@ -6965,12 +6996,26 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                         // Set category - use selectedIndex method for better compatibility
                         const categorySelect = document.getElementById('initiativeCategory');
+                        console.log('Category dropdown found:', !!categorySelect);
+                        console.log('Initiative CategoryID:', initiative.CategoryID);
+                        console.log('Available options:', categorySelect.options.length);
+                        
                         if (categorySelect && initiative.CategoryID) {
                             // Find the option with matching CategoryID and select it
+                            let found = false;
                             for (let i = 0; i < categorySelect.options.length; i++) {
                                 if (parseInt(categorySelect.options[i].value) === parseInt(initiative.CategoryID)) {
                                     categorySelect.selectedIndex = i;
                                     categorySelect.value = initiative.CategoryID;
+                                    found = true;
+                                    console.log('Category selected at index:', i, 'Value:', categorySelect.value);
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                console.warn('Category ID', initiative.CategoryID, 'not found in dropdown options');
+                            }
+                        }
                                     break;
                                 }
                             }
