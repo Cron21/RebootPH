@@ -19,7 +19,7 @@ try {
     $action = isset($_GET['action']) ? $_GET['action'] : 'list';
     
     if ($action === 'events') {
-        // Get all completed events (where proposal date is in the past)
+        // Get all completed events (where the end time has passed)
         $stmt = $conn->prepare("
             SELECT DISTINCT
                 e.EventID,
@@ -28,12 +28,15 @@ try {
                 p.StartTime,
                 p.EndTime,
                 p.Venue,
-                COUNT(DISTINCT ea.AttendanceID) as TotalAttendees
+                COUNT(DISTINCT ea.AttendanceID) as TotalAttendees,
+                COUNT(DISTINCT f.FeedbackID) as FeedbackCount
             FROM event e
             JOIN proposal p ON e.ProposalID = p.ProposalID
             LEFT JOIN registration r ON e.EventID = r.EventID
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE p.Status = 'Approved' AND p.ProposedDate <= CURDATE()
+            LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+            WHERE p.Status = 'Approved' 
+              AND CONCAT(p.ProposedDate, ' ', p.EndTime) < NOW()
             GROUP BY e.EventID, p.Title, p.ProposedDate, p.StartTime, p.EndTime, p.Venue
             ORDER BY p.ProposedDate DESC
         ");
@@ -47,29 +50,29 @@ try {
         ]);
         
     } elseif ($action === 'members' && $eventId) {
-        // Get all members who attended the event and their feedback status
-        // member.ApplicationID -> application.ApplicationID
+        // Get all members who registered AND attended the event with their feedback status
         $stmt = $conn->prepare("
             SELECT
                 m.MemberID,
-                CONCAT(app.FName, ' ', app.LName) as MemberName,
-                app.FName,
-                app.LName,
-                app.ApplicantEmail as Email,
+                CONCAT(m.FirstName, ' ', m.LastName) as MemberName,
+                m.FirstName,
+                m.LastName,
+                m.Email,
                 ea.AttendanceID,
                 ea.AttendanceTime,
                 f.FeedbackID,
                 f.Rating,
                 f.Comments,
+                f.OverallExperience,
+                f.KnowledgeGained,
                 f.SubmissionDate as FeedbackDate,
                 CASE WHEN f.FeedbackID IS NOT NULL THEN 1 ELSE 0 END as HasFeedback
             FROM registration r
-            JOIN member m ON r.MemberID = m.MemberID
-            JOIN application app ON m.ApplicationID = app.ApplicationID
-            JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+            INNER JOIN member m ON r.MemberID = m.MemberID
+            INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
             WHERE r.EventID = ?
-            ORDER BY app.FName ASC, app.LName ASC
+            ORDER BY m.FirstName ASC, m.LastName ASC
         ");
         $stmt->execute([$eventId]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -91,13 +94,15 @@ try {
                 f.AttendanceID,
                 f.Rating,
                 f.Comments,
+                f.OverallExperience,
+                f.KnowledgeGained,
                 f.IsAnonymous,
                 f.SubmissionDate,
                 m.MemberID,
-                CONCAT(app.FName, ' ', app.LName) as MemberName,
-                app.FName,
-                app.LName,
-                app.ApplicantEmail as Email,
+                CONCAT(m.FirstName, ' ', m.LastName) as MemberName,
+                m.FirstName,
+                m.LastName,
+                m.Email,
                 p.Title as EventTitle,
                 p.ProposedDate,
                 e.EventID
@@ -105,7 +110,6 @@ try {
             JOIN eventattendance ea ON f.AttendanceID = ea.AttendanceID
             JOIN registration r ON ea.RegistrationID = r.RegistrationID
             JOIN member m ON r.MemberID = m.MemberID
-            JOIN application app ON m.ApplicationID = app.ApplicationID
             JOIN event e ON r.EventID = e.EventID
             JOIN proposal p ON e.ProposalID = p.ProposalID
             WHERE f.FeedbackID = ?
