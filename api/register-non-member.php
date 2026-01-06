@@ -72,7 +72,106 @@ try {
         $checkStmt->execute([$nonMemberId, $eventId]);
 
         if ($checkStmt->rowCount() > 0) {
-            throw new Exception('Already registered for this event');
+            // Already registered - resend email with attendance and feedback links
+            // Get non-member details
+            $nmStmt = $conn->prepare("SELECT Fname, Lname, Email FROM non_member WHERE non_memberID = ?");
+            $nmStmt->execute([$nonMemberId]);
+            $nonMember = $nmStmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Get event details
+            $eventStmt = $conn->prepare("
+                SELECT 
+                    e.EventID, e.SerialNumber,
+                    p.Title, p.ProposedDate, p.StartTime, p.EndTime, p.Venue
+                FROM event e
+                JOIN proposal p ON e.ProposalID = p.ProposalID
+                WHERE e.EventID = ?
+            ");
+            $eventStmt->execute([$eventId]);
+            $event = $eventStmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Resend email
+            if ($nonMember && $event) {
+                $settingsStmt = $conn->prepare("SELECT SettingValue FROM systemsettings WHERE SettingName = 'SenderEmail' LIMIT 1");
+                $settingsStmt->execute();
+                $setting = $settingsStmt->fetch(PDO::FETCH_ASSOC);
+                $senderEmail = $setting['SettingValue'] ?? 'noreply@rebootph.com';
+                
+                $eventDate = new DateTime($event['ProposedDate']);
+                $formattedDate = $eventDate->format('F j, Y');
+                
+                $toEmail = $nonMember['Email'];
+                $subject = "Event Details Reminder - " . htmlspecialchars($event['Title']);
+                
+                $attendanceLink = "https://" . $_SERVER['HTTP_HOST'] . "/non-member-checkin.html?eventId=" . $eventId . "&nonMemberId=" . $nonMemberId;
+                $feedbackLink = "https://" . $_SERVER['HTTP_HOST'] . "/feedback.html?eventId=" . $eventId . "&nonMemberId=" . $nonMemberId;
+                
+                $htmlBody = "
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset='UTF-8'>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                        .header { background-color: #2B702A; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+                        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 0 0 5px 5px; }
+                        .event-details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #2B702A; }
+                        .btn { display: inline-block; padding: 12px 24px; margin: 10px 5px 10px 0; text-decoration: none; border-radius: 5px; }
+                        .btn-primary { background-color: #2B702A; color: white; }
+                        .btn-secondary { background-color: #0066cc; color: white; }
+                        .footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h2>Event Details Reminder</h2>
+                        </div>
+                        <div class='content'>
+                            <p>Hi " . htmlspecialchars($nonMember['Fname']) . ",</p>
+                            
+                            <p>We noticed you've already registered for this event. Here are the details and links you need:</p>
+                            
+                            <div class='event-details'>
+                                <p><strong>Event:</strong> " . htmlspecialchars($event['Title']) . "</p>
+                                <p><strong>Date:</strong> " . $formattedDate . "</p>
+                                <p><strong>Time:</strong> " . $event['StartTime'] . " - " . $event['EndTime'] . "</p>
+                                <p><strong>Venue:</strong> " . htmlspecialchars($event['Venue']) . "</p>
+                                <p><strong>Your ID:</strong> " . $nonMemberId . "</p>
+                            </div>
+                            
+                            <p>You can use these links to manage your attendance:</p>
+                            <div style='text-align: center;'>
+                                <a href='" . $attendanceLink . "' class='btn btn-primary'>Mark Attendance</a>
+                                <a href='" . $feedbackLink . "' class='btn btn-secondary'>Submit Feedback</a>
+                            </div>
+                            
+                            <p style='margin-top: 30px; font-size: 14px;'>If you have any questions, please contact us.</p>
+                            
+                            <div class='footer'>
+                                <p>&copy; 2024 Reboot PH. All rights reserved.</p>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                ";
+                
+                $headers = "MIME-Version: 1.0\r\n";
+                $headers .= "Content-type: text/html; charset=UTF-8\r\n";
+                $headers .= "From: " . $senderEmail . "\r\n";
+                
+                @mail($toEmail, $subject, $htmlBody, $headers);
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'alreadyRegistered' => true,
+                'message' => 'You are already registered for this event. We have resent the event details and links to your email.',
+                'non_memberID' => $nonMemberId
+            ]);
+            exit;
         }
 
         // Insert registration
@@ -88,6 +187,7 @@ try {
 
         echo json_encode([
             'success' => true,
+            'alreadyRegistered' => false,
             'message' => 'Registered successfully',
             'registrationID' => $conn->lastInsertId(),
             'qrCodeImage' => $qrCodeBase64,

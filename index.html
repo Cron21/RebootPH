@@ -1179,6 +1179,21 @@
                     return;
                 }
 
+                // Check if already registered (email will be resent)
+                if (regData.alreadyRegistered) {
+                    // Close modal and show confirmation
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('nonMemberInfoModal'));
+                    modal.hide();
+
+                    alert('You are already registered for this event! A reminder email with your event details and links to mark attendance and submit feedback has been sent to ' + email + '.');
+                    
+                    // Reload newsletters section to update the display
+                    if (typeof loadNewslettersSection === 'function') {
+                        loadNewslettersSection();
+                    }
+                    return;
+                }
+
                 // Store device ID for non-member identification
                 const deviceId = 'nm_' + nonMemberId + '_' + Date.now();
                 localStorage.setItem('rebootph_device_id', deviceId);
