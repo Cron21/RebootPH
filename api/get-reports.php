@@ -59,7 +59,7 @@ function getSummaryReport($conn, $startDate, $endDate) {
         $eventsStmt->execute([$startDate, $endDate]);
         $totalEvents = $eventsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 
-        // Total Participants (total registrations count for completed events with attendance)
+        // Total Participants (total registrations count for completed events with attendance - includes both members and non-members)
         $participantsStmt = $conn->prepare("
             SELECT COUNT(DISTINCT r.RegistrationID) as count 
             FROM registration r
@@ -68,11 +68,12 @@ function getSummaryReport($conn, $startDate, $endDate) {
             JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
                 AND e.status = 'Completed'
+                AND (r.MemberID IS NOT NULL OR r.non_MemberID IS NOT NULL)
         ");
         $participantsStmt->execute([$startDate, $endDate]);
         $totalParticipants = $participantsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 
-        // Average Attendance Rate (count of attended registrations / total registrations * 100)
+        // Average Attendance Rate (count of attended registrations / total registrations * 100 - includes both members and non-members)
         $attendanceStmt = $conn->prepare("
             SELECT 
                 COUNT(DISTINCT ea.AttendanceID) as attended,
@@ -83,6 +84,7 @@ function getSummaryReport($conn, $startDate, $endDate) {
             JOIN proposal p ON e.ProposalID = p.ProposalID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
                 AND e.status = 'Completed'
+                AND (r.MemberID IS NOT NULL OR r.non_MemberID IS NOT NULL)
         ");
         $attendanceStmt->execute([$startDate, $endDate]);
         $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);
@@ -166,7 +168,7 @@ function getEventsReport($conn, $startDate, $endDate) {
                 p.Title as eventName,
                 DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as eventDate,
                 p.StaffRequired,
-                COUNT(DISTINCT r.MemberID) as registered,
+                COUNT(DISTINCT r.RegistrationID) as registered,
                 COUNT(DISTINCT ea.AttendanceID) as attended,
                 CASE 
                     WHEN COUNT(DISTINCT r.RegistrationID) > 0 
@@ -181,6 +183,7 @@ function getEventsReport($conn, $startDate, $endDate) {
             LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
                 AND e.status = 'Completed'
+                AND (r.MemberID IS NOT NULL OR r.non_MemberID IS NOT NULL)
             GROUP BY e.EventID, p.Title, p.ProposedDate, p.StaffRequired
             HAVING COUNT(DISTINCT r.RegistrationID) > 0 AND COUNT(DISTINCT ea.AttendanceID) > 0
             ORDER BY p.ProposedDate DESC
@@ -297,12 +300,12 @@ function getMembersReport($conn, $startDate, $endDate) {
 
 function getTrendsReport($conn, $startDate, $endDate) {
     try {
-        // Monthly event participation trend (completed events only)
+        // Monthly event participation trend (completed events only - includes both members and non-members)
         $trendStmt = $conn->prepare("
             SELECT 
                 DATE_FORMAT(p.ProposedDate, '%Y-%m') as month,
                 COUNT(DISTINCT e.EventID) as events,
-                COUNT(DISTINCT r.MemberID) as participants,
+                COUNT(DISTINCT r.RegistrationID) as participants,
                 CASE 
                     WHEN COUNT(DISTINCT r.RegistrationID) > 0 
                     THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT r.RegistrationID) * 100, 1)
@@ -314,6 +317,7 @@ function getTrendsReport($conn, $startDate, $endDate) {
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
                 AND e.status = 'Completed'
+                AND (r.MemberID IS NOT NULL OR r.non_MemberID IS NOT NULL)
             GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m')
             ORDER BY month ASC
         ");
