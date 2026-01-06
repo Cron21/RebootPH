@@ -2176,6 +2176,17 @@ if ($_SESSION['role'] === 'Member Staff') {
                         </div>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Overall Experience</strong></label>
+                            <p id="feedbackOverallExperience" class="mb-0"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Knowledge Gained</strong></label>
+                            <p id="feedbackKnowledgeGained" class="mb-0"></p>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label"><strong>Comments</strong></label>
                         <div id="feedbackComments" class="p-3 bg-light rounded"></div>
