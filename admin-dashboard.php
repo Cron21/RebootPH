@@ -6618,11 +6618,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                         // Clear existing options
                         categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
 
-                        // Add each category as an option
+                        // Add each category as an option (same as event proposal)
                         data.categories.forEach(category => {
                             const option = document.createElement('option');
-                            option.value = category.CategoryID;
-                            option.textContent = category.CategoryName;
+                            option.value = category.Type;
+                            option.textContent = category.Type;
                             categorySelect.appendChild(option);
                         });
                         console.log('Categories loaded successfully:', data.categories.length, 'categories');
@@ -6993,26 +6993,26 @@ if ($_SESSION['role'] === 'Member Staff') {
                         document.getElementById('initiativeId').value = initiative.InitiativeID;
                         document.getElementById('initiativeTitle').value = initiative.Title;
 
-                        // Set category - use selectedIndex method for better compatibility
+                        // Set category - use Type field to match with dropdown values
                         const categorySelect = document.getElementById('initiativeCategory');
                         console.log('Category dropdown found:', !!categorySelect);
-                        console.log('Initiative CategoryID:', initiative.CategoryID);
+                        console.log('Initiative Type:', initiative.Type);
                         console.log('Available options:', categorySelect.options.length);
                         
-                        if (categorySelect && initiative.CategoryID) {
-                            // Find the option with matching CategoryID and select it
+                        if (categorySelect && initiative.Type) {
+                            // Find the option with matching Type and select it
                             let found = false;
                             for (let i = 0; i < categorySelect.options.length; i++) {
-                                if (parseInt(categorySelect.options[i].value) === parseInt(initiative.CategoryID)) {
+                                if (categorySelect.options[i].value === initiative.Type) {
                                     categorySelect.selectedIndex = i;
-                                    categorySelect.value = initiative.CategoryID;
+                                    categorySelect.value = initiative.Type;
                                     found = true;
                                     console.log('Category selected at index:', i, 'Value:', categorySelect.value);
                                     break;
                                 }
                             }
                             if (!found) {
-                                console.warn('Category ID', initiative.CategoryID, 'not found in dropdown options');
+                                console.warn('Category Type', initiative.Type, 'not found in dropdown options');
                             }
                         }
 
