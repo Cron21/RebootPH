@@ -24,8 +24,6 @@ try {
     if ($action === 'create') {
         $title = trim($data['title'] ?? '');
         $description = trim($data['description'] ?? '');
-        $iconClass = trim($data['iconClass'] ?? '');
-        $order = (int)($data['order'] ?? 0);
         $isActive = (int)($data['isActive'] ?? 0);
 
         if (!$title) throw new Exception('Title is required');
@@ -34,8 +32,8 @@ try {
             $conn->prepare("UPDATE member_benefits SET isActive = 0")->execute();
         }
 
-        $stmt = $conn->prepare("INSERT INTO member_benefits (Title, Description, IconClass, `Order`, isActive, CreateByAdminID, CreateDate) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->execute([$title, $description, $iconClass, $order, $isActive, $adminId]);
+        $stmt = $conn->prepare("INSERT INTO member_benefits (Title, Description, isActive, CreateByAdminID, CreateDate) VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([$title, $description, $isActive, $adminId]);
 
         echo json_encode(['success' => true, 'message' => 'Benefit created', 'id' => $conn->lastInsertId()]);
 
@@ -44,8 +42,6 @@ try {
         if ($id <= 0) throw new Exception('Invalid ID');
         $title = trim($data['title'] ?? '');
         $description = trim($data['description'] ?? '');
-        $iconClass = trim($data['iconClass'] ?? '');
-        $order = (int)($data['order'] ?? 0);
         $isActive = (int)($data['isActive'] ?? 0);
 
         if (!$title) throw new Exception('Title is required');
@@ -54,8 +50,8 @@ try {
             $conn->prepare("UPDATE member_benefits SET isActive = 0")->execute();
         }
 
-        $stmt = $conn->prepare("UPDATE member_benefits SET Title = ?, Description = ?, IconClass = ?, `Order` = ?, isActive = ?, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitID = ?");
-        $stmt->execute([$title, $description, $iconClass, $order, $isActive, $adminId, $id]);
+        $stmt = $conn->prepare("UPDATE member_benefits SET Title = ?, Description = ?, isActive = ?, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitID = ?");
+        $stmt->execute([$title, $description, $isActive, $adminId, $id]);
 
         echo json_encode(['success' => true, 'message' => 'Benefit updated']);
 
