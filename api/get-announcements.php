@@ -29,22 +29,24 @@ try {
                 p.ReviewDate,
                 p.StaffRequired,
                 p.TargetParticipants,
+                e.EventID,
                 a.FName,
                 a.LName,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
-                 JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Staff'), 0) as StaffRegistered,
+                 JOIN event ev ON r.EventID = ev.EventID
+                 WHERE ev.ProposalID = p.ProposalID AND r.RegistrationType = 'Staff'), 0) as StaffRegistered,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
-                 JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Attendee'), 0) as AttendeeRegistered,
+                 JOIN event ev ON r.EventID = ev.EventID
+                 WHERE ev.ProposalID = p.ProposalID AND r.RegistrationType = 'Attendee'), 0) as AttendeeRegistered,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
-                 JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID), 0) as RegisteredCount
+                 JOIN event ev ON r.EventID = ev.EventID
+                 WHERE ev.ProposalID = p.ProposalID), 0) as RegisteredCount
             FROM announcement ann
             LEFT JOIN proposal p ON ann.ProposalID = p.ProposalID
+            LEFT JOIN event e ON p.ProposalID = e.ProposalID
             LEFT JOIN member m ON p.SubmittedByMemberID = m.MemberID
             LEFT JOIN application a ON m.ApplicationID = a.ApplicationID
             WHERE ann.AnnouncementID = ?
@@ -70,22 +72,24 @@ try {
                 p.ReviewDate,
                 p.StaffRequired,
                 p.TargetParticipants,
+                e.EventID,
                 a.FName,
                 a.LName,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
-                 JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Staff'), 0) as StaffRegistered,
+                 JOIN event ev ON r.EventID = ev.EventID
+                 WHERE ev.ProposalID = p.ProposalID AND r.RegistrationType = 'Staff'), 0) as StaffRegistered,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
-                 JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID AND r.RegistrationType = 'Attendee'), 0) as AttendeeRegistered,
+                 JOIN event ev ON r.EventID = ev.EventID
+                 WHERE ev.ProposalID = p.ProposalID AND r.RegistrationType = 'Attendee'), 0) as AttendeeRegistered,
                 COALESCE((SELECT COUNT(DISTINCT r.RegistrationID)
                  FROM registration r
-                 JOIN event e ON r.EventID = e.EventID
-                 WHERE e.ProposalID = p.ProposalID), 0) as RegisteredCount
+                 JOIN event ev ON r.EventID = ev.EventID
+                 WHERE ev.ProposalID = p.ProposalID), 0) as RegisteredCount
             FROM announcement ann
             LEFT JOIN proposal p ON ann.ProposalID = p.ProposalID
+            LEFT JOIN event e ON p.ProposalID = e.ProposalID
             LEFT JOIN member m ON p.SubmittedByMemberID = m.MemberID
             LEFT JOIN application a ON m.ApplicationID = a.ApplicationID
             ORDER BY ann.IsPriority DESC, p.ReviewDate DESC

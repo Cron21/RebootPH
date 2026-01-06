@@ -173,24 +173,59 @@
 
     <!-- Registration Type Modal -->
     <div class="modal fade" id="registrationTypeModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Select Registration Type</h5>
+                    <h5 class="modal-title">Register for this event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted mb-4">Are you a member of Reboot PH?</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary btn-lg" onclick="selectMemberType('member')">
+                            <i class="bi bi-check-circle me-2"></i>Yes, I'm a Member
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-lg" onclick="selectMemberType('non-member')">
+                            <i class="bi bi-x-circle me-2"></i>No, I'm Not a Member
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Non-member Information Modal -->
+    <div class="modal fade" id="nonMemberInfoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Event Registration</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted mb-3">How would you like to register for this event?</p>
-                    <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-outline-success" onclick="registerAsStaff()">
-                            <strong>Register as Staff</strong>
-                            <small class="d-block text-muted">Participate as event staff member</small>
-                        </button>
-                        <button type="button" class="btn btn-outline-success" onclick="registerAsAttendee()">
-                            <strong>Register as General Attendee</strong>
-                            <small class="d-block text-muted">Participate as general attendee</small>
-                        </button>
-                    </div>
+                    <p class="text-muted mb-3">Please provide your information to register for this event:</p>
+                    <form id="nonMemberForm">
+                        <div class="mb-3">
+                            <label for="nonMemberFirstName" class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="nonMemberFirstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nonMemberMiddleName" class="form-label">Middle Name</label>
+                            <input type="text" class="form-control" id="nonMemberMiddleName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="nonMemberLastName" class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="nonMemberLastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nonMemberEmail" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="nonMemberEmail" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="completeNonMemberRegistration()">Register</button>
                 </div>
             </div>
         </div>
@@ -725,118 +760,118 @@
 
         // Store current announcement data for registration
         let currentAnnouncementData = null;
+        let currentEventForRegistration = null;
 
         function showRegistrationTypeModal() {
-            // Check if user is logged in
-            fetch('api/check-session.php')
+            // Get the current announcement from the modal
+            const title = document.getElementById('announcementTitle').textContent;
+            
+            // Fetch announcements to find the current one
+            fetch('api/get-announcements.php')
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success && data.memberID) {
-                        // User is logged in, show registration type modal
-                        const registrationModal = new bootstrap.Modal(document.getElementById('registrationTypeModal'));
-                        registrationModal.show();
-                    } else {
-                        // User is not logged in, redirect to login
-                        alert('Please log in to register for an event.');
-                        window.location.href = 'login.html';
+                    if (data.success && data.announcements) {
+                        const announcement = data.announcements.find(a => a.Title === title);
+                        if (announcement && announcement.EventID) {
+                            currentEventForRegistration = announcement;
+                            // Show member type selection modal
+                            const modal = new bootstrap.Modal(document.getElementById('registrationTypeModal'));
+                            modal.show();
+                        } else {
+                            alert('Event not found');
+                        }
                     }
                 })
                 .catch(error => {
-                    console.error('Error checking session:', error);
-                    alert('Unable to verify login status. Please try again.');
+                    console.error('Error fetching announcements:', error);
+                    alert('Unable to load event details');
                 });
         }
 
-        function registerAsStaff() {
-            registerForEvent('Staff');
+        // Select member type (for event registration)
+        function selectMemberType(type) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('registrationTypeModal'));
+            modal.hide();
+
+            if (type === 'member') {
+                // Member - redirect to login to register for event
+                window.location.href = 'login.html?redirect=event-registration&eventId=' + currentEventForRegistration.EventID;
+            } else {
+                // Non-member - show form
+                const modal2 = new bootstrap.Modal(document.getElementById('nonMemberInfoModal'));
+                modal2.show();
+            }
         }
 
-        function registerAsAttendee() {
-            registerForEvent('Attendee');
-        }
+        // Complete non-member registration
+        async function completeNonMemberRegistration() {
+            const fname = document.getElementById('nonMemberFirstName').value.trim();
+            const mname = document.getElementById('nonMemberMiddleName').value.trim();
+            const lname = document.getElementById('nonMemberLastName').value.trim();
+            const email = document.getElementById('nonMemberEmail').value.trim();
 
-        async function registerForEvent(registrationType) {
+            if (!fname || !lname || !email) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
             try {
-                // Get member ID from session
-                const sessionResponse = await fetch('api/check-session.php');
-                const sessionData = await sessionResponse.json();
-
-                if (!sessionData.success || !sessionData.memberID) {
-                    alert('Please log in to register for an event.');
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                const memberId = sessionData.memberID;
-
-                // Get announcement details to find event ID
-                const announcementTitle = document.getElementById('announcementTitle').textContent;
-                const response = await fetch('api/get-announcements.php');
-                const data = await response.json();
-
-                if (!data.success || !data.announcements) {
-                    alert('Unable to load event details. Please try again.');
-                    return;
-                }
-
-                // Find matching announcement
-                const announcement = data.announcements.find(ann => ann.Title === announcementTitle);
-                if (!announcement || !announcement.ProposalID) {
-                    alert('Event details not found.');
-                    return;
-                }
-
-                // Get event ID from proposal
-                const eventsResponse = await fetch('api/get-events.php');
-                const eventsData = await eventsResponse.json();
-
-                if (!eventsData.success || !eventsData.events) {
-                    alert('Unable to load event information. Please try again.');
-                    return;
-                }
-
-                const event = eventsData.events.find(e => e.ProposalID === announcement.ProposalID);
-                if (!event || !event.EventID) {
-                    alert('Event not found.');
-                    return;
-                }
-
-                // Register for the event
-                const registerResponse = await fetch('api/manage-registration.php', {
+                // Step 1: Create or get non-member ID
+                const nonMemberRes = await fetch('api/register-non-member.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'register',
-                        memberId: memberId,
-                        eventId: event.EventID,
-                        registrationType: registrationType
+                        action: 'create',
+                        fname,
+                        mname,
+                        lname,
+                        email
                     })
                 });
 
-                const registerData = await registerResponse.json();
-
-                if (registerData.success) {
-                    alert(`Successfully registered as ${registrationType}!`);
-                    // Close the registration modal
-                    const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationTypeModal'));
-                    if (registrationModal) {
-                        registrationModal.hide();
-                    }
-                    // Close the announcement details modal
-                    const announcementModal = bootstrap.Modal.getInstance(document.getElementById('announcementDetailsModal'));
-                    if (announcementModal) {
-                        announcementModal.hide();
-                    }
-                    // Reload announcements to update counts
-                    loadAnnouncements();
-                } else {
-                    alert(registerData.message || 'Failed to register for the event.');
+                const nonMemberData = await nonMemberRes.json();
+                if (!nonMemberData.success) {
+                    alert('Error: ' + nonMemberData.message);
+                    return;
                 }
+
+                const nonMemberId = nonMemberData.non_memberID;
+
+                // Step 2: Register for event
+                const regRes = await fetch('api/register-non-member.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'register',
+                        non_memberID: nonMemberId,
+                        eventID: currentEventForRegistration.EventID,
+                        registrationType: 'Attendee'
+                    })
+                });
+
+                const regData = await regRes.json();
+                if (!regData.success) {
+                    alert('Error: ' + regData.message);
+                    return;
+                }
+
+                // Store device ID for non-member identification
+                const deviceId = 'nm_' + nonMemberId + '_' + Date.now();
+                localStorage.setItem('rebootph_device_id', deviceId);
+                localStorage.setItem('rebootph_non_member_id', nonMemberId);
+
+                // Close modal and show confirmation
+                const modal = bootstrap.Modal.getInstance(document.getElementById('nonMemberInfoModal'));
+                modal.hide();
+
+                alert('Registration successful! Your QR code and serial number have been saved.');
+                
+                // Reload announcements to update the display
+                loadAnnouncements();
+
             } catch (error) {
-                console.error('Error registering for event:', error);
-                alert('An error occurred while registering. Please try again.');
+                console.error('Registration error:', error);
+                alert('Registration failed. Please try again.');
             }
         }
 
