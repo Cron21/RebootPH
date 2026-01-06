@@ -19,7 +19,7 @@ try {
     $action = isset($_GET['action']) ? $_GET['action'] : 'list';
     
     if ($action === 'events') {
-        // Get all completed events
+        // Get all completed events (where proposal date is in the past)
         $stmt = $conn->prepare("
             SELECT DISTINCT
                 e.EventID,
@@ -33,7 +33,7 @@ try {
             JOIN proposal p ON e.ProposalID = p.ProposalID
             LEFT JOIN registration r ON e.EventID = r.EventID
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE e.status = 'Completed'
+            WHERE p.Status = 'Approved' AND p.ProposedDate <= CURDATE()
             GROUP BY e.EventID, p.Title, p.ProposedDate, p.StartTime, p.EndTime, p.Venue
             ORDER BY p.ProposedDate DESC
         ");

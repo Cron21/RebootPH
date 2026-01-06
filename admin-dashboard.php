@@ -4083,44 +4083,97 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
             }
             // Add to your existing JavaScript
-            function requestFeedback(eventId, eventName) {
+            function requestFeedback(eventId, eventName, attendanceId) {
                 // Show feedback modal
                 const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
                 document.getElementById('feedbackForm').dataset.eventId = eventId;
+                if (attendanceId) {
+                    document.getElementById('feedbackForm').dataset.attendanceId = attendanceId;
+                }
                 modal.show();
             }
 
             function submitFeedback() {
                 const form = document.getElementById('feedbackForm');
                 const eventId = form.dataset.eventId;
+                const attendanceId = form.dataset.attendanceId;
 
                 // Get ratings
-                const rating = form.querySelector('input[name="rating"]:checked')?.value;
-                const impact = form.querySelector('select').value;
-                const knowledge = form.querySelectorAll('select')[1].value;
-                const comments = form.querySelector('textarea').value;
+                const overallExpInput = form.querySelector('input[name="rating"]:checked');
+                const impactSelect = form.querySelectorAll('select')[0];
+                const knowledgeSelect = form.querySelectorAll('select')[1];
+                const commentsInput = form.querySelector('textarea');
 
-                if (!rating || !impact || !knowledge) {
-                    alert('Please complete all required fields');
+                // Validate
+                if (!overallExpInput) {
+                    alert('Please select a rating');
                     return;
                 }
 
-                // Calculate impact score (average of all metrics)
-                const impactScore = ((parseInt(rating) + parseInt(impact) + parseInt(knowledge)) / 3).toFixed(1);
+                if (!impactSelect.value) {
+                    alert('Please select impact level');
+                    return;
+                }
 
-                // Here you would typically send this data to your backend
-                console.log({
-                    eventId,
-                    rating,
-                    impact,
-                    knowledge,
-                    impactScore,
-                    comments
+                if (!knowledgeSelect.value) {
+                    alert('Please select knowledge gained');
+                    return;
+                }
+
+                // Prepare form data
+                const formData = {
+                    eventId: parseInt(eventId),
+                    attendanceId: attendanceId ? parseInt(attendanceId) : null,
+                    overallExperience: mapRatingToExperience(overallExpInput.value),
+                    impact: parseInt(impactSelect.value),
+                    knowledge: parseInt(knowledgeSelect.value),
+                    comments: commentsInput.value.trim(),
+                    isAnonymous: 0
+                };
+
+                console.log('Submitting feedback:', formData);
+
+                // Send to API
+                fetch('api/manage-feedback.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('Thank you for your feedback!');
+                        bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+                        // Reset form
+                        form.reset();
+                        // Reload the page to show updated feedback status
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500);
+                    } else {
+                        alert('Error submitting feedback: ' + (result.message || 'Unknown error'));
+                        console.error('API error:', result);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Error submitting feedback: ' + error.message);
                 });
+            }
 
-                // Show success message
-                alert('Thank you for your feedback!');
-                bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+            // Helper function to map numeric rating to experience text
+            function mapRatingToExperience(rating) {
+                const ratingMap = {
+                    '5': 'Excellent',
+                    '4': 'Good',
+                    '3': 'Average',
+                    '2': 'Fair',
+                    '1': 'Poor'
+                };
+                return ratingMap[rating] || 'Average';
             }
 
             // Function to calculate average ratings
@@ -9801,7 +9854,7 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                             const actions = member.HasFeedback
                                 ? `<button class="btn btn-sm btn-info" onclick="viewMemberFeedback(${member.FeedbackID}, '${eventId}')">View Feedback</button>`
-                                : '<span class="text-muted small">No feedback</span>';
+                                : `<button class="btn btn-sm btn-primary" onclick="requestFeedback(${eventId}, '', ${member.AttendanceID})">Provide Feedback</button>`;
 
                             const attendanceDate = new Date(member.AttendanceTime).toLocaleString();
 
