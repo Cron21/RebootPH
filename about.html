@@ -289,6 +289,22 @@
                     });
 
                     if (filteredMembers.length > 0) {
+                        // Sort members by role hierarchy
+                        const roleHierarchy = {
+                            'Executive Director': 1,
+                            'Regional Convenor': 2,
+                            'Local Coordinator': 2,
+                            'Program Officer': 3,
+                            'Finance Officer': 3,
+                            'Meal Officer': 3
+                        };
+
+                        filteredMembers.sort((a, b) => {
+                            const roleA = roleHierarchy[a.Role] || 99;
+                            const roleB = roleHierarchy[b.Role] || 99;
+                            return roleA - roleB;
+                        });
+
                         container.innerHTML = '';
                         filteredMembers.forEach(member => {
                             const photoPath = member.ProfileImage || 'assets/image/default-avatar.png';
