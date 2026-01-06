@@ -28,10 +28,6 @@ try {
 
         if (!$title) throw new Exception('Title is required');
 
-        if ($isActive) {
-            $conn->prepare("UPDATE member_benefits SET isActive = 0")->execute();
-        }
-
         $stmt = $conn->prepare("INSERT INTO member_benefits (Title, Description, isActive, CreateByAdminID, CreateDate) VALUES (?, ?, ?, ?, NOW())");
         $stmt->execute([$title, $description, $isActive, $adminId]);
 
@@ -45,10 +41,6 @@ try {
         $isActive = (int)($data['isActive'] ?? 0);
 
         if (!$title) throw new Exception('Title is required');
-
-        if ($isActive) {
-            $conn->prepare("UPDATE member_benefits SET isActive = 0")->execute();
-        }
 
         $stmt = $conn->prepare("UPDATE member_benefits SET Title = ?, Description = ?, isActive = ?, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitsID = ?");
         $stmt->execute([$title, $description, $isActive, $adminId, $id]);
@@ -66,11 +58,10 @@ try {
         $id = (int)($data['id'] ?? 0);
         if ($id <= 0) throw new Exception('Invalid ID');
 
-        $conn->prepare("UPDATE member_benefits SET isActive = 0")->execute();
         $stmt = $conn->prepare("UPDATE member_benefits SET isActive = 1, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitsID = ?");
         $stmt->execute([$adminId, $id]);
 
-        echo json_encode(['success' => true, 'message' => 'Active benefit set']);
+        echo json_encode(['success' => true, 'message' => 'Benefit activated']);
     } else {
         throw new Exception('Unknown action');
     }
