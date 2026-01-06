@@ -128,6 +128,34 @@ try {
             http_response_code(404);
             echo json_encode(['success' => false, 'message' => 'Feedback not found']);
         }
+
+    } elseif ($action === 'average-rating' && $eventId) {
+        // Get average rating for an event
+        $stmt = $conn->prepare("
+            SELECT
+                AVG(f.Rating) as AverageRating,
+                COUNT(f.FeedbackID) as TotalRatings
+            FROM feedback f
+            JOIN eventattendance ea ON f.AttendanceID = ea.AttendanceID
+            JOIN registration r ON ea.RegistrationID = r.RegistrationID
+            WHERE r.EventID = ? AND f.Rating IS NOT NULL
+        ");
+        $stmt->execute([$eventId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result && $result['TotalRatings'] > 0) {
+            echo json_encode([
+                'success' => true,
+                'averageRating' => (float)$result['AverageRating'],
+                'totalRatings' => (int)$result['TotalRatings']
+            ]);
+        } else {
+            echo json_encode([
+                'success' => true,
+                'averageRating' => null,
+                'totalRatings' => 0
+            ]);
+        }
         
     } else {
         http_response_code(400);

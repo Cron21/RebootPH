@@ -936,6 +936,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <div class="col-md-6">
                                     <div class="alert alert-info mt-4" id="feedbackStats" style="display: none;">
                                         <strong id="feedbackStatsText"></strong>
+                                        <div id="feedbackAverageRating" class="mt-2" style="display: none;">
+                                            <strong>Average Rating:</strong>
+                                            <span id="averageRatingStars" class="ms-2 text-warning"></span>
+                                            <span id="averageRatingValue" class="ms-2 text-dark"></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -9830,6 +9835,33 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
             }
 
+            // Calculate average rating for an event
+            async function calculateEventAverageRating(eventId) {
+                try {
+                    const response = await fetch(`api/get-admin-feedback.php?action=average-rating&eventId=${eventId}`);
+                    const result = await response.json();
+
+                    if (result.success && result.averageRating !== null) {
+                        const avgRating = Math.round(result.averageRating * 10) / 10;
+                        const fullStars = Math.floor(avgRating);
+                        const hasHalfStar = avgRating % 1 >= 0.5;
+                        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+                        let starsHtml = '★'.repeat(fullStars);
+                        if (hasHalfStar) starsHtml += '⋆';
+                        starsHtml += '☆'.repeat(emptyStars);
+
+                        document.getElementById('averageRatingStars').innerHTML = starsHtml;
+                        document.getElementById('averageRatingValue').textContent = `${avgRating}/5 (${result.totalRatings} ratings)`;
+                        document.getElementById('feedbackAverageRating').style.display = 'block';
+                    } else {
+                        document.getElementById('feedbackAverageRating').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error calculating average rating:', error);
+                }
+            }
+
             // Load members and feedback status for selected event
             async function loadFeedbackMembers() {
                 const eventId = document.getElementById('feedbackEventSelect').value;
@@ -9856,6 +9888,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                         const statsText = `Total Attendees: ${result.count} | Feedback Submitted: ${result.feedbackCount}`;
                         document.getElementById('feedbackStatsText').textContent = statsText;
                         document.getElementById('feedbackStats').style.display = 'block';
+
+                        // Load and display average rating
+                        await calculateEventAverageRating(eventId);
 
                         // Populate table
                         tbody.innerHTML = result.members.map((member, index) => {
