@@ -6971,7 +6971,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const modal = new bootstrap.Modal(document.getElementById('newInitiativeModal'));
                 modal.show();
             }
-            }
 
             // Edit initiative
             async function editInitiative(initiativeId) {
@@ -7015,11 +7014,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                             if (!found) {
                                 console.warn('Category ID', initiative.CategoryID, 'not found in dropdown options');
                             }
-                        }
-                                    break;
-                                }
-                            }
-                            console.log('Category set to:', categorySelect.value, 'CategoryID:', initiative.CategoryID);
                         }
 
                         document.getElementById('initiativeDescription').value = initiative.Description;
@@ -7074,6 +7068,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     alert('Error loading initiative: ' + error.message);
                 }
             }
+            
 
             // Save initiative (create or update)
             async function saveInitiative() {
