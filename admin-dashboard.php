@@ -1047,15 +1047,13 @@ if ($_SESSION['role'] === 'Member Staff') {
                                                 <tr>
                                                     <th>Title</th>
                                                     <th>Description</th>
-                                                    <th>Icon / Class</th>
-                                                    <th>Order</th>
                                                     <th>Active</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="memberBenefitsTableBody">
                                                 <tr>
-                                                    <td colspan="6" class="text-center text-muted">Loading member
+                                                    <td colspan="4" class="text-center text-muted">Loading member
                                                         benefits...</td>
                                                 </tr>
                                             </tbody>
@@ -7803,7 +7801,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('memberBenefitForm').reset();
                 document.getElementById('benefitId').value = '';
                 document.getElementById('benefitIsActive').checked = false;
-                new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('memberBenefitModal'));
+                modal.show();
             }
 
             async function editMemberBenefit(id) {
@@ -7818,7 +7817,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     document.getElementById('benefitTitle').value = b.Title || '';
                     document.getElementById('benefitDescription').value = b.Description || '';
                     document.getElementById('benefitIsActive').checked = (b.isActive == 1);
-                    new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
+                    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('memberBenefitModal'));
+                    modal.show();
                 } catch (e) { console.error(e); alert('Error loading benefit'); }
             }
 
@@ -8004,6 +8004,21 @@ if ($_SESSION['role'] === 'Member Staff') {
                         setTimeout(loadMemberBenefitsAdmin, 150);
                     });
                 }
+                
+                // Initialize member benefits modal and ensure backdrop cleanup
+                const memberBenefitModal = document.getElementById('memberBenefitModal');
+                if (memberBenefitModal) {
+                    memberBenefitModal.addEventListener('hidden.bs.modal', function () {
+                        // Ensure backdrop is removed
+                        const backdrops = document.querySelectorAll('.modal-backdrop');
+                        backdrops.forEach(backdrop => backdrop.remove());
+                        // Remove modal-open class from body
+                        document.body.classList.remove('modal-open');
+                    });
+                }
+                
+                // Load benefits immediately on page load
+                loadMemberBenefitsAdmin();
             });
 
             // Populate hero sections table
