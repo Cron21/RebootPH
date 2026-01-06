@@ -6944,7 +6944,7 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Edit initiative
             async function editInitiative(initiativeId) {
                 try {
-                    // Load categories first
+                    // Load categories first and wait for it to complete
                     await loadCategories();
 
                     const response = await fetch(`api/get-initiatives.php?id=${initiativeId}`);
@@ -6957,8 +6957,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                         document.getElementById('initiativeId').value = initiative.InitiativeID;
                         document.getElementById('initiativeTitle').value = initiative.Title;
 
-                        // Set category AFTER categories have been loaded
-                        document.getElementById('initiativeCategory').value = initiative.CategoryID;
+                        // Set category with the correct CategoryID value
+                        const categorySelect = document.getElementById('initiativeCategory');
+                        categorySelect.value = initiative.CategoryID;
 
                         document.getElementById('initiativeDescription').value = initiative.Description;
                         document.getElementById('pinToHighlights').checked = initiative.isHighlighted == 1;
