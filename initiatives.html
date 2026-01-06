@@ -135,17 +135,17 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">How would you like to register?</h5>
+                    <h5 class="modal-title">Register for this event</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="text-muted mb-4">Please select your registration type:</p>
+                    <p class="text-muted mb-4">Are you a member of Reboot PH?</p>
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-outline-primary btn-lg" onclick="selectRegistrationType('Staff')">
-                            <i class="bi bi-person-badge me-2"></i>Register as Staff
+                        <button type="button" class="btn btn-primary btn-lg" onclick="selectMemberType('member')">
+                            <i class="bi bi-check-circle me-2"></i>Yes, I'm a Member
                         </button>
-                        <button type="button" class="btn btn-outline-success btn-lg" onclick="selectRegistrationType('Attendee')">
-                            <i class="bi bi-person-check me-2"></i>Register as General Attendee
+                        <button type="button" class="btn btn-secondary btn-lg" onclick="selectMemberType('non-member')">
+                            <i class="bi bi-x-circle me-2"></i>No, I'm Not a Member
                         </button>
                     </div>
                 </div>
@@ -153,28 +153,6 @@
         </div>
     </div>
 
-    <!-- Member/Non-member Selection Modal (for Attendees) -->
-    <div class="modal fade" id="memberTypeModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Are you a member?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <p class="text-muted mb-4">Please select your membership status:</p>
-                    <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary btn-lg" onclick="selectMemberType('member')">
-                            <i class="bi bi-check-circle me-2"></i>I am a Member
-                        </button>
-                        <button type="button" class="btn btn-secondary btn-lg" onclick="selectMemberType('non-member')">
-                            <i class="bi bi-x-circle me-2"></i>I am Not a Member
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Non-member Information Modal -->
     <div class="modal fade" id="nonMemberInfoModal" tabindex="-1">
@@ -535,31 +513,15 @@
             modal.show();
         }
 
-        // Select registration type (Staff or Attendee)
-        function selectRegistrationType(type) {
-            currentRegistrationType = type;
+        // Select member type (for event registration)
+        function selectMemberType(type) {
+            currentMemberType = type;
             const modal = bootstrap.Modal.getInstance(document.getElementById('registrationTypeModal'));
             modal.hide();
 
-            if (type === 'Staff') {
-                // Staff must be member - redirect to login
-                window.location.href = 'login.html?redirect=event-registration&type=staff&eventId=' + currentEventForRegistration.InitiativeID;
-            } else {
-                // Attendee - ask if member or not
-                const modal2 = new bootstrap.Modal(document.getElementById('memberTypeModal'));
-                modal2.show();
-            }
-        }
-
-        // Select member type (for attendees)
-        function selectMemberType(type) {
-            currentMemberType = type;
-            const modal = bootstrap.Modal.getInstance(document.getElementById('memberTypeModal'));
-            modal.hide();
-
             if (type === 'member') {
-                // Member - redirect to login
-                window.location.href = 'login.html?redirect=event-registration&type=attendee&eventId=' + currentEventForRegistration.InitiativeID;
+                // Member - redirect to login to register for event
+                window.location.href = 'login.html?redirect=event-registration&eventId=' + currentEventForRegistration.InitiativeID;
             } else {
                 // Non-member - show form
                 const modal2 = new bootstrap.Modal(document.getElementById('nonMemberInfoModal'));
