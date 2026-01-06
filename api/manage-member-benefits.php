@@ -50,7 +50,7 @@ try {
             $conn->prepare("UPDATE member_benefits SET isActive = 0")->execute();
         }
 
-        $stmt = $conn->prepare("UPDATE member_benefits SET Title = ?, Description = ?, isActive = ?, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitID = ?");
+        $stmt = $conn->prepare("UPDATE member_benefits SET Title = ?, Description = ?, isActive = ?, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitsID = ?");
         $stmt->execute([$title, $description, $isActive, $adminId, $id]);
 
         echo json_encode(['success' => true, 'message' => 'Benefit updated']);
@@ -58,7 +58,7 @@ try {
     } elseif ($action === 'delete') {
         $id = (int)($data['id'] ?? 0);
         if ($id <= 0) throw new Exception('Invalid ID');
-        $stmt = $conn->prepare("DELETE FROM member_benefits WHERE BenefitID = ?");
+        $stmt = $conn->prepare("DELETE FROM member_benefits WHERE BenefitsID = ?");
         $stmt->execute([$id]);
         echo json_encode(['success' => true, 'message' => 'Benefit deleted']);
 
@@ -67,7 +67,7 @@ try {
         if ($id <= 0) throw new Exception('Invalid ID');
 
         $conn->prepare("UPDATE member_benefits SET isActive = 0")->execute();
-        $stmt = $conn->prepare("UPDATE member_benefits SET isActive = 1, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitID = ?");
+        $stmt = $conn->prepare("UPDATE member_benefits SET isActive = 1, LastModifiedBy = ?, LastModifiedDate = NOW() WHERE BenefitsID = ?");
         $stmt->execute([$adminId, $id]);
 
         echo json_encode(['success' => true, 'message' => 'Active benefit set']);
