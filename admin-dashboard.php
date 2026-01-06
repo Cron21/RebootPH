@@ -1184,12 +1184,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                                                 Values
                                             </button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" data-bs-toggle="pill"
-                                                data-bs-target="#org-team-content" type="button" role="tab">
-                                                Org Team
-                                            </button>
-                                        </li>
                                     </ul>
 
                                     <div class="tab-content">
@@ -1274,35 +1268,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                                             </div>
                                         </div>
 
-
-                                        <!-- Org Team Section -->
-                                        <div id="org-team-content" class="tab-pane fade" role="tabpanel">
-                                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                                <h4 class="h6 mb-0">Organization Team</h4>
-                                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#newTeamMemberModal"
-                                                    onclick="openAddTeamMemberModal()">
-                                                    <i class="bi bi-person-plus"></i> Add Team Member
-                                                </button>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Name</th>
-                                                            <th>Position</th>
-                                                            <th>Photo</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="orgTeamTableBody">
-                                                        <tr>
-                                                            <td colspan="3" class="text-center text-muted">Loading team
-                                                                members...</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -2998,52 +2963,9 @@ if ($_SESSION['role'] === 'Member Staff') {
         </div>
     </div>
 
-    <div class="modal fade" id="newTeamMemberModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Team Member</h5>
-                    <button type="button" class="btn-close" data-bs-toggle="modal"></button>
-                </div>
-                <form id="teamMemberForm">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Select Admin</label>
-                            <select class="form-select" id="adminSelect" name="name" required>
-                                <option value="">Loading admins...</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Position</label>
-                            <select class="form-select" name="position" required>
-                                <option value="Executive Director">Executive Director</option>
-                                <option value="Finance Officer">Finance Officer</option>
-                                <option value="MEAL Officer">MEAL Officer</option>
-                                <option value="Program Officer">Program Officer</option>
-                                <option value="Regional Convenor">Regional Convenor</option>
-                                <option value="Local Coordinator">Local Coordinator</option>
-                                <option value="Member Staff">Member Staff</option>
-                                <option value="Member">Member</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Profile Photo</label>
-                            <input type="file" class="form-control" name="photo" accept="image/*" required>
-                        </div>
-
-                        <input type="hidden" name="action" value="create">
-                        <input type="hidden" name="type" value="org-team">
-                        <input type="hidden" name="is_active" value="1">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Member</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <div class="modal fade" id="newTeamMemberModal" tabindex="-1" aria-hidden="true" style="display: none;">
+        <!-- This modal has been removed and team management is now automatically displayed in about.html -->
+    </div>
 
         <footer class="site-footer mt-auto">
             <div class="footer-top py-5">
@@ -10516,88 +10438,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                     });
                 }
             });
-
-            document.getElementById('teamMemberForm').addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const formData = new FormData(this); // Automatic na kukunin lahat ng input fields
-
-                try {
-                    const response = await fetch('api/manage-about-us.php', {
-                        method: 'POST',
-                        body: formData // Huwag gumamit ng JSON.stringify dito
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        alert(result.message); // Success message
-                        location.reload();     // Refresh para makita ang bago sa table
-                    } else {
-                        alert('Error: ' + result.message);
-                    }
-                } catch (error) {
-                    alert('An error occurred. Please check the console.');
-                    console.error(error);
-                }
-            });
-
-            // populate  Admin Dropdown
-            async function openAddTeamMemberModal() {
-                const adminSelect = document.getElementById('adminSelect');
-                adminSelect.innerHTML = '<option>Loading admins...</option>';
-
-                try {
-                    const response = await fetch('api/get-admins.php');
-                    const data = await response.json();
-
-                    if (data.success) {
-                        adminSelect.innerHTML = '<option value="">-- Select Admin --</option>';
-                        data.admins.forEach(admin => {
-                            // Pansinin ang admin.FName at admin.LName (case sensitive)
-                            const full_name = `${admin.FName} ${admin.LName}`;
-                            adminSelect.innerHTML += `<option value="${full_name}">${full_name}</option>`;
-                        });
-                    } else {
-                        adminSelect.innerHTML = '<option>No admins found</option>';
-                    }
-                } catch (error) {
-                    console.error('Fetch error:', error);
-                    adminSelect.innerHTML = '<option>Error loading admins</option>';
-                }
-            }
-
-            // 2. load Team Table
-            async function loadTeamTable() {
-                try {
-                    const response = await fetch('api/manage-about-us.php?type=org-team');
-                    const data = await response.json();
-                    const tbody = document.getElementById('orgTeamTableBody');
-
-                    if (data.success && data.members.length > 0) {
-                        tbody.innerHTML = '';
-                        data.members.forEach(m => {
-                            tbody.innerHTML += `
-                            <tr>
-                                <td>${m.name}</td>
-                                <td>${m.position}</td>
-                                <td><img src="${m.photo_path}" width="40" height="40" class="rounded-circle" style="object-fit:cover;"></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteMember(${m.member_id})">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>`;
-                        });
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No team members found.</td></tr>';
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            }
-
-            document.addEventListener('DOMContentLoaded', loadTeamTable);
 
             // for quick cards dashboard member view
             document.addEventListener('DOMContentLoaded', function () {

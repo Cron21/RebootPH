@@ -277,31 +277,44 @@
 
         async function displayTeam() {
             try {
-                const response = await fetch('api/manage-about-us.php?type=org-team');
-                const data = await response.json();
+                const response = await fetch('api/get-members.php');
+                const result = await response.json();
                 const container = document.getElementById('team-container');
 
-                if (data.success && data.members.length > 0) {
-                    container.innerHTML = '';
-
-                    data.members.forEach(member => {
-                        const photoHtml = member.photo_path && member.photo_path !== 'assets/image/default-avatar.png'
-                            ? `<img src="${member.photo_path}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
-                            : `<span style="font-size: 2.5rem; color:#b0bac9;">👤</span>`;
-
-                        container.innerHTML += `
-                            <div class="col-12 col-md-6 col-lg-3">
-                                <div class="bg-white shadow-sm text-center p-4" style="border-radius: 18px; background-color:#f1fff2;">
-                                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                                        style="width: 96px; height: 96px; background-color:#e5ecf5; overflow: hidden;">
-                                        ${photoHtml}
-                                    </div>
-                                    <div class="fw-bold text-success mb-1">${member.name}</div>
-                                    <div class="text-primary small">${member.position}</div>
-                                </div>
-                            </div>
-                        `;
+                if (result.success && result.members.length > 0) {
+                    // Filter members: exclude 'Member' and 'Admin' roles
+                    const filteredMembers = result.members.filter(member => {
+                        const role = member.Role || '';
+                        return role !== 'Member' && role !== 'Admin';
                     });
+
+                    if (filteredMembers.length > 0) {
+                        container.innerHTML = '';
+                        filteredMembers.forEach(member => {
+                            const photoPath = member.ProfileImage || 'assets/image/default-avatar.png';
+                            const photoHtml = photoPath && photoPath !== 'assets/image/default-avatar.png'
+                                ? `<img src="${escapeHtml(photoPath)}" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                                : `<span style="font-size: 2.5rem; color:#b0bac9;">👤</span>`;
+
+                            const fullName = `${escapeHtml(member.FName || '')} ${escapeHtml(member.LName || '')}`;
+                            const role = escapeHtml(member.Role || '');
+
+                            container.innerHTML += `
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <div class="bg-white shadow-sm text-center p-4" style="border-radius: 18px; background-color:#f1fff2;">
+                                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                            style="width: 96px; height: 96px; background-color:#e5ecf5; overflow: hidden;">
+                                            ${photoHtml}
+                                        </div>
+                                        <div class="fw-bold text-success mb-1">${fullName}</div>
+                                        <div class="text-primary small">${role}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        container.innerHTML = '<p class="text-center text-muted">No team members to display.</p>';
+                    }
                 } else {
                     container.innerHTML = '<p class="text-center text-muted">No team members to display.</p>';
                 }
