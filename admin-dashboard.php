@@ -9900,6 +9900,16 @@ if ($_SESSION['role'] === 'Member Staff') {
                     </div>`;
                         document.getElementById('feedbackRating').innerHTML = starsHtml;
 
+                        // Display Overall Experience
+                        if (document.getElementById('feedbackOverallExperience')) {
+                            document.getElementById('feedbackOverallExperience').textContent = feedback.OverallExperience || 'N/A';
+                        }
+
+                        // Display Knowledge Gained
+                        if (document.getElementById('feedbackKnowledgeGained')) {
+                            document.getElementById('feedbackKnowledgeGained').textContent = feedback.KnowledgeGained || 'N/A';
+                        }
+
                         document.getElementById('feedbackComments').textContent = feedback.Comments || 'No comments provided';
                         document.getElementById('feedbackSubmissionDate').textContent = new Date(feedback.SubmissionDate).toLocaleString();
 
