@@ -176,13 +176,18 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="registrationModalTitle">Register for this event</h5>
+                    <h5 class="modal-title">Register for this event</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="text-muted mb-4" id="registrationModalQuestion">Are you a member of Reboot PH?</p>
-                    <div class="d-grid gap-2" id="registrationModalButtons">
-                        <!-- Buttons will be dynamically populated -->
+                    <p class="text-muted mb-4">Are you a member of Reboot PH?</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary btn-lg" onclick="selectMemberType('member')">
+                            <i class="bi bi-check-circle me-2"></i>Yes, I'm a Member
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-lg" onclick="selectMemberType('non-member')">
+                            <i class="bi bi-x-circle me-2"></i>No, I'm Not a Member
+                        </button>
                     </div>
                 </div>
             </div>
@@ -761,56 +766,15 @@
             // Get the current announcement from the modal
             const title = document.getElementById('announcementTitle').textContent;
             
-            // First check if user is logged in
-            fetch('api/check-session.php')
+            // Fetch announcements to find the current one
+            fetch('api/get-announcements.php')
                 .then(response => response.json())
-                .then(sessionData => {
-                    // Fetch announcements to find the current one
-                    return Promise.all([
-                        Promise.resolve(sessionData),
-                        fetch('api/get-announcements.php').then(r => r.json())
-                    ]);
-                })
-                .then(([sessionData, announcementData]) => {
-                    if (announcementData.success && announcementData.announcements) {
-                        const announcement = announcementData.announcements.find(a => a.Title === title);
+                .then(data => {
+                    if (data.success && data.announcements) {
+                        const announcement = data.announcements.find(a => a.Title === title);
                         if (announcement && announcement.EventID) {
                             currentEventForRegistration = announcement;
-                            
-                            // Update modal based on login status
-                            const buttonsContainer = document.getElementById('registrationModalButtons');
-                            const titleEl = document.getElementById('registrationModalTitle');
-                            const questionEl = document.getElementById('registrationModalQuestion');
-                            
-                            if (sessionData.success && sessionData.memberID) {
-                                // User is logged in (member) - show registration type options
-                                titleEl.textContent = 'Select Registration Type';
-                                questionEl.textContent = 'How would you like to register for this event?';
-                                buttonsContainer.innerHTML = `
-                                    <button type="button" class="btn btn-outline-success btn-lg" onclick="selectMemberType('staff')">
-                                        <div class="fw-bold">Register as Staff</div>
-                                        <small>Participate as event staff member</small>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-success btn-lg" onclick="selectMemberType('attendee')">
-                                        <div class="fw-bold">Register as General Attendee</div>
-                                        <small>Participate as general attendee</small>
-                                    </button>
-                                `;
-                            } else {
-                                // User is not logged in - show membership check
-                                titleEl.textContent = 'Register for this event';
-                                questionEl.textContent = 'Are you a member of Reboot PH?';
-                                buttonsContainer.innerHTML = `
-                                    <button type="button" class="btn btn-primary btn-lg" onclick="selectMemberType('member')">
-                                        <i class="bi bi-check-circle me-2"></i>Yes, I'm a Member
-                                    </button>
-                                    <button type="button" class="btn btn-secondary btn-lg" onclick="selectMemberType('non-member')">
-                                        <i class="bi bi-x-circle me-2"></i>No, I'm Not a Member
-                                    </button>
-                                `;
-                            }
-                            
-                            // Show modal
+                            // Show member type selection modal
                             const modal = new bootstrap.Modal(document.getElementById('registrationTypeModal'));
                             modal.show();
                         } else {
@@ -876,6 +840,21 @@
             } catch (error) {
                 console.error('Error registering for event:', error);
                 alert('An error occurred while registering. Please try again.');
+            }
+        }
+
+        // Select member type (for event registration)
+        function selectMemberType(type) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('registrationTypeModal'));
+            modal.hide();
+
+            if (type === 'member') {
+                // Member - redirect to login to register for event
+                window.location.href = 'login.html?redirect=event-registration&eventId=' + currentEventForRegistration.EventID;
+            } else {
+                // Non-member - show form
+                const modal2 = new bootstrap.Modal(document.getElementById('nonMemberInfoModal'));
+                modal2.show();
             }
         }
 
