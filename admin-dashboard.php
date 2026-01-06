@@ -1034,7 +1034,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <hr class="my-4">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h3 class="h5 mb-0">Manage Member Benefits</h3>
-                                        <button class="btn btn-primarybtn-sm" data-bs-toggle="modal"
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#memberBenefitModal" onclick="openAddMemberBenefitModal()">
                                             Add Benefit
                                         </button>
@@ -2672,7 +2672,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <input class="form-check-input" type="checkbox" id="pinToHighlights">
                             <label class="form-check-label" for="pinToHighlights">
                                 Pin to Highlights Carousel
-                                <small class="text-muted">(Maximum 5 initiatives can be highlighted)</small>
+                                <small class="text-muted">(Maximum 3 initiatives can be highlighted)</small>
                             </label>
                         </div>
                     </form>
@@ -4009,8 +4009,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                 if (checkbox.checked) {
                     // Count current highlights
                     const highlightedCount = document.querySelectorAll('input[type="checkbox"]:checked').length;
-                    if (highlightedCount > 5) {
-                        alert('Maximum of 5 initiatives can be highlighted at a time.');
+                    if (highlightedCount > 3) {
+                        alert('Maximum of 3 initiatives can be highlighted at a time.');
                         checkbox.checked = false;
                         return;
                     }
@@ -7764,8 +7764,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                         const rawDesc = String(b.Description || '');
                         const descPreview = escapeHtml(rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc);
                         const iconClass = escapeHtml(String(b.IconClass || ''));
-                        const order = escapeHtml(String(b.Order ?? b.order ?? 0));
-                        const activeBadge = (String(b.isActive) === '1' || b.isActive === 1) ? '<span class="badge bg-success">Active</span>' : '';
+                        const order = parseInt(b.Order) || 0;
+                        const activeBadge = (b.isActive == 1) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>';
                         const titleArg = JSON.stringify(String(b.Title || ''));
 
                         return `
@@ -7773,8 +7773,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <td>${title}</td>
                                 <td>${descPreview}</td>
                                 <td>${iconClass}</td>
-                                <td>${order}</td>
-                                <td>${activeBadge}</td>
+                                <td class="text-center">${order}</td>
+                                <td class="text-center">${activeBadge}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <button class="btn btn-outline-primary" onclick="editMemberBenefit(${id})">Edit</button>
@@ -7808,11 +7808,11 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                     document.getElementById('memberBenefitModalTitle').textContent = 'Edit Benefit';
                     document.getElementById('benefitId').value = b.BenefitID;
-                    document.getElementById('benefitTitle').value = b.Title;
-                    document.getElementById('benefitDescription').value = b.Description;
-                    document.getElementById('benefitIconClass').value = b.IconClass;
-                    document.getElementById('benefitOrder').value = b.Order || 0;
-                    document.getElementById('benefitIsActive').checked = b.isActive == 1;
+                    document.getElementById('benefitTitle').value = b.Title || '';
+                    document.getElementById('benefitDescription').value = b.Description || '';
+                    document.getElementById('benefitIconClass').value = b.IconClass || '';
+                    document.getElementById('benefitOrder').value = parseInt(b.Order) || 0;
+                    document.getElementById('benefitIsActive').checked = (b.isActive == 1);
                     new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
                 } catch (e) { console.error(e); alert('Error loading benefit'); }
             }
@@ -7890,8 +7890,15 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Ensure loadMemberBenefitsAdmin() is invoked when Content Management tab is opened.
             // Call it on page load as well:
             document.addEventListener('DOMContentLoaded', function () {
-                // other initializations...
-                // call this when content panel shows:
+                // Load member benefits when hero content tab is clicked
+                const heroContentTab = document.querySelector('a[href="#hero-content"]');
+                if (heroContentTab) {
+                    heroContentTab.addEventListener('click', function () {
+                        setTimeout(loadMemberBenefitsAdmin, 150);
+                    });
+                }
+                
+                // Also load when content link is clicked
                 const contentLink = document.querySelector('a[href="#content"]');
                 if (contentLink) {
                     contentLink.addEventListener('click', function () {
