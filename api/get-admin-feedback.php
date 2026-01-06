@@ -50,32 +50,123 @@ try {
         ]);
         
     } elseif ($action === 'members' && $eventId) {
-        // Get all members who registered AND attended the event with their feedback status
-        $stmt = $conn->prepare("
-            SELECT
-                m.MemberID,
-                CONCAT(app.FName, ' ', app.LName) as MemberName,
-                app.FName,
-                app.LName,
-                app.ApplicantEmail as Email,
-                ea.AttendanceID,
-                ea.AttendanceTime,
-                f.FeedbackID,
-                f.Rating,
-                f.Comments,
-                f.OverallExperience,
-                f.KnowledgeGained,
-                f.SubmissionDate as FeedbackDate,
-                CASE WHEN f.FeedbackID IS NOT NULL THEN 1 ELSE 0 END as HasFeedback
-            FROM registration r
-            INNER JOIN member m ON r.MemberID = m.MemberID
-            INNER JOIN application app ON m.ApplicationID = app.ApplicationID
-            INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
-            WHERE r.EventID = ?
-            ORDER BY app.FName ASC, app.LName ASC
-        ");
-        $stmt->execute([$eventId]);
+        // Get all attendees (members + non-members) who attended the event with their feedback status
+        $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all'; // 'all', 'members', or 'non-members'
+        
+        if ($filter === 'members') {
+            // Members only
+            $stmt = $conn->prepare("
+                SELECT
+                    m.MemberID,
+                    NULL as non_MemberID,
+                    CONCAT(app.FName, ' ', app.LName) as MemberName,
+                    app.FName,
+                    app.LName,
+                    app.ApplicantEmail as Email,
+                    'Member' as UserType,
+                    ea.AttendanceID,
+                    ea.AttendanceTime,
+                    f.FeedbackID,
+                    f.Rating,
+                    f.Comments,
+                    f.OverallExperience,
+                    f.KnowledgeGained,
+                    f.SubmissionDate as FeedbackDate,
+                    CASE WHEN f.FeedbackID IS NOT NULL THEN 1 ELSE 0 END as HasFeedback
+                FROM registration r
+                INNER JOIN member m ON r.MemberID = m.MemberID
+                INNER JOIN application app ON m.ApplicationID = app.ApplicationID
+                INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+                WHERE r.EventID = ?
+                ORDER BY app.FName ASC, app.LName ASC
+            ");
+            $stmt->execute([$eventId]);
+        } elseif ($filter === 'non-members') {
+            // Non-members only
+            $stmt = $conn->prepare("
+                SELECT
+                    NULL as MemberID,
+                    nm.non_memberID as non_MemberID,
+                    CONCAT(nm.FirstName, ' ', nm.LastName) as MemberName,
+                    nm.FirstName as FName,
+                    nm.LastName as LName,
+                    nm.Email,
+                    'Non-Member' as UserType,
+                    ea.AttendanceID,
+                    ea.AttendanceTime,
+                    f.FeedbackID,
+                    f.Rating,
+                    f.Comments,
+                    f.OverallExperience,
+                    f.KnowledgeGained,
+                    f.SubmissionDate as FeedbackDate,
+                    CASE WHEN f.FeedbackID IS NOT NULL THEN 1 ELSE 0 END as HasFeedback
+                FROM registration r
+                INNER JOIN non_member nm ON r.non_MemberID = nm.non_memberID
+                INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+                WHERE r.EventID = ?
+                ORDER BY nm.FirstName ASC, nm.LastName ASC
+            ");
+            $stmt->execute([$eventId]);
+        } else {
+            // All - combine both members and non-members
+            $stmt = $conn->prepare("
+                SELECT
+                    m.MemberID,
+                    NULL as non_MemberID,
+                    CONCAT(app.FName, ' ', app.LName) as MemberName,
+                    app.FName,
+                    app.LName,
+                    app.ApplicantEmail as Email,
+                    'Member' as UserType,
+                    ea.AttendanceID,
+                    ea.AttendanceTime,
+                    f.FeedbackID,
+                    f.Rating,
+                    f.Comments,
+                    f.OverallExperience,
+                    f.KnowledgeGained,
+                    f.SubmissionDate as FeedbackDate,
+                    CASE WHEN f.FeedbackID IS NOT NULL THEN 1 ELSE 0 END as HasFeedback
+                FROM registration r
+                INNER JOIN member m ON r.MemberID = m.MemberID
+                INNER JOIN application app ON m.ApplicationID = app.ApplicationID
+                INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+                WHERE r.EventID = ?
+                
+                UNION ALL
+                
+                SELECT
+                    NULL as MemberID,
+                    nm.non_memberID as non_MemberID,
+                    CONCAT(nm.FirstName, ' ', nm.LastName) as MemberName,
+                    nm.FirstName as FName,
+                    nm.LastName as LName,
+                    nm.Email,
+                    'Non-Member' as UserType,
+                    ea.AttendanceID,
+                    ea.AttendanceTime,
+                    f.FeedbackID,
+                    f.Rating,
+                    f.Comments,
+                    f.OverallExperience,
+                    f.KnowledgeGained,
+                    f.SubmissionDate as FeedbackDate,
+                    CASE WHEN f.FeedbackID IS NOT NULL THEN 1 ELSE 0 END as HasFeedback
+                FROM registration r
+                INNER JOIN non_member nm ON r.non_MemberID = nm.non_memberID
+                INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+                WHERE r.EventID = ?
+                
+                ORDER BY FName ASC, LName ASC
+            ");
+            $stmt->execute([$eventId, $eventId]);
+        }
+        
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         echo json_encode([

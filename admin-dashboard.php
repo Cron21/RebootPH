@@ -852,18 +852,26 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                             <!-- Event Selection and QR Button -->
                             <div class="row mb-4">
-                                <div class="col-md-8">
+                                <div class="col-md-6">
                                     <label for="attendanceEventSelect" class="form-label">Select Ongoing Event</label>
                                     <select id="attendanceEventSelect" class="form-select"
                                         onchange="loadEventAttendanceMembers()">
                                         <option value="">-- Choose an Event --</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">&nbsp;</label>
                                     <button type="button" class="btn btn-success w-100 d-none" id="showQRButton" onclick="showOrganizerQRCode()">
                                         <i class="bi bi-qr-code"></i> Show Attendance QR
                                     </button>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="btn-group w-100" role="group" id="attendanceFilterGroup">
+                                        <button type="button" class="btn btn-outline-primary active" onclick="setAttendanceFilter('all')" data-filter="all">All</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="setAttendanceFilter('members')" data-filter="members">Members</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="setAttendanceFilter('non-members')" data-filter="non-members">Non-Members</button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -901,16 +909,17 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Member Name</th>
+                                            <th>Name</th>
                                             <th>Email</th>
+                                            <th>Type</th>
                                             <th>Attendance Status</th>
                                             <th>Check-in Time</th>
                                         </tr>
                                     </thead>
                                     <tbody id="attendanceMembersTableBody">
                                         <tr>
-                                            <td colspan="5" class="text-center text-muted py-4">
-                                                Select an event to view registered members
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                Select an event to view registered attendees
                                             </td>
                                         </tr>
                                     </tbody>
@@ -928,15 +937,23 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                             <!-- Event Selection -->
                             <div class="row mb-4">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="feedbackEventSelect" class="form-label">Select Event</label>
                                     <select id="feedbackEventSelect" class="form-select"
                                         onchange="loadFeedbackMembers()">
                                         <option value="">-- Choose an Event --</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="alert alert-info mt-4" id="feedbackStats" style="display: none;">
+                                <div class="col-md-4">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="btn-group w-100" role="group" id="feedbackFilterGroup">
+                                        <button type="button" class="btn btn-outline-primary active" onclick="setFeedbackFilter('all')" data-filter="all">All</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="setFeedbackFilter('members')" data-filter="members">Members</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="setFeedbackFilter('non-members')" data-filter="non-members">Non-Members</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="alert alert-info mt-3" id="feedbackStats" style="display: none;">
                                         <strong id="feedbackStatsText"></strong>
                                         <div id="feedbackAverageRating" class="mt-2" style="display: none;">
                                             <strong>Average Rating:</strong>
@@ -953,8 +970,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Member Name</th>
+                                            <th>Name</th>
                                             <th>Email</th>
+                                            <th>Type</th>
                                             <th>Attendance Time</th>
                                             <th>Feedback Status</th>
                                             <th>Actions</th>
@@ -962,8 +980,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     </thead>
                                     <tbody id="feedbackMembersTableBody">
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted py-4">
-                                                Select an event to view registered members
+                                            <td colspan="7" class="text-center text-muted py-4">
+                                                Select an event to view attendees
                                             </td>
                                         </tr>
                                     </tbody>
@@ -9985,20 +10003,21 @@ if ($_SESSION['role'] === 'Member Staff') {
             async function loadFeedbackMembers() {
                 const eventId = document.getElementById('feedbackEventSelect').value;
                 const tbody = document.getElementById('feedbackMembersTableBody');
+                const filter = document.querySelector('#feedbackFilterGroup .btn.active')?.dataset.filter || 'all';
 
                 if (!eventId) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Select an event to view registered members</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Select an event to view attendees</td></tr>';
                     document.getElementById('feedbackStats').style.display = 'none';
                     return;
                 }
 
                 try {
-                    const response = await fetch(`api/get-admin-feedback.php?action=members&eventId=${eventId}`);
+                    const response = await fetch(`api/get-admin-feedback.php?action=members&eventId=${eventId}&filter=${filter}`);
                     const result = await response.json();
 
                     if (result.success) {
                         if (result.count === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No members registered for this event</td></tr>';
+                            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No attendees with feedback data for this event</td></tr>';
                             document.getElementById('feedbackStats').style.display = 'none';
                             return;
                         }
@@ -10022,12 +10041,14 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 : `<button class="btn btn-sm btn-primary" onclick="requestFeedback(${eventId}, '', ${member.AttendanceID})">Provide Feedback</button>`;
 
                             const attendanceDate = new Date(member.AttendanceTime).toLocaleString();
+                            const userType = member.UserType || 'Member';
 
                             return `
                             <tr>
                                 <td>${index + 1}</td>
                                 <td>${member.FName} ${member.LName}</td>
                                 <td>${member.Email}</td>
+                                <td><span class="badge bg-info">${userType}</span></td>
                                 <td>${attendanceDate}</td>
                                 <td>${feedbackBadge}</td>
                                 <td>${actions}</td>
@@ -10035,12 +10056,23 @@ if ($_SESSION['role'] === 'Member Staff') {
                         `;
                         }).join('');
                     } else {
-                        alert('Error loading members: ' + result.message);
+                        alert('Error loading attendees: ' + result.message);
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Failed to load members');
+                    alert('Failed to load attendees');
                 }
+            }
+
+            function setFeedbackFilter(filter) {
+                // Update button states
+                document.querySelectorAll('#feedbackFilterGroup .btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`#feedbackFilterGroup [data-filter="${filter}"]`).classList.add('active');
+                
+                // Reload data with new filter
+                loadFeedbackMembers();
             }
 
             // View feedback for a member
@@ -10795,13 +10827,14 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const showQRBtn = document.getElementById('showQRButton');
                     const tbody = document.getElementById('attendanceMembersTableBody');
                     const statsRow = document.getElementById('attendanceStatsRow');
+                    const filter = document.querySelector('#attendanceFilterGroup .btn.active')?.dataset.filter || 'all';
 
                     // Reset if no event selected
                     if (!eventId) {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
-                                    Select an event to view registered members
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    Select an event to view registered attendees
                                 </td>
                             </tr>
                         `;
@@ -10811,10 +10844,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                         return;
                     }
 
-                    console.log('Loading members for event ID:', eventId);
+                    console.log('Loading attendees for event ID:', eventId, 'Filter:', filter);
                     
-                    // Fetch members for the selected event
-                    const response = await fetch(`api/manage-attendance.php?action=getEventAttendance&eventId=${eventId}`, {
+                    // Fetch attendees for the selected event
+                    const response = await fetch(`api/manage-attendance.php?action=getEventAttendance&eventId=${eventId}&filter=${filter}`, {
                         method: 'GET',
                         credentials: 'include',
                         headers: {
@@ -10862,12 +10895,14 @@ if ($_SESSION['role'] === 'Member Staff') {
                             const checkInTime = attendee.AttendanceTime 
                                 ? new Date(attendee.AttendanceTime).toLocaleString() 
                                 : '-';
+                            const userType = attendee.UserType || 'Member';
                             
                             return `
                                 <tr>
                                     <td>${index + 1}</td>
                                     <td>${attendee.FName} ${attendee.LName}</td>
                                     <td>${attendee.ApplicantEmail}</td>
+                                    <td><span class="badge bg-info">${userType}</span></td>
                                     <td>${statusBadge}</td>
                                     <td>${checkInTime}</td>
                                 </tr>
@@ -10879,8 +10914,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     } else {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
-                                    No registered members for this event yet
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No registered attendees for this event yet
                                 </td>
                             </tr>
                         `;
@@ -10889,7 +10924,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     console.error('Error loading event attendance:', error);
                     document.getElementById('attendanceMembersTableBody').innerHTML = `
                         <tr>
-                            <td colspan="5" class="text-center text-danger py-4">
+                            <td colspan="6" class="text-center text-danger py-4">
                                 <strong>Error:</strong> ${error.message}
                             </td>
                         </tr>
@@ -10897,6 +10932,17 @@ if ($_SESSION['role'] === 'Member Staff') {
                     document.getElementById('attendanceStatsRow').style.display = 'none';
                     document.getElementById('showQRButton').classList.add('d-none');
                 }
+            }
+
+            function setAttendanceFilter(filter) {
+                // Update button states
+                document.querySelectorAll('#attendanceFilterGroup .btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`#attendanceFilterGroup [data-filter="${filter}"]`).classList.add('active');
+                
+                // Reload data with new filter
+                loadEventAttendanceMembers();
             }
 
             // Initialize attendance management on page load

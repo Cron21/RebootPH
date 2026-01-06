@@ -692,6 +692,7 @@ function getEventAttendance() {
     // Accept eventId from GET or POST
     $eventId = $_GET['eventId'] ?? $_POST['eventId'] ?? null;
     $memberId = $_GET['memberId'] ?? $_POST['memberId'] ?? null;
+    $filter = $_GET['filter'] ?? 'all'; // 'all', 'members', or 'non-members'
     
     if (!$eventId) {
         http_response_code(400);
@@ -724,27 +725,95 @@ function getEventAttendance() {
             
             $stmt->execute([$eventId, $memberId]);
         } else {
-            // Get all registered members for this event with attendance status (admin view)
-            $stmt = $conn->prepare("
-                SELECT 
-                    r.RegistrationID,
-                    r.MemberID,
-                    r.RegistrationDate,
-                    a.FName,
-                    a.LName,
-                    a.ApplicantEmail,
-                    ea.AttendanceID,
-                    ea.AttendanceTime,
-                    ea.ScanType
-                FROM registration r
-                JOIN member m ON r.MemberID = m.MemberID
-                JOIN application a ON m.ApplicationID = a.ApplicationID
-                LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-                WHERE r.EventID = ?
-                ORDER BY a.LName ASC, a.FName ASC
-            ");
-            
-            $stmt->execute([$eventId]);
+            // Get all registered (members + non-members) for this event with attendance status (admin view)
+            // Using UNION to combine members and non-members
+            if ($filter === 'members') {
+                $stmt = $conn->prepare("
+                    SELECT 
+                        r.RegistrationID,
+                        r.MemberID,
+                        r.non_MemberID,
+                        r.RegistrationDate,
+                        a.FName,
+                        a.LName,
+                        a.ApplicantEmail,
+                        'Member' as UserType,
+                        ea.AttendanceID,
+                        ea.AttendanceTime,
+                        ea.ScanType
+                    FROM registration r
+                    JOIN member m ON r.MemberID = m.MemberID
+                    JOIN application a ON m.ApplicationID = a.ApplicationID
+                    LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                    WHERE r.EventID = ? AND r.MemberID IS NOT NULL
+                    ORDER BY a.LName ASC, a.FName ASC
+                ");
+                $stmt->execute([$eventId]);
+            } elseif ($filter === 'non-members') {
+                $stmt = $conn->prepare("
+                    SELECT 
+                        r.RegistrationID,
+                        r.MemberID,
+                        r.non_MemberID,
+                        r.RegistrationDate,
+                        nm.FirstName as FName,
+                        nm.LastName as LName,
+                        nm.Email as ApplicantEmail,
+                        'Non-Member' as UserType,
+                        ea.AttendanceID,
+                        ea.AttendanceTime,
+                        ea.ScanType
+                    FROM registration r
+                    JOIN non_member nm ON r.non_MemberID = nm.non_memberID
+                    LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                    WHERE r.EventID = ? AND r.non_MemberID IS NOT NULL
+                    ORDER BY nm.LastName ASC, nm.FirstName ASC
+                ");
+                $stmt->execute([$eventId]);
+            } else {
+                // 'all' - combine both members and non-members
+                $stmt = $conn->prepare("
+                    SELECT 
+                        r.RegistrationID,
+                        r.MemberID,
+                        r.non_MemberID,
+                        r.RegistrationDate,
+                        a.FName,
+                        a.LName,
+                        a.ApplicantEmail,
+                        'Member' as UserType,
+                        ea.AttendanceID,
+                        ea.AttendanceTime,
+                        ea.ScanType
+                    FROM registration r
+                    JOIN member m ON r.MemberID = m.MemberID
+                    JOIN application a ON m.ApplicationID = a.ApplicationID
+                    LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                    WHERE r.EventID = ? AND r.MemberID IS NOT NULL
+                    
+                    UNION ALL
+                    
+                    SELECT 
+                        r.RegistrationID,
+                        r.MemberID,
+                        r.non_MemberID,
+                        r.RegistrationDate,
+                        nm.FirstName as FName,
+                        nm.LastName as LName,
+                        nm.Email as ApplicantEmail,
+                        'Non-Member' as UserType,
+                        ea.AttendanceID,
+                        ea.AttendanceTime,
+                        ea.ScanType
+                    FROM registration r
+                    JOIN non_member nm ON r.non_MemberID = nm.non_memberID
+                    LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+                    WHERE r.EventID = ? AND r.non_MemberID IS NOT NULL
+                    
+                    ORDER BY LName ASC, FName ASC
+                ");
+                $stmt->execute([$eventId, $eventId]);
+            }
         }
         
         $attendees = $stmt->fetchAll(PDO::FETCH_ASSOC);
