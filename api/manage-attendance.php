@@ -756,8 +756,8 @@ function getEventAttendance() {
                         r.MemberID,
                         r.non_MemberID,
                         r.RegistrationDate,
-                        nm.FirstName as FName,
-                        nm.LastName as LName,
+                        nm.Fname as FName,
+                        nm.Lname as LName,
                         nm.Email as ApplicantEmail,
                         'Non-Member' as UserType,
                         ea.AttendanceID,
@@ -767,7 +767,7 @@ function getEventAttendance() {
                     JOIN non_member nm ON r.non_MemberID = nm.non_memberID
                     LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
                     WHERE r.EventID = ? AND r.non_MemberID IS NOT NULL
-                    ORDER BY nm.LastName ASC, nm.FirstName ASC
+                    ORDER BY nm.Lname ASC, nm.Fname ASC
                 ");
                 $stmt->execute([$eventId]);
             } else {
@@ -798,8 +798,8 @@ function getEventAttendance() {
                         r.MemberID,
                         r.non_MemberID,
                         r.RegistrationDate,
-                        nm.FirstName as FName,
-                        nm.LastName as LName,
+                        nm.Fname as FName,
+                        nm.Lname as LName,
                         nm.Email as ApplicantEmail,
                         'Non-Member' as UserType,
                         ea.AttendanceID,

@@ -88,9 +88,9 @@ try {
                 SELECT
                     NULL as MemberID,
                     nm.non_memberID as non_MemberID,
-                    CONCAT(nm.FirstName, ' ', nm.LastName) as MemberName,
-                    nm.FirstName as FName,
-                    nm.LastName as LName,
+                    CONCAT(nm.Fname, ' ', nm.Lname) as MemberName,
+                    nm.Fname as FName,
+                    nm.Lname as LName,
                     nm.Email,
                     'Non-Member' as UserType,
                     ea.AttendanceID,
@@ -107,7 +107,7 @@ try {
                 INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
                 LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
                 WHERE r.EventID = ?
-                ORDER BY nm.FirstName ASC, nm.LastName ASC
+                ORDER BY nm.Fname ASC, nm.Lname ASC
             ");
             $stmt->execute([$eventId]);
         } else {
@@ -142,9 +142,9 @@ try {
                 SELECT
                     NULL as MemberID,
                     nm.non_memberID as non_MemberID,
-                    CONCAT(nm.FirstName, ' ', nm.LastName) as MemberName,
-                    nm.FirstName as FName,
-                    nm.LastName as LName,
+                    CONCAT(nm.Fname, ' ', nm.Lname) as MemberName,
+                    nm.Fname as FName,
+                    nm.Lname as LName,
                     nm.Email,
                     'Non-Member' as UserType,
                     ea.AttendanceID,
