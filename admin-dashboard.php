@@ -9861,7 +9861,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                             return `
                             <tr>
                                 <td>${index + 1}</td>
-                                <td>${member.FirstName} ${member.LastName}</td>
+                                <td>${member.FName} ${member.LName}</td>
                                 <td>${member.Email}</td>
                                 <td>${attendanceDate}</td>
                                 <td>${feedbackBadge}</td>
