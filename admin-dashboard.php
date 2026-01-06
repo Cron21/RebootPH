@@ -9890,7 +9890,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                         // Populate modal
                         document.getElementById('feedbackEventName').textContent = feedback.EventTitle;
                         document.getElementById('feedbackEventDate').textContent = new Date(feedback.ProposedDate).toLocaleDateString();
-                        document.getElementById('feedbackMemberName').textContent = feedback.IsAnonymous ? 'Anonymous Member' : `${feedback.FirstName} ${feedback.LastName}`;
+                        document.getElementById('feedbackMemberName').textContent = feedback.IsAnonymous ? 'Anonymous Member' : `${feedback.FName} ${feedback.LName}`;
                         document.getElementById('feedbackMemberEmail').textContent = feedback.IsAnonymous ? 'N/A' : feedback.Email;
 
                         // Display rating as stars
