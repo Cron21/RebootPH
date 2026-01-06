@@ -7771,7 +7771,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     }
 
                     tbody.innerHTML = data.benefits.map(b => {
-                        const id = b.BenefitID;
+                        const id = b.BenefitsID;
                         const title = escapeHtml(String(b.Title || ''));
                         const rawDesc = String(b.Description || '');
                         const descPreview = escapeHtml(rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc);
@@ -7809,11 +7809,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                 try {
                     const res = await fetch(`api/get-member-benefits.php`);
                     const data = await res.json();
-                    const b = (data.benefits || []).find(x => parseInt(x.BenefitID) === parseInt(id));
+                    const b = (data.benefits || []).find(x => parseInt(x.BenefitsID) === parseInt(id));
                     if (!b) { alert('Benefit not found'); return; }
 
                     document.getElementById('memberBenefitModalTitle').textContent = 'Edit Benefit';
-                    document.getElementById('benefitId').value = b.BenefitID;
+                    document.getElementById('benefitId').value = b.BenefitsID;
                     document.getElementById('benefitTitle').value = b.Title || '';
                     document.getElementById('benefitDescription').value = b.Description || '';
                     document.getElementById('benefitIsActive').checked = (b.isActive == 1);
