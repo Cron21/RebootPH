@@ -570,8 +570,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" id="approveBtn" class="btn btn-success" onclick="approveApplication()">Approve</button>
+                                    <button type="button" class="btn btn-danger" onclick="rejectApplication()">Reject</button>
                                 </div>
                             </div>
                         </div>
@@ -2606,22 +2607,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                         <div class="mb-3">
                             <label class="form-label">Description</label>
                             <textarea id="benefitDescription" class="form-control" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Icon</label>
-                            <div class="input-group mb-2">
-                                <input type="text" id="benefitIconClass" class="form-control" placeholder="Selected icon class" readonly>
-                                <button type="button" class="btn btn-outline-secondary" onclick="openBenefitIconPicker()">
-                                    <i class="bi bi-palette"></i> Choose Icon
-                                </button>
-                            </div>
-                            <div id="benefitIconPreview" style="display: inline-block; font-size: 32px; margin-top: 8px;">
-                                <i class="bi bi-square"></i>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Order</label>
-                            <input type="number" id="benefitOrder" class="form-control" value="0">
                         </div>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" id="benefitIsActive">
@@ -7792,8 +7777,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                         const title = escapeHtml(String(b.Title || ''));
                         const rawDesc = String(b.Description || '');
                         const descPreview = escapeHtml(rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc);
-                        const iconClass = escapeHtml(String(b.IconClass || ''));
-                        const order = parseInt(b.Order) || 0;
                         const activeBadge = (b.isActive == 1) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>';
                         const titleArg = JSON.stringify(String(b.Title || ''));
 
@@ -7801,15 +7784,10 @@ if ($_SESSION['role'] === 'Member Staff') {
                             <tr>
                                 <td>${title}</td>
                                 <td>${descPreview}</td>
-                                <td>${iconClass}</td>
-                                <td class="text-center">${order}</td>
                                 <td class="text-center">${activeBadge}</td>
                                 <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-outline-primary" onclick="editMemberBenefit(${id})">Edit</button>
-                                        <button class="btn btn-outline-danger" onclick="deleteMemberBenefit(${id}, ${titleArg})">Delete</button>
-                                        <button class="btn btn-outline-secondary" onclick="setActiveMemberBenefit(${id}, ${titleArg})">Set Active</button>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary me-1" onclick="editMemberBenefit(${id})"><i class="bi bi-pencil"></i></button>
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="deleteMemberBenefit(${id}, ${titleArg})"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>
                         `;
@@ -7824,10 +7802,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('memberBenefitModalTitle').textContent = 'Add Benefit';
                 document.getElementById('memberBenefitForm').reset();
                 document.getElementById('benefitId').value = '';
-                document.getElementById('benefitIconClass').value = '';
-                document.getElementById('benefitIconPreview').innerHTML = '<i class="bi bi-square"></i>';
                 document.getElementById('benefitIsActive').checked = false;
-                document.getElementById('benefitOrder').value = '0';
                 new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
             }
 
@@ -7842,10 +7817,6 @@ if ($_SESSION['role'] === 'Member Staff') {
                     document.getElementById('benefitId').value = b.BenefitID;
                     document.getElementById('benefitTitle').value = b.Title || '';
                     document.getElementById('benefitDescription').value = b.Description || '';
-                    document.getElementById('benefitIconClass').value = b.IconClass || '';
-                    const iconClass = b.IconClass || 'bi-square';
-                    document.getElementById('benefitIconPreview').innerHTML = `<i class="bi ${iconClass}"></i>`;
-                    document.getElementById('benefitOrder').value = parseInt(b.Order) || 0;
                     document.getElementById('benefitIsActive').checked = (b.isActive == 1);
                     new bootstrap.Modal(document.getElementById('memberBenefitModal')).show();
                 } catch (e) { console.error(e); alert('Error loading benefit'); }
@@ -7855,14 +7826,12 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const id = document.getElementById('benefitId').value.trim();
                 const title = document.getElementById('benefitTitle').value.trim();
                 const description = document.getElementById('benefitDescription').value.trim();
-                const iconClass = document.getElementById('benefitIconClass').value.trim();
-                const order = parseInt(document.getElementById('benefitOrder').value || 0);
                 const isActive = document.getElementById('benefitIsActive').checked ? 1 : 0;
 
                 if (!title) { alert('Title required'); return; }
 
                 const action = id ? 'update' : 'create';
-                const payload = { action, title, description, iconClass, order, isActive };
+                const payload = { action, title, description, isActive };
                 if (id) payload.id = parseInt(id);
 
                 try {
@@ -7896,7 +7865,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const res = await fetch('api/manage-member-benefits.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'delete', id: id })
+                        credentials: 'include',
+                        body: JSON.stringify({ action: 'delete', id: parseInt(id) })
                     });
                     const data = await res.json();
                     if (data.success) {
@@ -7911,7 +7881,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const res = await fetch('api/manage-member-benefits.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'setActive', id: id })
+                        credentials: 'include',
+                        body: JSON.stringify({ action: 'setActive', id: parseInt(id) })
                     });
                     const data = await res.json();
                     if (data.success) {
