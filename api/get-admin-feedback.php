@@ -54,10 +54,10 @@ try {
         $stmt = $conn->prepare("
             SELECT
                 m.MemberID,
-                CONCAT(m.FirstName, ' ', m.LastName) as MemberName,
-                m.FirstName,
-                m.LastName,
-                m.Email,
+                CONCAT(app.FName, ' ', app.LName) as MemberName,
+                app.FName,
+                app.LName,
+                app.ApplicantEmail as Email,
                 ea.AttendanceID,
                 ea.AttendanceTime,
                 f.FeedbackID,
@@ -69,10 +69,11 @@ try {
                 CASE WHEN f.FeedbackID IS NOT NULL THEN 1 ELSE 0 END as HasFeedback
             FROM registration r
             INNER JOIN member m ON r.MemberID = m.MemberID
+            INNER JOIN application app ON m.ApplicationID = app.ApplicationID
             INNER JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
             WHERE r.EventID = ?
-            ORDER BY m.FirstName ASC, m.LastName ASC
+            ORDER BY app.FName ASC, app.LName ASC
         ");
         $stmt->execute([$eventId]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -99,10 +100,10 @@ try {
                 f.IsAnonymous,
                 f.SubmissionDate,
                 m.MemberID,
-                CONCAT(m.FirstName, ' ', m.LastName) as MemberName,
-                m.FirstName,
-                m.LastName,
-                m.Email,
+                CONCAT(app.FName, ' ', app.LName) as MemberName,
+                app.FName,
+                app.LName,
+                app.ApplicantEmail as Email,
                 p.Title as EventTitle,
                 p.ProposedDate,
                 e.EventID
@@ -110,6 +111,7 @@ try {
             JOIN eventattendance ea ON f.AttendanceID = ea.AttendanceID
             JOIN registration r ON ea.RegistrationID = r.RegistrationID
             JOIN member m ON r.MemberID = m.MemberID
+            JOIN application app ON m.ApplicationID = app.ApplicationID
             JOIN event e ON r.EventID = e.EventID
             JOIN proposal p ON e.ProposalID = p.ProposalID
             WHERE f.FeedbackID = ?
