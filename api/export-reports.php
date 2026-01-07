@@ -67,6 +67,7 @@ function generateReportHTML($conn, $reportType, $startDate, $endDate) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RebootPH Report - ' . ucfirst($reportType) . '</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; }
@@ -174,6 +175,22 @@ function generateReportHTML($conn, $reportType, $startDate, $endDate) {
             text-align: center; 
             font-size: 9px; 
             color: #999;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
         }
         @media print {
             body {
@@ -430,6 +447,7 @@ function generateTrendsHTML($conn, $startDate, $endDate) {
     $stmt = $conn->prepare("
         SELECT 
             DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as dateFormatted,
+            DATE_FORMAT(p.ProposedDate, '%Y-%m-%d') as dateRaw,
             COUNT(DISTINCT e.EventID) as events,
             COUNT(DISTINCT r.RegistrationID) as registrations,
             COUNT(DISTINCT ea.AttendanceID) as attendees,
@@ -451,7 +469,82 @@ function generateTrendsHTML($conn, $startDate, $endDate) {
     $stmt->execute([$startDate, $endDate]);
     $trends = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    $html = '<table>';
+    // Prepare chart data
+    $chartLabels = [];
+    $chartEvents = [];
+    $chartRegistrations = [];
+    $chartAttendees = [];
+    
+    foreach ($trends as $trend) {
+        $chartLabels[] = $trend['dateFormatted'];
+        $chartEvents[] = $trend['events'];
+        $chartRegistrations[] = $trend['registrations'];
+        $chartAttendees[] = $trend['attendees'];
+    }
+    
+    $html = '<div class="chart-container">';
+    $html .= '<div class="chart-title">Event Trends Over Time</div>';
+    $html .= '<canvas id="trendsChart"></canvas>';
+    $html .= '</div>';
+    
+    // Add chart script
+    $html .= '<script>';
+    $html .= 'document.addEventListener("DOMContentLoaded", function() {';
+    $html .= 'if (document.getElementById("trendsChart")) {';
+    $html .= 'const ctx = document.getElementById("trendsChart").getContext("2d");';
+    $html .= 'new Chart(ctx, {';
+    $html .= 'type: "line",';
+    $html .= 'data: {';
+    $html .= 'labels: ' . json_encode($chartLabels) . ',';
+    $html .= 'datasets: [';
+    $html .= '{';
+    $html .= 'label: "Events",';
+    $html .= 'data: ' . json_encode($chartEvents) . ',';
+    $html .= 'borderColor: "#007bff",';
+    $html .= 'backgroundColor: "rgba(0, 123, 255, 0.1)",';
+    $html .= 'tension: 0.4,';
+    $html .= 'fill: true,';
+    $html .= 'pointRadius: 5,';
+    $html .= 'pointHoverRadius: 7';
+    $html .= '},';
+    $html .= '{';
+    $html .= 'label: "Registrations",';
+    $html .= 'data: ' . json_encode($chartRegistrations) . ',';
+    $html .= 'borderColor: "#28a745",';
+    $html .= 'backgroundColor: "rgba(40, 167, 69, 0.1)",';
+    $html .= 'tension: 0.4,';
+    $html .= 'fill: true,';
+    $html .= 'pointRadius: 5,';
+    $html .= 'pointHoverRadius: 7';
+    $html .= '},';
+    $html .= '{';
+    $html .= 'label: "Attendees",';
+    $html .= 'data: ' . json_encode($chartAttendees) . ',';
+    $html .= 'borderColor: "#ffc107",';
+    $html .= 'backgroundColor: "rgba(255, 193, 7, 0.1)",';
+    $html .= 'tension: 0.4,';
+    $html .= 'fill: true,';
+    $html .= 'pointRadius: 5,';
+    $html .= 'pointHoverRadius: 7';
+    $html .= '}';
+    $html .= ']';
+    $html .= '},';
+    $html .= 'options: {';
+    $html .= 'responsive: true,';
+    $html .= 'maintainAspectRatio: false,';
+    $html .= 'plugins: {';
+    $html .= 'legend: { display: true, position: "top" }';
+    $html .= '},';
+    $html .= 'scales: {';
+    $html .= 'y: { beginAtZero: true, ticks: { stepSize: 1 } }';
+    $html .= '}';
+    $html .= '}';
+    $html .= '});';
+    $html .= '}';
+    $html .= '});';
+    $html .= '</script>';
+    
+    $html .= '<table>';
     $html .= '<thead><tr><th>Date</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead>';
     $html .= '<tbody>';
     
