@@ -1442,22 +1442,12 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                             <!-- Charts Row -->
                             <div class="row g-4 mb-4">
-                                <div class="col-md-8">
+                                <div class="col-md-12">
                                     <div class="card">
                                         <div class="card-body">
                                             <h5 class="card-title">Event Participation Trends</h5>
                                             <div id="trendsChartContainer" class="text-center text-muted py-5">
                                                 <small>Loading trends data...</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="card-title">Participation Stats</h5>
-                                            <div id="statsChartContainer" class="text-center text-muted py-5">
-                                                <small>Loading statistics...</small>
                                             </div>
                                         </div>
                                     </div>
@@ -9504,7 +9494,7 @@ if ($_SESSION['role'] === 'Member Staff') {
             `).join('');
             }
 
-            // Display trends chart (simple ASCII or HTML based)
+            // Display trends chart as line graph
             function displayTrendsChart(trends) {
                 const container = document.getElementById('trendsChartContainer');
 
@@ -9513,25 +9503,86 @@ if ($_SESSION['role'] === 'Member Staff') {
                     return;
                 }
 
-                // Create a simple chart visualization
-                let html = '<div class="row g-2">';
-                const maxParticipants = Math.max(...trends.map(t => parseInt(t.participants) || 0));
+                // Calculate max values for scaling
+                const maxAttendees = Math.max(...trends.map(t => parseInt(t.attendees) || 0), 1);
+                const maxEvents = Math.max(...trends.map(t => parseInt(t.events) || 0), 1);
 
-                trends.forEach(trend => {
-                    const height = (parseInt(trend.participants) / maxParticipants * 200) || 20;
-                    html += `
-                    <div class="col text-center">
-                        <div style="display: inline-block; background: linear-gradient(to top, #007bff, #0056b3); width: 30px; height: ${height}px; border-radius: 4px;"></div>
-                        <div style="font-size: 11px; margin-top: 5px;">
-                            <strong>${trend.month}</strong><br>
-                            ${trend.participants} participants
-                        </div>
-                    </div>
-                `;
+                // Create SVG line graph
+                const width = Math.max(800, trends.length * 100);
+                const height = 300;
+                const padding = 40;
+                const graphWidth = width - (padding * 2);
+                const graphHeight = height - (padding * 2);
+                const pointSpacing = graphWidth / (trends.length - 1 || 1);
+
+                // Create SVG
+                let svg = `<svg width="${width}" height="${height}" style="border: 1px solid #ddd; border-radius: 4px;">`;
+                
+                // Y-axis label
+                svg += `<text x="15" y="20" font-size="12" fill="#666">Attendees</text>`;
+                
+                // Y-axis
+                svg += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#999" stroke-width="1"/>`;
+                
+                // X-axis
+                svg += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#999" stroke-width="1"/>`;
+
+                // Y-axis scale lines and labels
+                for (let i = 0; i <= 5; i++) {
+                    const y = padding + (graphHeight / 5) * i;
+                    const value = Math.floor(maxAttendees * (5 - i) / 5);
+                    svg += `<line x1="${padding - 5}" y1="${y}" x2="${padding}" y2="${y}" stroke="#999" stroke-width="1"/>`;
+                    svg += `<text x="5" y="${y + 4}" font-size="11" fill="#666">${value}</text>`;
+                }
+
+                // Plot lines and points
+                let linePath = `M ${padding} ${height - padding - (parseInt(trends[0].attendees || 0) / maxAttendees * graphHeight)}`;
+                
+                trends.forEach((trend, index) => {
+                    const x = padding + (index * pointSpacing);
+                    const attendeeValue = parseInt(trend.attendees) || 0;
+                    const y = height - padding - (attendeeValue / maxAttendees * graphHeight);
+                    
+                    if (index > 0) {
+                        linePath += ` L ${x} ${y}`;
+                    }
                 });
 
-                html += '</div>';
-                container.innerHTML = html;
+                // Draw line
+                svg += `<polyline points="${linePath.replace(/^M /, '').replace(/ L /g, ',')}" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+                // Plot points and labels
+                trends.forEach((trend, index) => {
+                    const x = padding + (index * pointSpacing);
+                    const attendeeValue = parseInt(trend.attendees) || 0;
+                    const y = height - padding - (attendeeValue / maxAttendees * graphHeight);
+                    
+                    // Point
+                    svg += `<circle cx="${x}" cy="${y}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>`;
+                    
+                    // X-axis label (month)
+                    svg += `<text x="${x}" y="${height - padding + 20}" font-size="11" fill="#666" text-anchor="middle">${trend.monthName || trend.month}</text>`;
+                });
+
+                svg += `</svg>`;
+
+                // Create data table below graph
+                let table = '<div style="margin-top: 20px; overflow-x: auto;"><table class="table table-sm table-bordered"><thead><tr><th>Month</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead><tbody>';
+                
+                trends.forEach(trend => {
+                    table += `<tr>
+                        <td><strong>${trend.monthName || trend.month}</strong></td>
+                        <td>${trend.events || 0}</td>
+                        <td>${trend.registrations || 0}</td>
+                        <td>${trend.attendees || 0}</td>
+                        <td>${trend.attendanceRate || 0}%</td>
+                        <td>${parseFloat(trend.avgFeedbackRating || 0).toFixed(2)}/5.0</td>
+                    </tr>`;
+                });
+                
+                table += '</tbody></table></div>';
+
+                container.innerHTML = svg + table;
             }
 
             // Export reports
