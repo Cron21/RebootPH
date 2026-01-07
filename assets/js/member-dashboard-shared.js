@@ -115,7 +115,7 @@ async function loadMemberProfile() {
                     }
 
                     idPreview.innerHTML = `
-                        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(6px, 3%, 12px) clamp(10px, 3%, 16px) !important; box-sizing: border-box !important; flex: 0 0 auto;">
+                        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(6px, 3%, 12px) clamp(10px, 3%, 16px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important;">
                             <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(35px, 12%, 50px); height: clamp(35px, 12%, 50px); padding: clamp(3px, 2%, 4px);">
                                 <img src="assets/image/reboot2-logo.png" style="width: 80%; height: auto;" alt="Logo">
                             </div>
@@ -125,12 +125,12 @@ async function loadMemberProfile() {
                             </div>
                         </div>
 
-                        <div style="display: flex !important; flex-direction: row !important; align-items: flex-start !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; flex: 1; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); min-height: 0;">
+                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; flex: 1 !important; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); width: 100% !important; min-height: 120px !important;">
                             <div style="flex: 0 0 auto; display: flex !important; justify-content: center !important; align-items: center !important;">
                                 ${photoHtml}
                             </div>
 
-                            <div style="flex: 1 !important; text-align: left !important; overflow: hidden;">
+                            <div style="flex: 1 !important; text-align: left !important; overflow: visible !important; min-width: 0;">
                                 <div style="margin-bottom: clamp(2px, 1%, 4px);">
                                     <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Name:</small>
                                     <span style="font-weight: bold; font-size: clamp(10px, 2.2vw, 12px); color: #333 !important; display: block; line-height: 1;">${window.currentMemberName}</span>
@@ -145,7 +145,7 @@ async function loadMemberProfile() {
                             </div>
                         </div>
 
-                        <div style="display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); flex: 0 0 auto; border-top: 1px solid #f0f0f0;">
+                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important; border-top: 1px solid #f0f0f0;">
                             <div style="font-size: clamp(7px, 1.4vw, 9px); color: #035996 !important; text-align: left !important;">
                                 <p style="margin: 0 !important; line-height: 1.2 !important;">
                                     <strong style="display: block; font-size: clamp(6px, 1.2vw, 8px); margin: 0;">Member Since:</strong>

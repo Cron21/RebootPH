@@ -165,9 +165,11 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             align-items: stretch;
             justify-content: flex-start;
             font-size: clamp(8px, 2vw, 16px);
-            padding: 0;
-            box-sizing: border-box;
+            padding: 0 !important;
+            box-sizing: border-box !important;
             overflow: hidden;
+            height: auto;
+            min-height: 300px;
         }
 
         .id-card img {
