@@ -99,72 +99,59 @@ async function loadMemberProfile() {
                 // Update ID preview logic
                 const idPreview = document.getElementById('idPreview');
                 if (idPreview) {
-                    // 1. FORCE LANDSCAPE RESET
-                    Object.assign(idPreview.style, {
-                        width: "500px",
-                        height: "300px",
-                        maxWidth: "100%",
-                        padding: "0",
-                        position: "relative",
-                        overflow: "hidden",
-                        backgroundColor: "white",
-                        borderRadius: "20px",
-                        border: "1px solid #ddd",
-                        display: "block",
-                        margin: "0 auto",
-                        textAlign: "left" 
-                    });
+                    // Clear only the loading content, keep responsive CSS classes
+                    idPreview.innerHTML = '';
 
                     let photoHtml = '';
                     // Chine-check kung may valid na image URL ang member
                     if (currentMember.ProfileImage && currentMember.ProfileImage !== 'null' && currentMember.ProfileImage !== '') {
-                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: 125px; height: 125px; border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block;">`;
+                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; flex-shrink: 0;">`;
                     } else {
                         // HETO ANG PAGBABAGO: Default avatar ang lalabas kapag walang pic
-                        photoHtml = `<img src="assets/image/default-avatar.png" alt="Default Profile" style="width: 125px; height: 125px; border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; background: #f8f9fa;">`;
+                        photoHtml = `<img src="assets/image/default-avatar.png" alt="Default Profile" style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; background: #f8f9fa; flex-shrink: 0;">`;
                     }
 
                     idPreview.innerHTML = `
-                        <div style="background-color: #035996 !important; height: 75px; width: 100%; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: 0 20px !important; box-sizing: border-box !important;">
-                            <div style="background: white !important; border-radius: 50%; width: 55px; height: 55px; display: flex !important; align-items: center !important; justify-content: center !important; padding: 5px;">
-                                <img src="assets/image/reboot2-logo.png" style="width: 45px;" alt="Logo">
+                        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(8px, 4%, 16px) clamp(12px, 4%, 20px) !important; box-sizing: border-box !important;">
+                            <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(40px, 15%, 60px); height: clamp(40px, 15%, 60px); padding: clamp(3px, 2%, 5px);">
+                                <img src="assets/image/reboot2-logo.png" style="width: 80%; height: auto;" alt="Logo">
                             </div>
-                            <div style="text-align: right !important; color: white !important;">
-                                <h4 style="margin: 0; font-weight: bold; font-size: 1.4rem; color: white !important;">Reboot Philippines</h4>
-                                <p style="margin: 0; font-size: 0.75rem; opacity: 0.9; color: white !important; line-height: 1.1;">2804, Discovery Centre, Pasig City</p>
+                            <div style="text-align: right !important; color: white !important; flex: 1; padding-left: clamp(8px, 3%, 12px);">
+                                <h4 style="margin: 0; font-weight: bold; font-size: clamp(12px, 3vw, 16px); color: white !important; line-height: 1.2;">Reboot Philippines</h4>
+                                <p style="margin: clamp(2px, 1%, 4px) 0 0 0; font-size: clamp(7px, 1.5vw, 10px); opacity: 0.9; color: white !important; line-height: 1.1;">2804, Discovery Centre, Pasig City</p>
                             </div>
                         </div>
 
-                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; padding: 20px 25px !important; height: 150px; box-sizing: border-box !important;">
-                            <div style="flex: 0 0 130px !important; display: flex !important; justify-content: flex-start !important;">
+                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; padding: clamp(12px, 3%, 20px) !important; flex: 1; box-sizing: border-box !important; gap: clamp(8px, 3%, 15px);">
+                            <div style="flex: 0 0 auto; display: flex !important; justify-content: flex-start !important;">
                                 ${photoHtml}
                             </div>
 
-                            <div style="flex: 1 !important; padding-left: 15px !important; text-align: left !important;">
-                                <div style="margin-bottom: 5px;">
-                                    <small style="color: #666; font-size: 0.8rem; display: block;">Name:</small>
-                                    <span style="font-weight: bold; font-size: 1.4rem; color: #333 !important; display: block; line-height: 1;">${window.currentMemberName}</span>
+                            <div style="flex: 1 !important; text-align: left !important;">
+                                <div style="margin-bottom: clamp(4px, 2%, 8px);">
+                                    <small style="color: #666; font-size: clamp(7px, 1.5vw, 9px); display: block;">Name:</small>
+                                    <span style="font-weight: bold; font-size: clamp(11px, 2.5vw, 14px); color: #333 !important; display: block; line-height: 1.1;">${window.currentMemberName}</span>
                                 </div>
-                                <div style="margin-bottom: 5px;">
-                                    <small style="color: #666; font-size: 0.8rem; display: block;">Role:</small>
-                                    <span style="font-weight: bold; font-size: 1.1rem; color: #035996 !important; display: block;">${currentMember.Role || 'Member'}</span>
+                                <div style="margin-bottom: clamp(4px, 2%, 8px);">
+                                    <small style="color: #666; font-size: clamp(7px, 1.5vw, 9px); display: block;">Role:</small>
+                                    <span style="font-weight: bold; font-size: clamp(9px, 2vw, 11px); color: #035996 !important; display: block; line-height: 1.1;">${currentMember.Role || 'Member'}</span>
                                 </div>
                                 <div>
-                                    <span style="font-weight: 800; color: #035996 !important; font-size: 1.1rem;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span>
+                                    <span style="font-weight: 800; color: #035996 !important; font-size: clamp(9px, 2vw, 11px); display: block;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div style="position: absolute; bottom: 30px !important; width: 100%; padding: 0 25px !important; display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; box-sizing: border-box !important;">
-                            <div style="font-size: 0.85rem; color: #035996 !important; text-align: left !important;">
+                        <div style="display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; padding: clamp(12px, 3%, 20px) !important; box-sizing: border-box !important; gap: clamp(8px, 2%, 12px); border-top: 1px solid #f0f0f0;">
+                            <div style="font-size: clamp(8px, 1.5vw, 10px); color: #035996 !important; text-align: left !important; flex: 1;">
                                 <p style="margin: 0 !important; line-height: 1.3 !important;">
-                                    <strong style="display: block;">Member Since:</strong>
-                                    <span style="font-weight: bold;">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
+                                    <strong style="display: block; font-size: clamp(7px, 1.5vw, 9px);">Member Since:</strong>
+                                    <span style="font-weight: bold; font-size: clamp(8px, 1.5vw, 10px);">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
                                 </p>
                             </div>
-                            <div id="idPreviewQR" style="background: white !important; padding: 4px; border-radius: 5px; border: 1px solid #eee;">
+                            <div id="idPreviewQR" style="background: white !important; padding: clamp(3px, 2%, 5px); border-radius: clamp(3px, 2%, 5px); border: 1px solid #eee; flex-shrink: 0;">
                                 <img id="memberQRCode" 
-                                    style="width: 75px; height: 75px; display: block !important;">
+                                    style="width: clamp(60px, 20%, 80px); height: auto; display: block !important;">
                             </div>
                         </div>
                     `;

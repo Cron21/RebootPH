@@ -161,10 +161,11 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             max-width: 500px;
             aspect-ratio: 85 / 54;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
             font-size: clamp(8px, 2vw, 16px);
-            padding: clamp(8px, 2%, 16px);
+            padding: 0;
             box-sizing: border-box;
             overflow: hidden;
         }
