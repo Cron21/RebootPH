@@ -190,7 +190,7 @@ async function loadMemberProfile() {
                                     display: flex;
                                     align-items: center;
                                 ">
-                                    <img id="memberDetailsQRCode" src="" alt="Member QR Code" 
+                                    <img id="memberDetailsQRCode" data-member-id="${currentMember.MemberID}" src="" alt="Member QR Code" 
                                          style="
                                             width: 22%;
                                             aspect-ratio: 1;
@@ -221,21 +221,33 @@ async function loadMemberProfile() {
                         </div>
                     `;
                     
-                    // Generate QR code after DOM is updated
-                    setTimeout(() => {
+                    // Generate QR code after DOM is fully updated
+                    const generateMemberQR = () => {
                         const qrImg = document.getElementById('memberDetailsQRCode');
                         if (qrImg && currentMember.MemberID) {
                             const memberId = 'RPH-' + currentMember.MemberID.toString().padStart(7, '0');
                             const protocol = window.location.protocol;
                             const host = window.location.host;
                             const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberId);
-                            const timestamp = new Date().getTime();
-                            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(memberDetailsUrl) + '&t=' + timestamp;
+                            const timestamp = Math.random(); // Force unique requests
+                            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(memberDetailsUrl) + '&nocache=' + timestamp;
+                            
+                            // Set src directly
                             qrImg.src = qrUrl;
-                            console.log('QR Code generated for member:', memberId);
-                            console.log('Target URL:', memberDetailsUrl);
+                            qrImg.setAttribute('src', qrUrl);
+                            
+                            console.log('Generated QR for:', memberId);
+                            console.log('QR Target URL:', memberDetailsUrl);
+                            console.log('QR API URL:', qrUrl);
+                        } else {
+                            console.warn('QR img not found or no member ID');
                         }
-                    }, 200);
+                    };
+                    
+                    // Try multiple times to ensure it works
+                    setTimeout(generateMemberQR, 100);
+                    setTimeout(generateMemberQR, 300);
+                    setTimeout(generateMemberQR, 600);
                 }
             }
         }
