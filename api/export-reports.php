@@ -9,248 +9,400 @@ if (!isset($_SESSION['memberID'])) {
     die('Not authenticated');
 }
 
-$format = $_GET['format'] ?? 'csv';
+$format = $_GET['format'] ?? 'pdf';
 $reportType = $_GET['type'] ?? 'summary';
 $startDate = $_GET['startDate'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_GET['endDate'] ?? date('Y-m-d');
 
 try {
-    $filename = "report_" . $reportType . "_" . date('Y-m-d-His') . "." . $format;
+    $filename = "report_" . $reportType . "_" . date('Y-m-d-His') . ".pdf";
     
-    if ($format === 'csv') {
-        header('Content-Type: text/csv');
+    if ($format === 'pdf') {
+        // Generate HTML content for PDF
+        $htmlContent = generateReportHTML($conn, $reportType, $startDate, $endDate);
+        
+        // Set headers for PDF download
+        header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         
-        exportToCSV($conn, $reportType, $startDate, $endDate);
+        // Use built-in PHP PDF generation via HTML to PDF conversion
+        generatePDFFromHTML($htmlContent, $filename);
     }
 } catch (Exception $e) {
     http_response_code(500);
     die(json_encode(['success' => false, 'message' => $e->getMessage()]));
 }
 
-function exportToCSV($conn, $reportType, $startDate, $endDate) {
-    $output = fopen('php://output', 'w');
+function generateReportHTML($conn, $reportType, $startDate, $endDate) {
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            * { margin: 0; padding: 0; }
+            body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+            .container { width: 100%; padding: 20px; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #007bff; padding-bottom: 15px; }
+            .header h1 { color: #007bff; font-size: 24px; margin-bottom: 5px; }
+            .header p { color: #666; font-size: 10px; }
+            .info { margin-bottom: 20px; font-size: 10px; color: #666; }
+            .info-row { display: flex; justify-content: space-between; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            thead { background-color: #f8f9fa; }
+            th { padding: 10px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; }
+            td { padding: 8px; border: 1px solid #dee2e6; }
+            tbody tr:nth-child(even) { background-color: #f8f9fa; }
+            .summary-box { background-color: #e7f3ff; padding: 15px; border-left: 4px solid #007bff; margin-bottom: 20px; }
+            .summary-item { display: inline-block; margin-right: 30px; margin-bottom: 10px; }
+            .summary-value { font-size: 18px; font-weight: bold; color: #007bff; }
+            .summary-label { font-size: 10px; color: #666; }
+            .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #dee2e6; text-align: center; font-size: 9px; color: #999; }
+            .page-break { page-break-after: always; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>RebootPH Reports</h1>
+                <p>' . ucfirst($reportType) . ' Report</p>
+            </div>
+            
+            <div class="info">
+                <div class="info-row">
+                    <span>Generated: ' . date('F d, Y \a\t h:i A') . '</span>
+                    <span>Period: ' . date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)) . '</span>
+                </div>
+            </div>
+    ';
     
-    if ($reportType === 'events') {
-        fputcsv($output, ['Event Name', 'Date', 'Staff Required', 'Registered', 'Attended', 'Attendance Rate %', 'Rating']);
-        
-        $stmt = $conn->prepare("
-            SELECT 
-                p.Title,
-                DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as date,
-                p.StaffRequired,
-                COUNT(DISTINCT r.RegistrationID) as registered,
-                COUNT(DISTINCT ea.AttendanceID) as attended,
-                CASE 
-                    WHEN COUNT(DISTINCT r.RegistrationID) > 0 
-                    THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT r.RegistrationID) * 100, 1)
-                    ELSE 0
-                END as attendanceRate,
-                COALESCE(ROUND(AVG(f.Rating), 1), 0) as rating
-            FROM event e
-            LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
-            LEFT JOIN registration r ON e.EventID = r.EventID
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
-            WHERE DATE(p.ProposedDate) BETWEEN ? AND ? 
-                AND e.status = 'Completed'
-            GROUP BY e.EventID, p.Title, p.ProposedDate, p.StaffRequired
-            HAVING COUNT(DISTINCT r.RegistrationID) > 0
-            ORDER BY p.ProposedDate DESC
-        ");
-        $stmt->execute([$startDate, $endDate]);
-        
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            fputcsv($output, [
-                $row['Title'],
-                $row['date'],
-                $row['StaffRequired'],
-                $row['registered'],
-                $row['attended'],
-                $row['attendanceRate'],
-                $row['rating']
-            ]);
-        }
-    } else if ($reportType === 'members') {
-        fputcsv($output, ['Member Type', 'Total Count', 'Active', 'Inactive', 'Avg Participation %']);
-        
-        // Regular Members
-        $stmt = $conn->prepare("
-            SELECT 
-                'Regular Members' as type,
-                COUNT(DISTINCT m.MemberID) as total,
-                COUNT(DISTINCT CASE WHEN m.isActive = 1 THEN m.MemberID END) as active,
-                COUNT(DISTINCT CASE WHEN m.isActive = 0 THEN m.MemberID END) as inactive,
-                CASE 
-                    WHEN COUNT(DISTINCT m.MemberID) > 0 
-                    THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT m.MemberID) * 100, 1)
-                    ELSE 0
-                END as participation
-            FROM member m
-            LEFT JOIN registration r ON m.MemberID = r.MemberID
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            LEFT JOIN event e ON r.EventID = e.EventID
-            WHERE m.Role = 'member'
-                AND (ea.AttendanceID IS NULL OR DATE(ea.AttendanceTime) BETWEEN ? AND ?)
-        ");
-        $stmt->execute([$startDate, $endDate]);
-        $regularRow = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Staff Members (Admin role)
-        $stmt = $conn->prepare("
-            SELECT 
-                'Staff Members' as type,
-                COUNT(DISTINCT m.MemberID) as total,
-                COUNT(DISTINCT CASE WHEN m.isActive = 1 THEN m.MemberID END) as active,
-                COUNT(DISTINCT CASE WHEN m.isActive = 0 THEN m.MemberID END) as inactive,
-                CASE 
-                    WHEN COUNT(DISTINCT m.MemberID) > 0 
-                    THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT m.MemberID) * 100, 1)
-                    ELSE 0
-                END as participation
-            FROM member m
-            LEFT JOIN registration r ON m.MemberID = r.MemberID
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            LEFT JOIN event e ON r.EventID = e.EventID
-            WHERE m.Role = 'Admin'
-                AND (ea.AttendanceID IS NULL OR DATE(ea.AttendanceTime) BETWEEN ? AND ?)
-        ");
-        $stmt->execute([$startDate, $endDate]);
-        $staffRow = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($regularRow) {
-            fputcsv($output, [
-                $regularRow['type'],
-                $regularRow['total'],
-                $regularRow['active'],
-                $regularRow['inactive'],
-                $regularRow['participation']
-            ]);
-        }
-        
-        if ($staffRow) {
-            fputcsv($output, [
-                $staffRow['type'],
-                $staffRow['total'],
-                $staffRow['active'],
-                $staffRow['inactive'],
-                $staffRow['participation']
-            ]);
-        }
-    } else if ($reportType === 'summary') {
-        fputcsv($output, ['Metric', 'Value', 'Change %']);
-        
-        // Get summary data using the same logic as get-reports.php
-        $summary = getSummaryReport($conn, $startDate, $endDate);
-        
-        if ($summary['success']) {
-            $data = $summary['summary'];
-            fputcsv($output, ['Total Events', $data['totalEvents'], $data['eventsChange']]);
-            fputcsv($output, ['Total Participants', $data['totalParticipants'], $data['participantsChange']]);
-            fputcsv($output, ['Average Attendance Rate', $data['avgAttendance'], '']);
-            fputcsv($output, ['New Members', $data['newMembers'], '']);
-        }
-    } else if ($reportType === 'trends') {
-        fputcsv($output, ['Month', 'Events', 'Participants', 'Attendance Rate %']);
-        
-        $stmt = $conn->prepare("
-            SELECT 
-                DATE_FORMAT(p.ProposedDate, '%Y-%m') as month,
-                COUNT(DISTINCT e.EventID) as events,
-                COUNT(DISTINCT r.MemberID) as participants,
-                CASE 
-                    WHEN COUNT(DISTINCT r.RegistrationID) > 0 
-                    THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT r.RegistrationID) * 100, 1)
-                    ELSE 0
-                END as attendance
-            FROM event e
-            LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
-            LEFT JOIN registration r ON e.EventID = r.EventID
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
-            GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m')
-            ORDER BY month ASC
-        ");
-        $stmt->execute([$startDate, $endDate]);
-        
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            fputcsv($output, [
-                $row['month'],
-                $row['events'],
-                $row['participants'],
-                $row['attendance']
-            ]);
-        }
+    if ($reportType === 'summary') {
+        $html .= generateSummaryHTML($conn, $startDate, $endDate);
+    } elseif ($reportType === 'events') {
+        $html .= generateEventsHTML($conn, $startDate, $endDate);
+    } elseif ($reportType === 'members') {
+        $html .= generateMembersHTML($conn, $startDate, $endDate);
+    } elseif ($reportType === 'trends') {
+        $html .= generateTrendsHTML($conn, $startDate, $endDate);
+    } elseif ($reportType === 'initiatives') {
+        $html .= generateInitiativesHTML($conn, $startDate, $endDate);
     }
     
-    fclose($output);
+    $html .= '
+            <div class="footer">
+                <p>This is a confidential report. Generated by RebootPH Admin Dashboard.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ';
+    
+    return $html;
 }
 
-// Helper function from get-reports.php
-function getSummaryReport($conn, $startDate, $endDate) {
-    try {
-        $eventsStmt = $conn->prepare("
-            SELECT COUNT(DISTINCT e.EventID) as count 
-            FROM event e
-            LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
-            LEFT JOIN registration r ON e.EventID = r.EventID
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE DATE(p.ProposedDate) BETWEEN ? AND ? 
-                AND e.status = 'Completed'
-                AND r.RegistrationID IS NOT NULL
-                AND ea.AttendanceID IS NOT NULL
-        ");
-        $eventsStmt->execute([$startDate, $endDate]);
-        $totalEvents = $eventsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+function generateSummaryHTML($conn, $startDate, $endDate) {
+    $html = '<div class="summary-box">';
+    
+    // Total Events
+    $stmt = $conn->prepare("
+        SELECT COUNT(DISTINCT e.EventID) as count 
+        FROM event e
+        JOIN proposal p ON e.ProposalID = p.ProposalID
+        JOIN registration r ON e.EventID = r.EventID
+        JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+        WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $totalEvents = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+    
+    // Total Registrations
+    $stmt = $conn->prepare("
+        SELECT COUNT(DISTINCT r.RegistrationID) as count 
+        FROM registration r
+        JOIN event e ON r.EventID = e.EventID
+        JOIN proposal p ON e.ProposalID = p.ProposalID
+        WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $totalRegistrations = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+    
+    // Total Attendees
+    $stmt = $conn->prepare("
+        SELECT COUNT(DISTINCT ea.AttendanceID) as count 
+        FROM eventattendance ea
+        JOIN registration r ON ea.RegistrationID = r.RegistrationID
+        JOIN event e ON r.EventID = e.EventID
+        JOIN proposal p ON e.ProposalID = p.ProposalID
+        WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $totalAttendees = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+    
+    // Attendance Rate
+    $avgAttendanceRate = $totalRegistrations > 0 ? round(($totalAttendees / $totalRegistrations) * 100, 1) : 0;
+    
+    // Active Members
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM member WHERE isActive = 1");
+    $stmt->execute();
+    $totalActiveMembers = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+    
+    // Total Non-Members
+    $stmt = $conn->prepare("
+        SELECT COUNT(DISTINCT nm.non_memberID) as count 
+        FROM non_member nm
+        JOIN registration r ON nm.non_memberID = r.non_MemberID
+        WHERE DATE(r.RegistrationDate) BETWEEN ? AND ?
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $totalNonMembers = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+    
+    // Average Feedback Rating
+    $stmt = $conn->prepare("
+        SELECT COALESCE(ROUND(AVG(f.Rating), 2), 0) as avgRating
+        FROM feedback f
+        JOIN eventattendance ea ON f.AttendanceID = ea.AttendanceID
+        JOIN registration r ON ea.RegistrationID = r.RegistrationID
+        JOIN event e ON r.EventID = e.EventID
+        JOIN proposal p ON e.ProposalID = p.ProposalID
+        WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $avgFeedbackRating = $stmt->fetch(PDO::FETCH_ASSOC)['avgRating'] ?? 0;
+    
+    $html .= '
+        <div class="summary-item">
+            <div class="summary-value">' . $totalEvents . '</div>
+            <div class="summary-label">Total Events</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">' . $totalRegistrations . '</div>
+            <div class="summary-label">Total Registrations</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">' . $totalAttendees . '</div>
+            <div class="summary-label">Total Attendees</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">' . $avgAttendanceRate . '%</div>
+            <div class="summary-label">Avg Attendance Rate</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">' . $totalActiveMembers . '</div>
+            <div class="summary-label">Active Members</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">' . $totalNonMembers . '</div>
+            <div class="summary-label">Non-Members</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-value">' . number_format($avgFeedbackRating, 2) . '</div>
+            <div class="summary-label">Avg Feedback Rating</div>
+        </div>
+    </div>';
+    
+    return $html;
+}
 
-        $participantsStmt = $conn->prepare("
-            SELECT COUNT(DISTINCT r.RegistrationID) as count 
-            FROM registration r
-            JOIN event e ON r.EventID = e.EventID
-            JOIN proposal p ON e.ProposalID = p.ProposalID
-            JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
-        ");
-        $participantsStmt->execute([$startDate, $endDate]);
-        $totalParticipants = $participantsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-        $attendanceStmt = $conn->prepare("
-            SELECT 
-                COUNT(DISTINCT ea.AttendanceID) as attended,
-                COUNT(DISTINCT r.RegistrationID) as total
-            FROM registration r
-            LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
-            JOIN event e ON r.EventID = e.EventID
-            JOIN proposal p ON e.ProposalID = p.ProposalID
-            WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
-        ");
-        $attendanceStmt->execute([$startDate, $endDate]);
-        $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);
-        $avgAttendance = ($attendance['total'] > 0) ? round(($attendance['attended'] / $attendance['total']) * 100, 2) : 0;
-
-        $newMembersStmt = $conn->prepare("
-            SELECT COUNT(*) as count FROM member 
-            WHERE isActive = 1 AND DATE(JoinDate) BETWEEN ? AND ?
-        ");
-        $newMembersStmt->execute([$startDate, $endDate]);
-        $newMembers = $newMembersStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
-
-        return [
-            'success' => true,
-            'summary' => [
-                'totalEvents' => (int)$totalEvents,
-                'eventsChange' => 0,
-                'totalParticipants' => (int)$totalParticipants,
-                'participantsChange' => 0,
-                'avgAttendance' => (float)$avgAttendance,
-                'newMembers' => (int)$newMembers
-            ]
-        ];
-    } catch (Exception $e) {
-        return ['success' => false, 'message' => $e->getMessage()];
+function generateEventsHTML($conn, $startDate, $endDate) {
+    $stmt = $conn->prepare("
+        SELECT 
+            p.Title as eventName,
+            DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as eventDate,
+            p.Venue,
+            COUNT(DISTINCT r.RegistrationID) as registered,
+            SUM(CASE WHEN r.MemberID IS NOT NULL THEN 1 ELSE 0 END) as memberRegistrations,
+            SUM(CASE WHEN r.non_MemberID IS NOT NULL THEN 1 ELSE 0 END) as nonMemberRegistrations,
+            COUNT(DISTINCT ea.AttendanceID) as attended,
+            CASE 
+                WHEN COUNT(DISTINCT r.RegistrationID) > 0 
+                THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT r.RegistrationID) * 100, 1)
+                ELSE 0
+            END as attendanceRate,
+            COALESCE(ROUND(AVG(f.Rating), 2), 0) as avgRating
+        FROM event e
+        LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
+        LEFT JOIN registration r ON e.EventID = r.EventID
+        LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+        LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+        WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
+        GROUP BY e.EventID, p.Title, p.ProposedDate, p.Venue
+        ORDER BY p.ProposedDate DESC
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $html = '<table>';
+    $html .= '<thead><tr><th>Event Name</th><th>Date</th><th>Venue</th><th>Registered</th><th>Attended</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead>';
+    $html .= '<tbody>';
+    
+    foreach ($events as $event) {
+        $html .= '<tr>';
+        $html .= '<td>' . htmlspecialchars($event['eventName']) . '</td>';
+        $html .= '<td>' . $event['eventDate'] . '</td>';
+        $html .= '<td>' . htmlspecialchars($event['Venue'] ?? 'N/A') . '</td>';
+        $html .= '<td>' . $event['registered'] . '</td>';
+        $html .= '<td>' . $event['attended'] . '</td>';
+        $html .= '<td>' . $event['attendanceRate'] . '%</td>';
+        $html .= '<td>' . number_format($event['avgRating'], 2) . '</td>';
+        $html .= '</tr>';
     }
+    
+    $html .= '</tbody></table>';
+    return $html;
+}
+
+function generateMembersHTML($conn, $startDate, $endDate) {
+    $stmt = $conn->prepare("
+        SELECT 
+            COUNT(*) as totalCount,
+            SUM(CASE WHEN isActive = 1 THEN 1 ELSE 0 END) as active
+        FROM member
+    ");
+    $stmt->execute();
+    $memberData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $stmt = $conn->prepare("
+        SELECT 
+            COUNT(DISTINCT nm.non_memberID) as totalCount
+        FROM non_member nm
+        JOIN registration r ON nm.non_memberID = r.non_MemberID
+        WHERE DATE(r.RegistrationDate) BETWEEN ? AND ?
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $nonMemberData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $html = '<table>';
+    $html .= '<thead><tr><th>Member Type</th><th>Total Count</th><th>Active</th><th>Inactive</th></tr></thead>';
+    $html .= '<tbody>';
+    $html .= '<tr>';
+    $html .= '<td>All Members</td>';
+    $html .= '<td>' . $memberData['totalCount'] . '</td>';
+    $html .= '<td>' . $memberData['active'] . '</td>';
+    $html .= '<td>' . ($memberData['totalCount'] - $memberData['active']) . '</td>';
+    $html .= '</tr>';
+    $html .= '<tr>';
+    $html .= '<td>Non-Members (in period)</td>';
+    $html .= '<td>' . $nonMemberData['totalCount'] . '</td>';
+    $html .= '<td>' . $nonMemberData['totalCount'] . '</td>';
+    $html .= '<td>0</td>';
+    $html .= '</tr>';
+    $html .= '</tbody></table>';
+    
+    return $html;
+}
+
+function generateTrendsHTML($conn, $startDate, $endDate) {
+    $stmt = $conn->prepare("
+        SELECT 
+            DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as dateFormatted,
+            COUNT(DISTINCT e.EventID) as events,
+            COUNT(DISTINCT r.RegistrationID) as registrations,
+            COUNT(DISTINCT ea.AttendanceID) as attendees,
+            CASE 
+                WHEN COUNT(DISTINCT r.RegistrationID) > 0 
+                THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT r.RegistrationID) * 100, 1)
+                ELSE 0
+            END as attendanceRate,
+            COALESCE(ROUND(AVG(f.Rating), 2), 0) as avgFeedbackRating
+        FROM event e
+        LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
+        LEFT JOIN registration r ON e.EventID = r.EventID
+        LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+        LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+        WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
+        GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m-%d'), p.ProposedDate
+        ORDER BY p.ProposedDate ASC
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $trends = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $html = '<table>';
+    $html .= '<thead><tr><th>Date</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead>';
+    $html .= '<tbody>';
+    
+    foreach ($trends as $trend) {
+        $html .= '<tr>';
+        $html .= '<td>' . $trend['dateFormatted'] . '</td>';
+        $html .= '<td>' . $trend['events'] . '</td>';
+        $html .= '<td>' . $trend['registrations'] . '</td>';
+        $html .= '<td>' . $trend['attendees'] . '</td>';
+        $html .= '<td>' . $trend['attendanceRate'] . '%</td>';
+        $html .= '<td>' . number_format($trend['avgFeedbackRating'], 2) . '</td>';
+        $html .= '</tr>';
+    }
+    
+    $html .= '</tbody></table>';
+    return $html;
+}
+
+function generateInitiativesHTML($conn, $startDate, $endDate) {
+    $stmt = $conn->prepare("
+        SELECT 
+            i.Title,
+            c.Type as category,
+            CASE WHEN i.isHighlighted = 1 THEN 'Featured' ELSE 'Regular' END as status,
+            DATE_FORMAT(i.PublishDate, '%b %d, %Y') as publishDate,
+            i.Description
+        FROM initiatives i
+        LEFT JOIN category c ON i.CategoryID = c.CategoryID
+        WHERE DATE(i.PublishDate) BETWEEN ? AND ?
+        ORDER BY i.PublishDate DESC
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $initiatives = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $html = '<table>';
+    $html .= '<thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Date</th></tr></thead>';
+    $html .= '<tbody>';
+    
+    foreach ($initiatives as $initiative) {
+        $html .= '<tr>';
+        $html .= '<td>' . htmlspecialchars($initiative['Title']) . '</td>';
+        $html .= '<td>' . htmlspecialchars($initiative['category'] ?? 'N/A') . '</td>';
+        $html .= '<td>' . $initiative['status'] . '</td>';
+        $html .= '<td>' . $initiative['publishDate'] . '</td>';
+        $html .= '</tr>';
+    }
+    
+    $html .= '</tbody></table>';
+    return $html;
+}
+
+function generatePDFFromHTML($htmlContent, $filename) {
+    // Create temporary file
+    $tempFile = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.html';
+    file_put_contents($tempFile, $htmlContent);
+    
+    // Try to use wkhtmltopdf if available
+    $wkhtmltopdf = shell_exec('which wkhtmltopdf 2>/dev/null');
+    if ($wkhtmltopdf && !empty(trim($wkhtmltopdf))) {
+        $outputFile = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.pdf';
+        $command = "wkhtmltopdf --quiet \"$tempFile\" \"$outputFile\" 2>/dev/null";
+        exec($command);
+        
+        if (file_exists($outputFile) && filesize($outputFile) > 0) {
+            readfile($outputFile);
+            unlink($outputFile);
+            unlink($tempFile);
+            exit;
+        }
+    }
+    
+    // Fallback: Use simple HTML to PDF using TCPDF (if available)
+    if (class_exists('TCPDF')) {
+        $pdf = new TCPDF();
+        $pdf->AddPage();
+        $pdf->writeHTML($htmlContent);
+        $pdf->Output($filename, 'D');
+        unlink($tempFile);
+        exit;
+    }
+    
+    // Ultimate fallback: Send HTML with print styles and let browser handle PDF generation
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Content-Disposition: inline; filename="' . $filename . '"');
+    echo $htmlContent;
+    unlink($tempFile);
+    exit;
 }
 ?>

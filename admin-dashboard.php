@@ -1358,8 +1358,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                         <button class="btn btn-sm btn-primary" onclick="loadReports()">Filter</button>
                                     </div>
-                                    <button class="btn btn-primary" onclick="exportReport('csv')">
-                                        <i class="bi bi-download"></i> Export CSV
+                                    <button class="btn btn-primary" onclick="exportReport('pdf')">
+                                        <i class="bi bi-file-pdf"></i> Export PDF
                                     </button>
                                 </div>
                             </div>
@@ -9659,8 +9659,20 @@ if ($_SESSION['role'] === 'Member Staff') {
                 }
 
                 try {
+                    // Show loading indicator
+                    const btn = event.target.closest('.btn');
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating PDF...';
+
                     const url = `api/export-reports.php?format=${format}&type=${reportType}&startDate=${startDate}&endDate=${endDate}`;
                     window.open(url, '_blank');
+
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }, 2000);
                 } catch (error) {
                     console.error('Error exporting report:', error);
                     alert('Error exporting report');
