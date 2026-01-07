@@ -163,11 +163,24 @@ async function loadMemberProfile() {
                                 </p>
                             </div>
                             <div id="idPreviewQR" style="background: white !important; padding: 4px; border-radius: 5px; border: 1px solid #eee;">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=${encodeURIComponent(window.location.origin + '/view-member.html?id=RPH-' + currentMember.MemberID.toString().padStart(7, '0'))}" 
+                                <img id="memberQRCode" 
                                     style="width: 75px; height: 75px; display: block !important;">
                             </div>
                         </div>
                     `;
+                    
+                    // Generate QR code URL after DOM is updated
+                    setTimeout(() => {
+                        const qrImg = document.getElementById('memberQRCode');
+                        if (qrImg && currentMember.MemberID) {
+                            const memberId = 'RPH-' + currentMember.MemberID.toString().padStart(7, '0');
+                            const protocol = window.location.protocol;
+                            const host = window.location.host;
+                            const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberId);
+                            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=' + encodeURIComponent(memberDetailsUrl);
+                            qrImg.src = qrUrl;
+                        }
+                    }, 100);
                 }
             }
         }
