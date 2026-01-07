@@ -163,7 +163,7 @@ async function loadMemberProfile() {
                                 </p>
                             </div>
                             <div id="idPreviewQR" style="background: white !important; padding: 4px; border-radius: 5px; border: 1px solid #eee;">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=${encodeURIComponent(window.location.origin + '/view-member.html?id=RPH-' + currentMember.MemberID.toString().padStart(7, '0'))}" 
                                     style="width: 75px; height: 75px; display: block !important;">
                             </div>
                         </div>
