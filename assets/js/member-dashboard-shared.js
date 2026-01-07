@@ -56,6 +56,9 @@ async function loadMemberProfile() {
         }
 
         const response = await fetch('api/get-members.php');
+        if (!response.ok) {
+            throw new Error(`API error: ${response.statusText}`);
+        }
         const data = await response.json();
 
         if (data.success && data.currentMemberId) {
@@ -103,12 +106,12 @@ async function loadMemberProfile() {
                     idPreview.innerHTML = '';
 
                     let photoHtml = '';
-                    // Chine-check kung may valid na image URL ang member
+                    // Check if member has a valid profile image
                     if (currentMember.ProfileImage && currentMember.ProfileImage !== 'null' && currentMember.ProfileImage !== '') {
-                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; flex-shrink: 0;">`;
+                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; flex-shrink: 0;" onerror="this.style.background='#f0f0f0'">`;
                     } else {
-                        // HETO ANG PAGBABAGO: Default avatar ang lalabas kapag walang pic
-                        photoHtml = `<img src="assets/image/default-avatar.png" alt="Default Profile" style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; background: #f8f9fa; flex-shrink: 0;">`;
+                        // Fallback to neutral placeholder with initials or generic avatar
+                        photoHtml = `<div style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; background: #f0f0f0; border: 2px solid #035996; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: bold; color: #666;"><span style="font-size: clamp(10px, 40%, 14px);">${window.currentMemberName ? window.currentMemberName.charAt(0).toUpperCase() : 'M'}</span></div>`;
                     }
 
                     idPreview.innerHTML = `
@@ -165,10 +168,31 @@ async function loadMemberProfile() {
                             const host = window.location.host;
                             const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberId);
                             const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=' + encodeURIComponent(memberDetailsUrl);
+                            
                             qrImg.src = qrUrl;
+                            
+                            // Handle QR load errors with a placeholder
+                            qrImg.onerror = function() {
+                                console.warn('QR code failed to load, using placeholder');
+                                qrImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23e9ecef" width="100" height="100"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999"%3EQR%3C/text%3E%3C/svg%3E';
+                            };
                         }
                     }, 100);
                 }
+            } else {
+                console.warn('Current member not found in response');
+                // Replace spinner with error message
+                const idPreview = document.getElementById('idPreview');
+                if (idPreview) {
+                    idPreview.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #dc3545; font-size: 14px;">Member data not found</div>`;
+                }
+            }
+        } else {
+            console.warn('API response unsuccessful or missing current member ID');
+            // Replace spinner with placeholder
+            const idPreview = document.getElementById('idPreview');
+            if (idPreview) {
+                idPreview.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 14px;">Unable to load member profile</div>`;
             }
         }
 
@@ -180,6 +204,11 @@ async function loadMemberProfile() {
 
     } catch (error) {
         console.error('Error loading member profile:', error);
+        // Always try to replace the spinner with an error or loading state
+        const idPreview = document.getElementById('idPreview');
+        if (idPreview && idPreview.querySelector('.spinner-border')) {
+            idPreview.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 12px; text-align: center; padding: 20px;">Failed to load profile data</div>`;
+        }
         try {
             await Promise.all([
                 loadDashboardStats(),
