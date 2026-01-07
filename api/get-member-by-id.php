@@ -18,21 +18,22 @@ try {
         $memberId = substr($memberId, 4);
     }
     
-    // Fetch member details
+    // Fetch member details by joining member and application tables
     $stmt = $conn->prepare("
         SELECT 
-            MemberID,
-            FirstName,
-            LastName,
-            EmailAddress,
-            PhoneNumber,
-            Position,
-            Organization,
-            MembershipStatus,
-            JoinDate,
-            ProfileImage
-        FROM member 
-        WHERE MemberID = ?
+            m.MemberID,
+            a.FName AS FirstName,
+            a.LName AS LastName,
+            a.ApplicantEmail AS EmailAddress,
+            a.Phone AS PhoneNumber,
+            m.Role AS Position,
+            'Reboot Philippines' AS Organization,
+            CASE WHEN m.isActive = 1 THEN 'Active' ELSE 'Inactive' END AS MembershipStatus,
+            m.JoinDate,
+            m.ProfileImage
+        FROM member m
+        LEFT JOIN application a ON m.ApplicationID = a.ApplicationID
+        WHERE m.MemberID = ?
     ");
     
     $stmt->execute([$memberId]);
