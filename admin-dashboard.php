@@ -1364,9 +1364,9 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 </div>
                             </div>
 
-                            <!-- Summary Cards -->
-                            <div class="row g-4 mb-4">
-                                <div class="col-md-3">
+                            <!-- Summary Cards - Responsive Grid -->
+                            <div class="row g-2 g-md-4 mb-4">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Total Events</h6>
@@ -1375,7 +1375,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Total Registrations</h6>
@@ -1384,7 +1384,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Attendance Rate</h6>
@@ -1393,7 +1393,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Avg. Rating</h6>
@@ -1402,7 +1402,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Active Members</h6>
@@ -1411,7 +1411,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Non-Members</h6>
@@ -1420,7 +1420,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Total Attendees</h6>
@@ -1429,7 +1429,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-6 col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-muted">Initiatives</h6>
@@ -1441,8 +1441,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                             </div>
 
                             <!-- Charts Row -->
-                            <div class="row g-4 mb-4">
-                                <div class="col-md-12">
+                            <div class="row g-3 g-md-4 mb-4">
+                                <div class="col-12">
                                     <div class="card">
                                         <div class="card-body">
                                             <h5 class="card-title">Event Participation Trends</h5>
@@ -9503,23 +9503,45 @@ if ($_SESSION['role'] === 'Member Staff') {
                     return;
                 }
 
+                // Detect mobile/tablet screen size
+                const isMobile = window.innerWidth < 768;
+                const isTablet = window.innerWidth < 992;
+
                 // Calculate max values for scaling
                 const maxAttendees = Math.max(...trends.map(t => parseInt(t.attendees) || 0), 1);
                 const maxEvents = Math.max(...trends.map(t => parseInt(t.events) || 0), 1);
 
-                // Create SVG line graph
-                const width = Math.max(800, trends.length * 120);
-                const height = 300;
-                const padding = 40;
+                // Responsive sizing
+                let width, height, padding, fontSize, pointRadius;
+                if (isMobile) {
+                    width = Math.max(300, trends.length * 60);
+                    height = 220;
+                    padding = 30;
+                    fontSize = 9;
+                    pointRadius = 3;
+                } else if (isTablet) {
+                    width = Math.max(500, trends.length * 90);
+                    height = 260;
+                    padding = 35;
+                    fontSize = 10;
+                    pointRadius = 3.5;
+                } else {
+                    width = Math.max(800, trends.length * 120);
+                    height = 300;
+                    padding = 40;
+                    fontSize = 11;
+                    pointRadius = 4;
+                }
+
                 const graphWidth = width - (padding * 2);
                 const graphHeight = height - (padding * 2);
                 const pointSpacing = graphWidth / (trends.length - 1 || 1);
 
-                // Create SVG
-                let svg = `<svg width="${width}" height="${height}" style="border: 1px solid #ddd; border-radius: 4px;">`;
+                // Create SVG with responsive sizing
+                let svg = `<svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="border: 1px solid #ddd; border-radius: 4px; display: block; margin: 0 auto;">`;
                 
                 // Y-axis label
-                svg += `<text x="15" y="20" font-size="12" fill="#666">Attendees</text>`;
+                svg += `<text x="12" y="18" font-size="${fontSize}" fill="#666">Attendees</text>`;
                 
                 // Y-axis
                 svg += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#999" stroke-width="1"/>`;
@@ -9532,7 +9554,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const y = padding + (graphHeight / 5) * i;
                     const value = Math.floor(maxAttendees * (5 - i) / 5);
                     svg += `<line x1="${padding - 5}" y1="${y}" x2="${padding}" y2="${y}" stroke="#999" stroke-width="1"/>`;
-                    svg += `<text x="5" y="${y + 4}" font-size="11" fill="#666">${value}</text>`;
+                    svg += `<text x="2" y="${y + 3}" font-size="${fontSize - 1}" fill="#666">${value}</text>`;
                 }
 
                 // Plot lines and points
@@ -9558,35 +9580,59 @@ if ($_SESSION['role'] === 'Member Staff') {
                     const y = height - padding - (attendeeValue / maxAttendees * graphHeight);
                     
                     // Point
-                    svg += `<circle cx="${x}" cy="${y}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>`;
+                    svg += `<circle cx="${x}" cy="${y}" r="${pointRadius}" fill="#007bff" stroke="white" stroke-width="1"/>`;
                     
                     // X-axis label (specific date with day of month)
                     const dateLabel = trend.dateFormatted || trend.monthName || trend.month;
-                    svg += `<text x="${x}" y="${height - padding + 20}" font-size="11" fill="#666" text-anchor="middle">${dateLabel}</text>`;
+                    const labelY = height - padding + (isMobile ? 16 : 20);
+                    svg += `<text x="${x}" y="${labelY}" font-size="${fontSize}" fill="#666" text-anchor="middle">${dateLabel}</text>`;
                 });
 
                 svg += `</svg>`;
 
-                // Create data table below graph
-                let table = '<div style="margin-top: 20px; overflow-x: auto;"><table class="table table-sm table-bordered"><thead><tr><th>Date</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Member / Non-Member</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead><tbody>';
-                
-                trends.forEach(trend => {
-                    const dateDisplay = trend.dateFormatted || trend.monthName || trend.month;
-                    const memberNonMember = `${trend.memberAttendees || 0} / ${trend.nonMemberAttendees || 0}`;
-                    table += `<tr>
-                        <td><strong>${dateDisplay}</strong></td>
-                        <td>${trend.events || 0}</td>
-                        <td>${trend.registrations || 0}</td>
-                        <td>${trend.attendees || 0}</td>
-                        <td>${memberNonMember}</td>
-                        <td>${trend.attendanceRate || 0}%</td>
-                        <td>${parseFloat(trend.avgFeedbackRating || 0).toFixed(2)}/5.0</td>
-                    </tr>`;
-                });
-                
-                table += '</tbody></table></div>';
+                // Create responsive data table below graph
+                let tableHtml = '<div style="margin-top: 20px;" class="trends-table-wrapper">';
+                tableHtml += isMobile ? 
+                    // Mobile: Card-like view for each trend
+                    '<div class="trends-mobile-cards">' + 
+                    trends.map(trend => {
+                        const dateDisplay = trend.dateFormatted || trend.monthName || trend.month;
+                        const memberNonMember = `${trend.memberAttendees || 0} / ${trend.nonMemberAttendees || 0}`;
+                        return `<div class="card mb-2" style="border: 1px solid #dee2e6;">
+                            <div class="card-body p-2">
+                                <div class="row g-2">
+                                    <div class="col-6"><small class="text-muted">Date</small><div><strong>${dateDisplay}</strong></div></div>
+                                    <div class="col-6"><small class="text-muted">Events</small><div><strong>${trend.events || 0}</strong></div></div>
+                                    <div class="col-6"><small class="text-muted">Registrations</small><div><strong>${trend.registrations || 0}</strong></div></div>
+                                    <div class="col-6"><small class="text-muted">Attendees</small><div><strong>${trend.attendees || 0}</strong></div></div>
+                                    <div class="col-6"><small class="text-muted">M / NM</small><div><strong>${memberNonMember}</strong></div></div>
+                                    <div class="col-6"><small class="text-muted">Attendance</small><div><strong>${trend.attendanceRate || 0}%</strong></div></div>
+                                    <div class="col-12"><small class="text-muted">Avg Rating</small><div><strong>${parseFloat(trend.avgFeedbackRating || 0).toFixed(2)}/5.0</strong></div></div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('') +
+                    '</div>'
+                    : 
+                    // Desktop: Traditional table view
+                    '<div style="overflow-x: auto;"><table class="table table-sm table-bordered"><thead><tr><th>Date</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Member / Non-Member</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead><tbody>' +
+                    trends.map(trend => {
+                        const dateDisplay = trend.dateFormatted || trend.monthName || trend.month;
+                        const memberNonMember = `${trend.memberAttendees || 0} / ${trend.nonMemberAttendees || 0}`;
+                        return `<tr>
+                            <td><strong>${dateDisplay}</strong></td>
+                            <td>${trend.events || 0}</td>
+                            <td>${trend.registrations || 0}</td>
+                            <td>${trend.attendees || 0}</td>
+                            <td>${memberNonMember}</td>
+                            <td>${trend.attendanceRate || 0}%</td>
+                            <td>${parseFloat(trend.avgFeedbackRating || 0).toFixed(2)}/5.0</td>
+                        </tr>`;
+                    }).join('') +
+                    '</tbody></table></div>';
+                tableHtml += '</div>';
 
-                container.innerHTML = svg + table;
+                container.innerHTML = svg + tableHtml;
             }
 
             // Export reports

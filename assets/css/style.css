@@ -298,5 +298,249 @@
     .outstanding-section { padding: 2.5rem 0; }
     .outstanding-section h2 { font-size: 1.6rem; }
     .member-photo-wrapper img { max-height: 260px; }
+
+    /* Mobile Reports Optimization */
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .nav-tabs {
+        border-bottom: 1px solid #dee2e6;
+        flex-wrap: wrap;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        border: none;
+        color: #6c757d;
+    }
+
+    .nav-tabs .nav-link.active {
+        border-bottom: 3px solid #007bff;
+        color: #007bff;
+        background: none;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table thead th {
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+
+    .table tbody td {
+        padding: 0.5rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .trends-mobile-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .trends-mobile-cards .card {
+        margin-bottom: 0;
+    }
+
+    .trends-mobile-cards .card-body {
+        padding: 0.75rem;
+    }
+
+    .trends-mobile-cards .row {
+        row-gap: 0.5rem;
+    }
+
+    .trends-mobile-cards .col-6,
+    .trends-mobile-cards .col-12 {
+        font-size: 0.75rem;
+    }
+
+    .trends-mobile-cards strong {
+        font-size: 0.95rem;
+        display: block;
+        margin-top: 0.25rem;
+        color: #212529;
+    }
+
+    .trends-mobile-cards .text-muted {
+        font-size: 0.7rem;
+        color: #6c757d !important;
+    }
+
+    .trends-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Date filter controls on mobile */
+    #customDateRange {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+
+    #customDateRange > div {
+        flex: 0 0 100%;
+    }
+
+    #customDateRange .btn {
+        flex: 0 0 100%;
+    }
+
+    /* Summary cards on mobile */
+    .row .col-6 {
+        margin-bottom: 0;
+    }
+
+    .row .col-6 .card {
+        margin-bottom: 0;
+    }
+
+    .card-title {
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    h2.display-6 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    h6.text-muted {
+        font-size: 0.75rem;
+    }
+
+    small.text-muted {
+        font-size: 0.7rem;
+    }
+
+    /* Enhanced button spacing for mobile */
+    .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    /* Improve input responsiveness */
+    .form-control,
+    .form-select {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-control-sm {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    /* SVG chart responsiveness */
+    svg {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Extra small devices */
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .table {
+        font-size: 0.75rem;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 0.375rem;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    h2.display-6 {
+        font-size: 1.4rem;
+    }
+
+    .trends-mobile-cards .col-6 {
+        font-size: 0.7rem;
+    }
+
+    .trends-mobile-cards strong {
+        font-size: 0.85rem;
+    }
+
+    .card {
+        border-radius: 0.5rem;
+    }
+
+    /* Tighten gaps on very small screens */
+    .g-2 {
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-control,
+    .form-select {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    /* Better mobile export button placement */
+    .btn-primary {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    /* Tablet optimization */
+    .trends-mobile-cards {
+        display: none;
+    }
+
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .table thead th {
+        padding: 0.6rem;
+    }
+
+    .table tbody td {
+        padding: 0.6rem;
+    }
+
+    .col-md-3 {
+        flex: 0 0 calc(50% - 0.5rem);
+        max-width: calc(50% - 0.5rem);
+    }
+
+    .col-md-3:nth-child(odd) {
+        margin-right: 1rem;
+    }
 }
 
