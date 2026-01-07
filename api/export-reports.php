@@ -15,66 +15,202 @@ $startDate = $_GET['startDate'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_GET['endDate'] ?? date('Y-m-d');
 
 try {
-    $filename = "report_" . $reportType . "_" . date('Y-m-d-His') . ".pdf";
+    // Generate HTML content
+    $htmlContent = generateReportHTML($conn, $reportType, $startDate, $endDate);
     
     if ($format === 'pdf') {
-        // Generate HTML content for PDF
-        $htmlContent = generateReportHTML($conn, $reportType, $startDate, $endDate);
+        // Generate PDF filename
+        $fileName = 'RebootPH_Report_' . ucfirst($reportType) . '_' . date('Y-m-d_His') . '.pdf';
         
-        // Set headers for PDF download
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        
-        // Use built-in PHP PDF generation via HTML to PDF conversion
-        generatePDFFromHTML($htmlContent, $filename);
+        // Use browser print-to-PDF method
+        generatePDFWithBrowserPrint($htmlContent, $fileName);
+        exit;
+    } else {
+        // Return HTML for preview
+        header('Content-Type: text/html; charset=UTF-8');
+        echo $htmlContent;
+        exit;
     }
 } catch (Exception $e) {
     http_response_code(500);
-    die(json_encode(['success' => false, 'message' => $e->getMessage()]));
+    header('Content-Type: text/html; charset=UTF-8');
+    echo '<html><body>';
+    echo '<h2>Error Generating Report</h2>';
+    echo '<p>' . htmlspecialchars($e->getMessage()) . '</p>';
+    echo '</body></html>';
+    exit;
+}
+
+function generatePDFWithBrowserPrint($htmlContent, $fileName) {
+    // Send HTML with JavaScript auto-print and download
+    $htmlWithScript = str_replace(
+        '<button onclick="window.print()" style="position: fixed; top: 10px; right: 10px; padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 100;">Print / Save PDF</button>',
+        '<script>
+            document.addEventListener("DOMContentLoaded", function() {
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            });
+        </script>',
+        $htmlContent
+    );
+    
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Content-Disposition: inline; filename="' . $fileName . '"');
+    echo $htmlWithScript;
 }
 
 function generateReportHTML($conn, $reportType, $startDate, $endDate) {
-    $html = '
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            * { margin: 0; padding: 0; }
-            body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
-            .container { width: 100%; padding: 20px; }
-            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #007bff; padding-bottom: 15px; }
-            .header h1 { color: #007bff; font-size: 24px; margin-bottom: 5px; }
-            .header p { color: #666; font-size: 10px; }
-            .info { margin-bottom: 20px; font-size: 10px; color: #666; }
-            .info-row { display: flex; justify-content: space-between; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            thead { background-color: #f8f9fa; }
-            th { padding: 10px; text-align: left; border: 1px solid #dee2e6; font-weight: bold; }
-            td { padding: 8px; border: 1px solid #dee2e6; }
-            tbody tr:nth-child(even) { background-color: #f8f9fa; }
-            .summary-box { background-color: #e7f3ff; padding: 15px; border-left: 4px solid #007bff; margin-bottom: 20px; }
-            .summary-item { display: inline-block; margin-right: 30px; margin-bottom: 10px; }
-            .summary-value { font-size: 18px; font-weight: bold; color: #007bff; }
-            .summary-label { font-size: 10px; color: #666; }
-            .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #dee2e6; text-align: center; font-size: 9px; color: #999; }
-            .page-break { page-break-after: always; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>RebootPH Reports</h1>
-                <p>' . ucfirst($reportType) . ' Report</p>
+    $html = '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RebootPH Report - ' . ucfirst($reportType) . '</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; width: 100%; }
+        body { 
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12px; 
+            color: #333;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        .container { 
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-bottom: 3px solid #007bff; 
+            padding-bottom: 20px; 
+        }
+        .header h1 { 
+            color: #007bff; 
+            font-size: 28px; 
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .header p { 
+            color: #666; 
+            font-size: 11px;
+            margin: 3px 0;
+        }
+        .info { 
+            margin-bottom: 25px; 
+            padding: 15px;
+            background: #f0f8ff;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .info-row { 
+            display: flex; 
+            justify-content: space-between;
+            font-size: 11px;
+            color: #555;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        thead { 
+            background-color: #007bff;
+            color: white;
+        }
+        th { 
+            padding: 12px; 
+            text-align: left; 
+            border: 1px solid #ddd; 
+            font-weight: bold;
+            font-size: 12px;
+        }
+        td { 
+            padding: 10px; 
+            border: 1px solid #ddd;
+            font-size: 11px;
+        }
+        tbody tr:nth-child(even) { 
+            background-color: #f9f9f9; 
+        }
+        tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+        .summary-box { 
+            background: linear-gradient(135deg, #e7f3ff 0%, #ffffff 100%);
+            padding: 20px; 
+            border-left: 4px solid #007bff; 
+            margin-bottom: 30px;
+            border-radius: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .summary-item { 
+            display: inline-block;
+            flex: 1;
+            min-width: 150px;
+        }
+        .summary-value { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #007bff;
+        }
+        .summary-label { 
+            font-size: 10px; 
+            color: #666;
+            margin-top: 3px;
+        }
+        .footer { 
+            margin-top: 40px; 
+            padding-top: 15px; 
+            border-top: 1px solid #ddd;
+            text-align: center; 
+            font-size: 9px; 
+            color: #999;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                padding: 0;
+                max-width: 100%;
+            }
+            table {
+                page-break-inside: avoid;
+            }
+            thead {
+                display: table-header-group;
+            }
+        }
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.print()" style="position: fixed; top: 10px; right: 10px; padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 100;">Print / Save PDF</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>RebootPH Reports</h1>
+            <p>' . ucfirst($reportType) . ' Report</p>
+        </div>
+        
+        <div class="info">
+            <div class="info-row">
+                <span><strong>Generated:</strong> ' . date('F d, Y \a\t h:i A') . '</span>
+                <span><strong>Period:</strong> ' . date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)) . '</span>
             </div>
-            
-            <div class="info">
-                <div class="info-row">
-                    <span>Generated: ' . date('F d, Y \a\t h:i A') . '</span>
-                    <span>Period: ' . date('M d, Y', strtotime($startDate)) . ' - ' . date('M d, Y', strtotime($endDate)) . '</span>
-                </div>
-            </div>
-    ';
+        </div>';
     
     if ($reportType === 'summary') {
         $html .= generateSummaryHTML($conn, $startDate, $endDate);
@@ -89,13 +225,12 @@ function generateReportHTML($conn, $reportType, $startDate, $endDate) {
     }
     
     $html .= '
-            <div class="footer">
-                <p>This is a confidential report. Generated by RebootPH Admin Dashboard.</p>
-            </div>
+        <div class="footer">
+            <p>This is a confidential report. Generated by RebootPH Admin Dashboard.</p>
         </div>
-    </body>
-    </html>
-    ';
+    </div>
+</body>
+</html>';
     
     return $html;
 }
@@ -366,43 +501,5 @@ function generateInitiativesHTML($conn, $startDate, $endDate) {
     
     $html .= '</tbody></table>';
     return $html;
-}
-
-function generatePDFFromHTML($htmlContent, $filename) {
-    // Create temporary file
-    $tempFile = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.html';
-    file_put_contents($tempFile, $htmlContent);
-    
-    // Try to use wkhtmltopdf if available
-    $wkhtmltopdf = shell_exec('which wkhtmltopdf 2>/dev/null');
-    if ($wkhtmltopdf && !empty(trim($wkhtmltopdf))) {
-        $outputFile = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.pdf';
-        $command = "wkhtmltopdf --quiet \"$tempFile\" \"$outputFile\" 2>/dev/null";
-        exec($command);
-        
-        if (file_exists($outputFile) && filesize($outputFile) > 0) {
-            readfile($outputFile);
-            unlink($outputFile);
-            unlink($tempFile);
-            exit;
-        }
-    }
-    
-    // Fallback: Use simple HTML to PDF using TCPDF (if available)
-    if (class_exists('TCPDF')) {
-        $pdf = new TCPDF();
-        $pdf->AddPage();
-        $pdf->writeHTML($htmlContent);
-        $pdf->Output($filename, 'D');
-        unlink($tempFile);
-        exit;
-    }
-    
-    // Ultimate fallback: Send HTML with print styles and let browser handle PDF generation
-    header('Content-Type: text/html; charset=UTF-8');
-    header('Content-Disposition: inline; filename="' . $filename . '"');
-    echo $htmlContent;
-    unlink($tempFile);
-    exit;
 }
 ?>
