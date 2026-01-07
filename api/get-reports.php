@@ -670,9 +670,10 @@ function getInitiativesReport($conn, $startDate, $endDate) {
             SELECT 
                 i.InitiativeID,
                 i.Title,
-                c.Type,
-                i.isHighlighted,
-                DATE_FORMAT(i.PublishDate, '%b %d, %Y') as createdDate
+                COALESCE(c.Type, 'Uncategorized') as category,
+                CASE WHEN i.isHighlighted = 1 THEN 'Featured' ELSE 'Regular' END as status,
+                DATE_FORMAT(i.PublishDate, '%b %d, %Y') as publishDate,
+                i.Description
             FROM initiatives i
             LEFT JOIN category c ON i.CategoryID = c.CategoryID
             ORDER BY i.PublishDate DESC
