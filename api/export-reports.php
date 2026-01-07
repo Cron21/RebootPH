@@ -352,6 +352,112 @@ function generateSummaryHTML($conn, $startDate, $endDate) {
         </div>
     </div>';
     
+    // Add Event Participation Trends Chart
+    $html .= getTrendsChartHTML($conn, $startDate, $endDate);
+    
+    return $html;
+}
+
+function getTrendsChartHTML($conn, $startDate, $endDate) {
+    $stmt = $conn->prepare("
+        SELECT 
+            DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as dateFormatted,
+            COUNT(DISTINCT e.EventID) as events,
+            COUNT(DISTINCT r.RegistrationID) as registrations,
+            COUNT(DISTINCT ea.AttendanceID) as attendees,
+            CASE 
+                WHEN COUNT(DISTINCT r.RegistrationID) > 0 
+                THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT r.RegistrationID) * 100, 1)
+                ELSE 0
+            END as attendanceRate,
+            COALESCE(ROUND(AVG(f.Rating), 2), 0) as avgFeedbackRating
+        FROM event e
+        LEFT JOIN proposal p ON e.ProposalID = p.ProposalID
+        LEFT JOIN registration r ON e.EventID = r.EventID
+        LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+        LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
+        WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
+        GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m-%d'), p.ProposedDate
+        ORDER BY p.ProposedDate ASC
+    ");
+    $stmt->execute([$startDate, $endDate]);
+    $trends = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Prepare chart data
+    $chartLabels = [];
+    $chartEvents = [];
+    $chartRegistrations = [];
+    $chartAttendees = [];
+    
+    foreach ($trends as $trend) {
+        $chartLabels[] = $trend['dateFormatted'];
+        $chartEvents[] = $trend['events'];
+        $chartRegistrations[] = $trend['registrations'];
+        $chartAttendees[] = $trend['attendees'];
+    }
+    
+    $html = '<div class="chart-container">';
+    $html .= '<div class="chart-title">Event Participation Trends</div>';
+    $html .= '<canvas id="trendsChart"></canvas>';
+    $html .= '</div>';
+    
+    // Add chart script
+    $html .= '<script>';
+    $html .= 'document.addEventListener("DOMContentLoaded", function() {';
+    $html .= 'if (document.getElementById("trendsChart")) {';
+    $html .= 'const ctx = document.getElementById("trendsChart").getContext("2d");';
+    $html .= 'new Chart(ctx, {';
+    $html .= 'type: "line",';
+    $html .= 'data: {';
+    $html .= 'labels: ' . json_encode($chartLabels) . ',';
+    $html .= 'datasets: [';
+    $html .= '{';
+    $html .= 'label: "Events",';
+    $html .= 'data: ' . json_encode($chartEvents) . ',';
+    $html .= 'borderColor: "#007bff",';
+    $html .= 'backgroundColor: "rgba(0, 123, 255, 0.1)",';
+    $html .= 'tension: 0.4,';
+    $html .= 'fill: true,';
+    $html .= 'pointRadius: 5,';
+    $html .= 'pointHoverRadius: 7';
+    $html .= '},';
+    $html .= '{';
+    $html .= 'label: "Registrations",';
+    $html .= 'data: ' . json_encode($chartRegistrations) . ',';
+    $html .= 'borderColor: "#28a745",';
+    $html .= 'backgroundColor: "rgba(40, 167, 69, 0.1)",';
+    $html .= 'tension: 0.4,';
+    $html .= 'fill: true,';
+    $html .= 'pointRadius: 5,';
+    $html .= 'pointHoverRadius: 7';
+    $html .= '},';
+    $html .= '{';
+    $html .= 'label: "Attendees",';
+    $html .= 'data: ' . json_encode($chartAttendees) . ',';
+    $html .= 'borderColor: "#ffc107",';
+    $html .= 'backgroundColor: "rgba(255, 193, 7, 0.1)",';
+    $html .= 'tension: 0.4,';
+    $html .= 'fill: true,';
+    $html .= 'pointRadius: 5,';
+    $html .= 'pointHoverRadius: 7';
+    $html .= '}';
+    $html .= ']';
+    $html .= '},';
+    $html .= 'options: {';
+    $html .= 'responsive: true,';
+    $html .= 'maintainAspectRatio: false,';
+    $html .= 'plugins: {';
+    $html .= 'legend: { display: true, position: "top" }';
+    $html .= '},';
+    $html .= 'scales: {';
+    $html .= 'y: { beginAtZero: true, ticks: { stepSize: 1 } }';
+    $html .= '}';
+    $html .= '}';
+    $html .= '});';
+    $html .= '}';
+    $html .= '});';
+    $html .= '</script>';
+    
     return $html;
 }
 
@@ -447,7 +553,6 @@ function generateTrendsHTML($conn, $startDate, $endDate) {
     $stmt = $conn->prepare("
         SELECT 
             DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as dateFormatted,
-            DATE_FORMAT(p.ProposedDate, '%Y-%m-%d') as dateRaw,
             COUNT(DISTINCT e.EventID) as events,
             COUNT(DISTINCT r.RegistrationID) as registrations,
             COUNT(DISTINCT ea.AttendanceID) as attendees,
@@ -469,80 +574,8 @@ function generateTrendsHTML($conn, $startDate, $endDate) {
     $stmt->execute([$startDate, $endDate]);
     $trends = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Prepare chart data
-    $chartLabels = [];
-    $chartEvents = [];
-    $chartRegistrations = [];
-    $chartAttendees = [];
-    
-    foreach ($trends as $trend) {
-        $chartLabels[] = $trend['dateFormatted'];
-        $chartEvents[] = $trend['events'];
-        $chartRegistrations[] = $trend['registrations'];
-        $chartAttendees[] = $trend['attendees'];
-    }
-    
-    $html = '<div class="chart-container">';
-    $html .= '<div class="chart-title">Event Trends Over Time</div>';
-    $html .= '<canvas id="trendsChart"></canvas>';
-    $html .= '</div>';
-    
-    // Add chart script
-    $html .= '<script>';
-    $html .= 'document.addEventListener("DOMContentLoaded", function() {';
-    $html .= 'if (document.getElementById("trendsChart")) {';
-    $html .= 'const ctx = document.getElementById("trendsChart").getContext("2d");';
-    $html .= 'new Chart(ctx, {';
-    $html .= 'type: "line",';
-    $html .= 'data: {';
-    $html .= 'labels: ' . json_encode($chartLabels) . ',';
-    $html .= 'datasets: [';
-    $html .= '{';
-    $html .= 'label: "Events",';
-    $html .= 'data: ' . json_encode($chartEvents) . ',';
-    $html .= 'borderColor: "#007bff",';
-    $html .= 'backgroundColor: "rgba(0, 123, 255, 0.1)",';
-    $html .= 'tension: 0.4,';
-    $html .= 'fill: true,';
-    $html .= 'pointRadius: 5,';
-    $html .= 'pointHoverRadius: 7';
-    $html .= '},';
-    $html .= '{';
-    $html .= 'label: "Registrations",';
-    $html .= 'data: ' . json_encode($chartRegistrations) . ',';
-    $html .= 'borderColor: "#28a745",';
-    $html .= 'backgroundColor: "rgba(40, 167, 69, 0.1)",';
-    $html .= 'tension: 0.4,';
-    $html .= 'fill: true,';
-    $html .= 'pointRadius: 5,';
-    $html .= 'pointHoverRadius: 7';
-    $html .= '},';
-    $html .= '{';
-    $html .= 'label: "Attendees",';
-    $html .= 'data: ' . json_encode($chartAttendees) . ',';
-    $html .= 'borderColor: "#ffc107",';
-    $html .= 'backgroundColor: "rgba(255, 193, 7, 0.1)",';
-    $html .= 'tension: 0.4,';
-    $html .= 'fill: true,';
-    $html .= 'pointRadius: 5,';
-    $html .= 'pointHoverRadius: 7';
-    $html .= '}';
-    $html .= ']';
-    $html .= '},';
-    $html .= 'options: {';
-    $html .= 'responsive: true,';
-    $html .= 'maintainAspectRatio: false,';
-    $html .= 'plugins: {';
-    $html .= 'legend: { display: true, position: "top" }';
-    $html .= '},';
-    $html .= 'scales: {';
-    $html .= 'y: { beginAtZero: true, ticks: { stepSize: 1 } }';
-    $html .= '}';
-    $html .= '}';
-    $html .= '});';
-    $html .= '}';
-    $html .= '});';
-    $html .= '</script>';
+    // Add the chart
+    $html = getTrendsChartHTML($conn, $startDate, $endDate);
     
     $html .= '<table>';
     $html .= '<thead><tr><th>Date</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead>';
