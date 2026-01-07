@@ -1378,17 +1378,17 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <div class="col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
-                                            <h6 class="card-title text-muted">Total Participants</h6>
-                                            <h2 class="display-6 mb-0" id="totalParticipantsCard">-</h2>
-                                            <small id="participantsChangeCard">-</small>
+                                            <h6 class="card-title text-muted">Total Registrations</h6>
+                                            <h2 class="display-6 mb-0" id="totalRegistrationsCard">-</h2>
+                                            <small id="registrationsChangeCard">-</small>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
-                                            <h6 class="card-title text-muted">Avg. Attendance Rate</h6>
-                                            <h2 class="display-6 mb-0" id="avgAttendanceCard">-</h2>
+                                            <h6 class="card-title text-muted">Attendance Rate</h6>
+                                            <h2 class="display-6 mb-0" id="avgAttendanceRateCard">-</h2>
                                             <small class="text-info">System Average</small>
                                         </div>
                                     </div>
@@ -1396,9 +1396,45 @@ if ($_SESSION['role'] === 'Member Staff') {
                                 <div class="col-md-3">
                                     <div class="card bg-light">
                                         <div class="card-body">
-                                            <h6 class="card-title text-muted">New Members</h6>
-                                            <h2 class="display-6 mb-0" id="newMembersCard">-</h2>
-                                            <small class="text-muted">In selected period</small>
+                                            <h6 class="card-title text-muted">Avg. Rating</h6>
+                                            <h2 class="display-6 mb-0" id="avgFeedbackRatingCard">-</h2>
+                                            <small id="feedbackCountCard">-</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-muted">Active Members</h6>
+                                            <h2 class="display-6 mb-0" id="totalActiveMembersCard">-</h2>
+                                            <small class="text-muted">Registered Members</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-muted">Non-Members</h6>
+                                            <h2 class="display-6 mb-0" id="totalNonMembersCard">-</h2>
+                                            <small class="text-info">In period</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-muted">Total Attendees</h6>
+                                            <h2 class="display-6 mb-0" id="totalAttendeesCard">-</h2>
+                                            <small class="text-muted">Members + Non-Members</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-muted">Initiatives</h6>
+                                            <h2 class="display-6 mb-0" id="totalInitiativesCard">-</h2>
+                                            <small class="text-muted">In period</small>
                                         </div>
                                     </div>
                                 </div>
@@ -1449,20 +1485,24 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         <!-- Events Report -->
                                         <div id="events-report" class="tab-pane active">
                                             <div class="table-responsive">
-                                                <table class="table table-hover">
+                                                <table class="table table-hover table-sm">
                                                     <thead>
                                                         <tr>
                                                             <th>Event Name</th>
                                                             <th>Date</th>
-                                                            <th>Registered</th>
+                                                            <th>Venue</th>
+                                                            <th>Members</th>
+                                                            <th>Non-Members</th>
+                                                            <th>Total</th>
                                                             <th>Attended</th>
-                                                            <th>Attendance Rate</th>
-                                                            <th>Rating</th>
+                                                            <th>Rate</th>
+                                                            <th>Avg Rating</th>
+                                                            <th>Feedback</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="eventsReportBody">
                                                         <tr>
-                                                            <td colspan="6" class="text-center text-muted">Loading
+                                                            <td colspan="10" class="text-center text-muted">Loading
                                                                 events data...</td>
                                                         </tr>
                                                     </tbody>
@@ -1495,30 +1535,20 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                                         <!-- Initiatives Report -->
                                         <div id="initiatives-report" class="tab-pane fade">
-                                            <div class="row g-4 mb-4">
-                                                <div class="col-md-3">
-                                                    <div class="card bg-light">
-                                                        <div class="card-body">
-                                                            <h6 class="card-title text-muted">Total Initiatives</h6>
-                                                            <h2 class="display-6 mb-0" id="totalInitiativesCard">-</h2>
-                                                            <small class="text-muted">Active initiatives</small>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                             <div class="table-responsive">
-                                                <table class="table table-hover">
+                                                <table class="table table-hover table-sm">
                                                     <thead>
                                                         <tr>
                                                             <th>Initiative Name</th>
                                                             <th>Category</th>
                                                             <th>Status</th>
-                                                            <th>Created Date</th>
+                                                            <th>Publish Date</th>
+                                                            <th>Description</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="initiativesReportBody">
                                                         <tr>
-                                                            <td colspan="4" class="text-center text-muted">Loading
+                                                            <td colspan="5" class="text-center text-muted">Loading
                                                                 initiatives data...</td>
                                                         </tr>
                                                     </tbody>
@@ -9368,13 +9398,13 @@ if ($_SESSION['role'] === 'Member Staff') {
                     let symbol, color;
                     if (value > 0) {
                         symbol = '↑';
-                        color = 'success'; // Green for increase
+                        color = 'success';
                     } else if (value < 0) {
                         symbol = '↓';
-                        color = 'danger'; // Red for decrease
+                        color = 'danger';
                     } else {
                         symbol = '→';
-                        color = 'muted'; // Grey for stagnant
+                        color = 'muted';
                     }
                     return `<small class="text-${color}">${symbol} ${Math.abs(value)}% vs last period</small>`;
                 };
@@ -9382,12 +9412,21 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('totalEventsCard').textContent = summary.totalEvents;
                 document.getElementById('eventsChangeCard').innerHTML = formatChange(summary.eventsChange);
 
-                document.getElementById('totalParticipantsCard').textContent = summary.totalParticipants;
-                document.getElementById('participantsChangeCard').innerHTML = formatChange(summary.participantsChange);
+                document.getElementById('totalRegistrationsCard').textContent = summary.totalRegistrations;
+                document.getElementById('registrationsChangeCard').innerHTML = formatChange(summary.registrationsChange);
 
-                document.getElementById('avgAttendanceCard').textContent = summary.avgAttendance + '%';
+                document.getElementById('avgAttendanceRateCard').textContent = summary.avgAttendanceRate + '%';
+                
+                document.getElementById('totalAttendeesCard').textContent = summary.totalAttendees;
 
-                document.getElementById('newMembersCard').textContent = summary.newMembers;
+                document.getElementById('avgFeedbackRatingCard').textContent = summary.avgFeedbackRating.toFixed(2);
+                document.getElementById('feedbackCountCard').innerHTML = `<small class="text-muted">${summary.totalFeedback} responses</small>`;
+
+                document.getElementById('totalActiveMembersCard').textContent = summary.totalActiveMembers;
+                
+                document.getElementById('totalNonMembersCard').textContent = summary.totalNonMembers;
+                
+                document.getElementById('totalInitiativesCard').textContent = summary.totalInitiatives;
             }
 
             // Populate events report table
@@ -9395,7 +9434,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const tbody = document.getElementById('eventsReportBody');
 
                 if (!events || events.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No events in selected period</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No events in selected period</td></tr>';
                     return;
                 }
 
@@ -9403,16 +9442,20 @@ if ($_SESSION['role'] === 'Member Staff') {
                 <tr>
                     <td><strong>${escapeHtml(event.eventName)}</strong></td>
                     <td>${event.eventDate}</td>
-                    <td>${event.registered}</td>
-                    <td>${event.attended}</td>
+                    <td><small>${escapeHtml(event.Venue || '-')}</small></td>
+                    <td><span class="badge bg-primary">${event.memberRegistrations || 0}</span></td>
+                    <td><span class="badge bg-info">${event.nonMemberRegistrations || 0}</span></td>
+                    <td><strong>${event.registered}</strong></td>
+                    <td><strong>${event.attended}</strong></td>
                     <td>
                         <span class="badge ${event.attendanceRate >= 80 ? 'bg-success' : event.attendanceRate >= 60 ? 'bg-warning' : 'bg-danger'}">
                             ${event.attendanceRate}%
                         </span>
                     </td>
                     <td>
-                        <span class="badge bg-info">${event.rating}/5.0</span>
+                        <span class="badge bg-warning">${event.avgRating}/5.0</span>
                     </td>
+                    <td>${event.feedbackCount}</td>
                 </tr>
             `).join('');
             }
@@ -9440,27 +9483,23 @@ if ($_SESSION['role'] === 'Member Staff') {
             // Populate initiatives report table
             function populateInitiativesReportTable(initiatives) {
                 const tbody = document.getElementById('initiativesReportBody');
-                const totalInitiativesCard = document.getElementById('totalInitiativesCard');
 
                 if (!initiatives || initiatives.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No initiatives found</td></tr>';
-                    if (totalInitiativesCard) totalInitiativesCard.textContent = '0';
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No initiatives found</td></tr>';
                     return;
                 }
 
-                // Update total initiatives count
-                if (totalInitiativesCard) totalInitiativesCard.textContent = initiatives.length;
-
                 tbody.innerHTML = initiatives.map(initiative => `
                 <tr>
-                    <td><strong>${initiative.Title || '-'}</strong></td>
-                    <td>${initiative.CategoryName || '-'}</td>
+                    <td><strong>${escapeHtml(initiative.Title || '-')}</strong></td>
+                    <td>${initiative.category || '-'}</td>
                     <td>
-                        <span class="badge ${initiative.isHighlighted ? 'bg-warning' : 'bg-secondary'}">
-                            ${initiative.isHighlighted ? 'Highlighted' : 'Regular'}
+                        <span class="badge ${initiative.status === 'Featured' ? 'bg-warning' : 'bg-secondary'}">
+                            ${initiative.status}
                         </span>
                     </td>
-                    <td>${initiative.createdDate || '-'}</td>
+                    <td>${initiative.publishDate}</td>
+                    <td><small>${escapeHtml(initiative.Description || '').substring(0, 50)}${escapeHtml(initiative.Description || '').length > 50 ? '...' : ''}</small></td>
                 </tr>
             `).join('');
             }
