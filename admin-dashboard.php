@@ -9637,34 +9637,54 @@ if ($_SESSION['role'] === 'Member Staff') {
 
             // Export reports
             async function exportReport(format, buttonElement) {
-                const dateRange = document.getElementById('dateRangeSelect').value;
-                const activeTab = document.querySelector('.nav-link.active');
-                
-                if (!activeTab) {
-                    alert('Please select a report type first');
-                    return;
-                }
-                
-                const reportType = activeTab.getAttribute('href').replace('#', '').replace('-report', '');
-
-                let startDate, endDate;
-
-                if (dateRange === 'custom') {
-                    startDate = document.getElementById('reportStartDate').value;
-                    endDate = document.getElementById('reportEndDate').value;
-
-                    if (!startDate || !endDate) {
-                        alert('Please select both start and end dates');
+                try {
+                    const dateRange = document.getElementById('dateRangeSelect');
+                    if (!dateRange) {
+                        alert('Date range selector not found');
                         return;
                     }
-                } else {
-                    endDate = new Date().toISOString().split('T')[0];
-                    startDate = new Date();
-                    startDate.setDate(startDate.getDate() - parseInt(dateRange));
-                    startDate = startDate.toISOString().split('T')[0];
-                }
+                    
+                    const dateRangeValue = dateRange.value;
+                    const activeTab = document.querySelector('div.tab-content .tab-pane.active');
+                    
+                    if (!activeTab) {
+                        alert('Please select a report type first');
+                        return;
+                    }
+                    
+                    // Get report type from the active tab's id
+                    const tabId = activeTab.id;
+                    let reportType = '';
+                    
+                    if (tabId === 'events-report') {
+                        reportType = 'events';
+                    } else if (tabId === 'members-report') {
+                        reportType = 'members';
+                    } else if (tabId === 'initiatives-report') {
+                        reportType = 'initiatives';
+                    } else if (tabId === 'trends-report') {
+                        reportType = 'trends';
+                    } else {
+                        reportType = 'summary';
+                    }
 
-                try {
+                    let startDate, endDate;
+
+                    if (dateRangeValue === 'custom') {
+                        startDate = document.getElementById('reportStartDate').value;
+                        endDate = document.getElementById('reportEndDate').value;
+
+                        if (!startDate || !endDate) {
+                            alert('Please select both start and end dates');
+                            return;
+                        }
+                    } else {
+                        endDate = new Date().toISOString().split('T')[0];
+                        startDate = new Date();
+                        startDate.setDate(startDate.getDate() - parseInt(dateRangeValue));
+                        startDate = startDate.toISOString().split('T')[0];
+                    }
+
                     // Show loading indicator
                     if (buttonElement) {
                         const originalText = buttonElement.innerHTML;
@@ -9681,10 +9701,11 @@ if ($_SESSION['role'] === 'Member Staff') {
                         }, 2000);
                     }
                 } catch (error) {
-                    console.error('Error exporting report:', error);
-                    alert('Error generating report');
+                    console.error('Error generating report:', error);
+                    alert('Error generating report: ' + error.message);
                     if (buttonElement) {
                         buttonElement.disabled = false;
+                        buttonElement.innerHTML = '<i class="bi bi-file-pdf"></i> Generate Reports';
                     }
                 }
             }
