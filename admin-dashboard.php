@@ -9508,7 +9508,7 @@ if ($_SESSION['role'] === 'Member Staff') {
                 const maxEvents = Math.max(...trends.map(t => parseInt(t.events) || 0), 1);
 
                 // Create SVG line graph
-                const width = Math.max(800, trends.length * 100);
+                const width = Math.max(800, trends.length * 120);
                 const height = 300;
                 const padding = 40;
                 const graphWidth = width - (padding * 2);
@@ -9560,21 +9560,25 @@ if ($_SESSION['role'] === 'Member Staff') {
                     // Point
                     svg += `<circle cx="${x}" cy="${y}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>`;
                     
-                    // X-axis label (month)
-                    svg += `<text x="${x}" y="${height - padding + 20}" font-size="11" fill="#666" text-anchor="middle">${trend.monthName || trend.month}</text>`;
+                    // X-axis label (specific date with day of month)
+                    const dateLabel = trend.dateFormatted || trend.monthName || trend.month;
+                    svg += `<text x="${x}" y="${height - padding + 20}" font-size="11" fill="#666" text-anchor="middle">${dateLabel}</text>`;
                 });
 
                 svg += `</svg>`;
 
                 // Create data table below graph
-                let table = '<div style="margin-top: 20px; overflow-x: auto;"><table class="table table-sm table-bordered"><thead><tr><th>Month</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead><tbody>';
+                let table = '<div style="margin-top: 20px; overflow-x: auto;"><table class="table table-sm table-bordered"><thead><tr><th>Date</th><th>Events</th><th>Registrations</th><th>Attendees</th><th>Member / Non-Member</th><th>Attendance Rate</th><th>Avg Rating</th></tr></thead><tbody>';
                 
                 trends.forEach(trend => {
+                    const dateDisplay = trend.dateFormatted || trend.monthName || trend.month;
+                    const memberNonMember = `${trend.memberAttendees || 0} / ${trend.nonMemberAttendees || 0}`;
                     table += `<tr>
-                        <td><strong>${trend.monthName || trend.month}</strong></td>
+                        <td><strong>${dateDisplay}</strong></td>
                         <td>${trend.events || 0}</td>
                         <td>${trend.registrations || 0}</td>
                         <td>${trend.attendees || 0}</td>
+                        <td>${memberNonMember}</td>
                         <td>${trend.attendanceRate || 0}%</td>
                         <td>${parseFloat(trend.avgFeedbackRating || 0).toFixed(2)}/5.0</td>
                     </tr>`;

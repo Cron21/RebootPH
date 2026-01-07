@@ -319,8 +319,9 @@ function getTrendsReport($conn, $startDate, $endDate) {
     try {
         $trendStmt = $conn->prepare("
             SELECT 
+                DATE_FORMAT(p.ProposedDate, '%Y-%m-%d') as date,
+                DATE_FORMAT(p.ProposedDate, '%b %d, %Y') as dateFormatted,
                 DATE_FORMAT(p.ProposedDate, '%Y-%m') as month,
-                DATE_FORMAT(p.ProposedDate, '%b %Y') as monthName,
                 COUNT(DISTINCT e.EventID) as events,
                 COUNT(DISTINCT r.RegistrationID) as registrations,
                 COUNT(DISTINCT ea.AttendanceID) as attendees,
@@ -338,8 +339,8 @@ function getTrendsReport($conn, $startDate, $endDate) {
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-            GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m'), p.ProposedDate
-            ORDER BY month ASC
+            GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m-%d'), p.ProposedDate
+            ORDER BY p.ProposedDate ASC
         ");
         $trendStmt->execute([$startDate, $endDate]);
         $trends = $trendStmt->fetchAll(PDO::FETCH_ASSOC);
