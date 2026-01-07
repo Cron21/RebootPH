@@ -149,10 +149,10 @@ if ($_SESSION['role'] === 'Member Staff') {
 
 <body class="bg-light d-flex flex-column min-vh-100"
     style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;">
-    <nav class="navbar navbar-expand-lg fixed-top bg-light bg-opacity-100 shadow-sm">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light shadow-lg">
+        <div class="container d-flex align-items-center justify-content-between">
             <a class="navbar-brand d-flex align-items-center gap-2 brand-logo" href="index.html">
-                <img src="assets/image/reboot-logo.png" alt="Reboot PH logo">
+                <img style="width: 6rem; height: 3rem" src="assets/image/reboot2-logo.png" alt="Reboot PH logo">
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
