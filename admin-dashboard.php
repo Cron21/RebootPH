@@ -97,12 +97,15 @@ if ($_SESSION['role'] === 'Member Staff') {
             max-width: 500px;
             aspect-ratio: 85 / 54;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
             font-size: clamp(8px, 2vw, 16px);
-            padding: clamp(8px, 2%, 16px);
+            padding: 0;
             box-sizing: border-box;
             overflow: hidden;
+            height: auto;
+            min-height: 300px;
         }
 
         .id-card img {
@@ -4843,16 +4846,34 @@ if ($_SESSION['role'] === 'Member Staff') {
                     profileImageEl.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23e9ecef"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="14" fill="%23999"%3ENo Photo%3C/text%3E%3C/svg%3E';
                 }
 
-                // Render unified ID preview using member data
-                const memberData = {
+                // Fetch full member data from stored array to get actual join date
+                const memberRow = document.querySelector(`[data-member-id="${memberId}"]`);
+                let fullMemberData = {
                     MemberID: memberId,
                     FName: firstName,
                     LName: lastName,
-                    Role: document.querySelector(`[data-member-id="${memberId}"]`)?.dataset.memberRole || 'Member',
+                    Role: memberRow?.dataset.memberRole || 'Member',
                     JoinDate: new Date().toISOString(),
                     ProfileImage: profileImage
                 };
-                renderIDPreview(memberData, 'idPreview');
+
+                // Try to find the complete member data from API response
+                if (window.allMembers && Array.isArray(window.allMembers)) {
+                    const completeMember = window.allMembers.find(m => m.MemberID == memberId);
+                    if (completeMember) {
+                        fullMemberData = {
+                            MemberID: completeMember.MemberID,
+                            FName: completeMember.FName,
+                            LName: completeMember.LName,
+                            Role: completeMember.Role || 'Member',
+                            JoinDate: completeMember.JoinDate || new Date().toISOString(),
+                            ProfileImage: completeMember.ProfileImage || profileImage
+                        };
+                    }
+                }
+
+                // Render unified ID preview using complete member data
+                renderIDPreview(fullMemberData, 'idPreview');
 
                 // Switch to profile tab
                 const profileSection = document.getElementById('profile');

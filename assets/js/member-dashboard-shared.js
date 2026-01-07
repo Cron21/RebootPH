@@ -64,63 +64,73 @@ function renderIDPreview(memberData, containerId) {
     const memberId = memberData.MemberID.toString().padStart(7, '0');
     const joinDate = new Date(memberData.JoinDate);
     const formattedJoinDate = joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    
+    // Calculate valid until date (1 year from join date)
+    const validUntilDate = new Date(joinDate);
+    validUntilDate.setFullYear(validUntilDate.getFullYear() + 1);
+    const formattedValidUntilDate = validUntilDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
     // Generate photo HTML with fallback to initials
     let photoHtml = '';
     if (memberData.ProfileImage && memberData.ProfileImage !== 'null' && memberData.ProfileImage !== '' && memberData.ProfileImage !== undefined) {
-        photoHtml = `<img src="${memberData.ProfileImage}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #035996;" onerror="this.parentElement.innerHTML='<div style=\\"width: 100%; height: 100%; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; border: 2px solid #035996;\\"><span style=\\"font-size: clamp(10px, 40%, 14px);\\\">${memberName.charAt(0).toUpperCase()}</span></div>';">`;
+        photoHtml = `<img src="${memberData.ProfileImage}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid #fff;" onerror="this.parentElement.innerHTML='<div style=\\"width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; border: 3px solid #fff; font-size: 2.5rem;\\\">${memberName.charAt(0).toUpperCase()}</div>';">`;
     } else {
         const initial = memberName ? memberName.charAt(0).toUpperCase() : 'M';
-        photoHtml = `<div style="width: 100%; height: 100%; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; border: 2px solid #035996;"><span style="font-size: clamp(10px, 40%, 14px);">${initial}</span></div>`;
+        photoHtml = `<div style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; border: 3px solid #fff; font-size: 2.5rem;">${initial}</div>`;
     }
 
-    // Build the complete ID preview HTML
+    // Build the complete ID preview HTML with enhanced styling
     container.innerHTML = `
         <!-- Header Section: Blue background with logo and organization info -->
-        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(6px, 3%, 12px) clamp(10px, 3%, 16px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important;">
-            <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(35px, 12%, 50px); height: clamp(35px, 12%, 50px); padding: clamp(3px, 2%, 4px);">
-                <img src="assets/image/reboot2-logo.png" style="width: 80%; height: auto;" alt="Reboot PH Logo">
+        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(12px, 4%, 16px) clamp(16px, 5%, 24px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important; gap: clamp(12px, 3%, 16px);">
+            <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(50px, 16%, 70px); height: clamp(50px, 16%, 70px); padding: clamp(4px, 2%, 6px);">
+                <img src="assets/image/reboot2-logo.png" style="width: 85%; height: auto;" alt="Reboot PH Logo">
             </div>
-            <div style="text-align: right !important; color: white !important; flex: 1; padding-left: clamp(8px, 3%, 12px);">
-                <h4 style="margin: 0; font-weight: bold; font-size: clamp(10px, 2.5vw, 14px); color: white !important; line-height: 1.1;">Reboot Philippines</h4>
-                <p style="margin: clamp(1px, 0.5%, 3px) 0 0 0; font-size: clamp(6px, 1.2vw, 8px); opacity: 0.9; color: white !important; line-height: 1;">2804, Discovery Centre, Pasig City</p>
+            <div style="text-align: left !important; color: white !important; flex: 1;">
+                <h2 style="margin: 0; font-weight: 900; font-size: clamp(18px, 3.5vw, 28px); color: white !important; line-height: 1.1;">Reboot Philippines</h2>
+                <p style="margin: clamp(2px, 0.5%, 4px) 0 0 0; font-size: clamp(10px, 1.5vw, 13px); opacity: 0.95; color: white !important; line-height: 1; font-weight: 500;">Environmental Organization</p>
             </div>
         </div>
 
-        <!-- Content Section: Member info with photo, name, role, ID -->
-        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; flex: 1 !important; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); width: 100% !important; min-height: 120px !important;">
-            <!-- Photo Container -->
-            <div style="flex: 0 0 auto; display: flex !important; justify-content: center !important; align-items: center !important; width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px);">
+        <!-- Content Section: Member info with photo and details -->
+        <div style="display: flex !important; flex-direction: row !important; align-items: flex-start !important; justify-content: flex-start !important; padding: clamp(16px, 4%, 20px) clamp(16px, 4%, 20px) !important; flex: 1 !important; box-sizing: border-box !important; gap: clamp(16px, 4%, 20px); width: 100% !important; background: #f9fafb;">
+            <!-- Photo Container - Larger -->
+            <div style="flex: 0 0 auto; display: flex !important; justify-content: center !important; align-items: center !important; width: clamp(90px, 22%, 110px); height: clamp(90px, 22%, 110px); flex-shrink: 0;">
                 ${photoHtml}
             </div>
 
-            <!-- Member Info Container -->
-            <div style="flex: 1 !important; text-align: left !important; overflow: visible !important; min-width: 0;">
-                <div style="margin-bottom: clamp(2px, 1%, 4px);">
-                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Name:</small>
-                    <span style="font-weight: bold; font-size: clamp(10px, 2.2vw, 12px); color: #333 !important; display: block; line-height: 1;">${memberName}</span>
+            <!-- Member Info Container - Larger Text -->
+            <div style="flex: 1 !important; text-align: left !important; overflow: visible !important; min-width: 0; display: flex !important; flex-direction: column !important; justify-content: center !important; gap: clamp(8px, 2%, 12px);">
+                <div style="margin: 0;">
+                    <small style="color: #666; font-size: clamp(9px, 1.4vw, 11px); display: block; margin: 0 0 2px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Name:</small>
+                    <span style="font-weight: 900; font-size: clamp(14px, 2.8vw, 18px); color: #1a1a1a !important; display: block; line-height: 1.2;">${memberName}</span>
                 </div>
-                <div style="margin-bottom: clamp(2px, 1%, 4px);">
-                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Role:</small>
-                    <span style="font-weight: bold; font-size: clamp(8px, 1.8vw, 10px); color: #035996 !important; display: block; line-height: 1;">${memberRole}</span>
+                <div style="margin: 0;">
+                    <small style="color: #666; font-size: clamp(9px, 1.4vw, 11px); display: block; margin: 0 0 2px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Role:</small>
+                    <span style="font-weight: 700; font-size: clamp(12px, 2.2vw, 15px); color: #035996 !important; display: block; line-height: 1.2;">${memberRole}</span>
                 </div>
-                <div style="margin-bottom: 0;">
-                    <span style="font-weight: 800; color: #035996 !important; font-size: clamp(8px, 1.8vw, 10px); display: block; line-height: 1;">ID: RPH-${memberId}</span>
+                <div style="margin: 0;">
+                    <small style="color: #666; font-size: clamp(9px, 1.4vw, 11px); display: block; margin: 0 0 2px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">ID:</small>
+                    <span style="font-weight: 900; font-size: clamp(13px, 2.5vw, 17px); color: #035996 !important; display: block; line-height: 1.2;">RPH-${memberId}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Footer Section: Member since date and QR code -->
-        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important; border-top: 1px solid #f0f0f0;">
-            <div style="font-size: clamp(7px, 1.4vw, 9px); color: #035996 !important; text-align: left !important;">
-                <p style="margin: 0 !important; line-height: 1.2 !important;">
-                    <strong style="display: block; font-size: clamp(6px, 1.2vw, 8px); margin: 0;">Member Since:</strong>
-                    <span style="font-weight: bold; font-size: clamp(7px, 1.3vw, 9px);">${formattedJoinDate}</span>
-                </p>
+        <!-- Footer Section: Member since, valid until dates and QR code -->
+        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(12px, 3%, 16px) clamp(16px, 4%, 20px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important; border-top: 1px solid #ddd; background: #ffffff;">
+            <div style="flex: 1; display: flex !important; flex-direction: column !important; gap: clamp(6px, 1.5%, 8px);">
+                <div style="display: flex !important; flex-direction: row !important; align-items: baseline !important; gap: clamp(4px, 1%, 6px);">
+                    <span style="font-weight: 700; color: #035996 !important; font-size: clamp(10px, 1.5vw, 12px); white-space: nowrap;">Member Since:</span>
+                    <span style="font-weight: 800; color: #1a1a1a !important; font-size: clamp(11px, 1.6vw, 13px);">${formattedJoinDate}</span>
+                </div>
+                <div style="display: flex !important; flex-direction: row !important; align-items: baseline !important; gap: clamp(4px, 1%, 6px);">
+                    <span style="font-weight: 700; color: #035996 !important; font-size: clamp(10px, 1.5vw, 12px); white-space: nowrap;">Valid Until:</span>
+                    <span style="font-weight: 800; color: #1a1a1a !important; font-size: clamp(11px, 1.6vw, 13px);">${formattedValidUntilDate}</span>
+                </div>
             </div>
             <!-- QR Code Container -->
-            <div style="background: white !important; padding: clamp(2px, 1%, 4px); border-radius: clamp(2px, 1%, 3px); border: 1px solid #eee; flex-shrink: 0;">
-                <img id="idPreviewQRCode_${memberId}" style="width: clamp(50px, 18%, 70px); height: auto; display: block !important;" alt="Member QR Code">
+            <div style="background: white !important; padding: clamp(4px, 1.5%, 6px); border-radius: clamp(3px, 1%, 4px); border: 1px solid #eee; flex-shrink: 0; display: flex !important; align-items: center !important; justify-content: center !important;">
+                <img id="idPreviewQRCode_${memberId}" style="width: clamp(70px, 20%, 90px); height: auto; display: block !important;" alt="Member QR Code">
             </div>
         </div>
     `;
@@ -133,7 +143,7 @@ function renderIDPreview(memberData, containerId) {
             const protocol = window.location.protocol;
             const host = window.location.host;
             const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberIdForQR);
-            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=' + encodeURIComponent(memberDetailsUrl);
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(memberDetailsUrl);
             
             qrImg.src = qrUrl;
             
