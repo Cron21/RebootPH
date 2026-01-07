@@ -905,6 +905,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
     </div>
 
     <script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/member-dashboard-shared.js"></script>
     <script src="assets/js/member-dashboard.js"></script>
     <script>
         // Capture logged-in member's ID from PHP session
