@@ -1358,8 +1358,8 @@ if ($_SESSION['role'] === 'Member Staff') {
                                         </div>
                                         <button class="btn btn-sm btn-primary" onclick="loadReports()">Filter</button>
                                     </div>
-                                    <button class="btn btn-primary" onclick="exportReport('pdf')">
-                                        <i class="bi bi-file-pdf"></i> Export PDF
+                                    <button class="btn btn-primary" onclick="exportReport('pdf', this)">
+                                        <i class="bi bi-file-pdf"></i> Generate Reports
                                     </button>
                                 </div>
                             </div>
@@ -9636,9 +9636,15 @@ if ($_SESSION['role'] === 'Member Staff') {
             }
 
             // Export reports
-            async function exportReport(format) {
+            async function exportReport(format, buttonElement) {
                 const dateRange = document.getElementById('dateRangeSelect').value;
                 const activeTab = document.querySelector('.nav-link.active');
+                
+                if (!activeTab) {
+                    alert('Please select a report type first');
+                    return;
+                }
+                
                 const reportType = activeTab.getAttribute('href').replace('#', '').replace('-report', '');
 
                 let startDate, endDate;
@@ -9660,22 +9666,26 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                 try {
                     // Show loading indicator
-                    const btn = event.target.closest('.btn');
-                    const originalText = btn.innerHTML;
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating PDF...';
+                    if (buttonElement) {
+                        const originalText = buttonElement.innerHTML;
+                        buttonElement.disabled = true;
+                        buttonElement.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating Report...';
 
-                    const url = `api/export-reports.php?format=${format}&type=${reportType}&startDate=${startDate}&endDate=${endDate}`;
-                    window.open(url, '_blank');
+                        const url = `api/export-reports.php?format=${format}&type=${reportType}&startDate=${startDate}&endDate=${endDate}`;
+                        window.open(url, '_blank');
 
-                    // Reset button after 2 seconds
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.innerHTML = originalText;
-                    }, 2000);
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            buttonElement.disabled = false;
+                            buttonElement.innerHTML = originalText;
+                        }, 2000);
+                    }
                 } catch (error) {
                     console.error('Error exporting report:', error);
-                    alert('Error exporting report');
+                    alert('Error generating report');
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                    }
                 }
             }
 
