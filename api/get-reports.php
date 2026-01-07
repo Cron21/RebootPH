@@ -60,13 +60,14 @@ try {
 
 function getSummaryReport($conn, $startDate, $endDate) {
     try {
-        // Total Events held in period
+        // Total Events held in period (events with registrations and attendance)
         $totalEventsStmt = $conn->prepare("
             SELECT COUNT(DISTINCT e.EventID) as count 
             FROM event e
             JOIN proposal p ON e.ProposalID = p.ProposalID
-            WHERE DATE(p.ProposedDate) BETWEEN ? AND ? 
-                AND e.status = 'Completed'
+            JOIN registration r ON e.EventID = r.EventID
+            JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+            WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
         ");
         $totalEventsStmt->execute([$startDate, $endDate]);
         $totalEvents = (int)($totalEventsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
@@ -78,7 +79,6 @@ function getSummaryReport($conn, $startDate, $endDate) {
             JOIN event e ON r.EventID = e.EventID
             JOIN proposal p ON e.ProposalID = p.ProposalID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
         ");
         $totalRegistrationsStmt->execute([$startDate, $endDate]);
         $totalRegistrations = (int)($totalRegistrationsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
@@ -91,7 +91,6 @@ function getSummaryReport($conn, $startDate, $endDate) {
             JOIN event e ON r.EventID = e.EventID
             JOIN proposal p ON e.ProposalID = p.ProposalID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
         ");
         $totalAttendeesStmt->execute([$startDate, $endDate]);
         $totalAttendees = (int)($totalAttendeesStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
@@ -127,7 +126,6 @@ function getSummaryReport($conn, $startDate, $endDate) {
             JOIN event e ON r.EventID = e.EventID
             JOIN proposal p ON e.ProposalID = p.ProposalID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
         ");
         $avgFeedbackStmt->execute([$startDate, $endDate]);
         $feedbackData = $avgFeedbackStmt->fetch(PDO::FETCH_ASSOC);
@@ -151,8 +149,9 @@ function getSummaryReport($conn, $startDate, $endDate) {
             SELECT COUNT(DISTINCT e.EventID) as count 
             FROM event e
             JOIN proposal p ON e.ProposalID = p.ProposalID
-            WHERE DATE(p.ProposedDate) BETWEEN ? AND ? 
-                AND e.status = 'Completed'
+            JOIN registration r ON e.EventID = r.EventID
+            JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
+            WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
         ");
         $prevEventsStmt->execute([$prevStart, $prevEnd]);
         $prevEvents = (int)($prevEventsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
@@ -165,7 +164,6 @@ function getSummaryReport($conn, $startDate, $endDate) {
             JOIN event e ON r.EventID = e.EventID
             JOIN proposal p ON e.ProposalID = p.ProposalID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
         ");
         $prevRegistrationsStmt->execute([$prevStart, $prevEnd]);
         $prevRegistrations = (int)($prevRegistrationsStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
@@ -218,7 +216,6 @@ function getEventsReport($conn, $startDate, $endDate) {
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
             GROUP BY e.EventID, p.Title, p.ProposedDate, p.Venue
             ORDER BY p.ProposedDate DESC
         ");
@@ -237,15 +234,14 @@ function getEventsReport($conn, $startDate, $endDate) {
 
 function getMembersReport($conn, $startDate, $endDate) {
     try {
-        // Regular Members
+        // All Members (including staff, officers, directors)
         $memberStmt = $conn->prepare("
             SELECT 
-                'Regular Members' as type,
+                'All Members' as type,
                 COUNT(*) as totalCount,
                 SUM(CASE WHEN isActive = 1 THEN 1 ELSE 0 END) as active,
                 SUM(CASE WHEN isActive = 0 THEN 1 ELSE 0 END) as inactive
-            FROM member 
-            WHERE Role = 'Member'
+            FROM member
         ");
         $memberStmt->execute();
         $memberData = $memberStmt->fetch(PDO::FETCH_ASSOC);
@@ -273,7 +269,6 @@ function getMembersReport($conn, $startDate, $endDate) {
             JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             JOIN event e ON r.EventID = e.EventID
             WHERE DATE(ea.AttendanceTime) BETWEEN ? AND ?
-                AND e.status = 'Completed'
         ");
         $memberParticipationStmt->execute([$startDate, $endDate]);
         $memberParticipation = (int)($memberParticipationStmt->fetch(PDO::FETCH_ASSOC)['participatingMembers'] ?? 0);
@@ -288,7 +283,6 @@ function getMembersReport($conn, $startDate, $endDate) {
             JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             JOIN event e ON r.EventID = e.EventID
             WHERE DATE(ea.AttendanceTime) BETWEEN ? AND ?
-                AND e.status = 'Completed'
         ");
         $nonMemberParticipationStmt->execute([$startDate, $endDate]);
         $nonMemberParticipation = (int)($nonMemberParticipationStmt->fetch(PDO::FETCH_ASSOC)['participatingNonMembers'] ?? 0);
@@ -303,7 +297,7 @@ function getMembersReport($conn, $startDate, $endDate) {
                 'avgParticipation' => (float)$memberAvgParticipation
             ],
             [
-                'memberType' => $nonMemberData['type'],
+                'memberType' => 'Non-Members (registered in period)',
                 'totalCount' => (int)$nonMemberData['totalCount'],
                 'active' => (int)$nonMemberData['active'],
                 'inactive' => (int)$nonMemberData['inactive'],
@@ -344,7 +338,6 @@ function getTrendsReport($conn, $startDate, $endDate) {
             LEFT JOIN eventattendance ea ON r.RegistrationID = ea.RegistrationID
             LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
-                AND e.status = 'Completed'
             GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m'), p.ProposedDate
             ORDER BY month ASC
         ");
