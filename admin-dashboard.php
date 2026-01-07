@@ -4830,30 +4830,29 @@ if ($_SESSION['role'] === 'Member Staff') {
                 document.getElementById('displayMemberSince').value = new Date().toLocaleDateString();
                 document.getElementById('displayStatus').value = document.querySelector(`[data-member-id="${memberId}"]`)?.dataset.memberStatus === '1' ? 'Active' : 'Inactive';
 
-                // Update ID preview name
-                document.getElementById('idPreviewName').textContent = name;
-
-                // Display profile image - FIX: Check if image exists and is not null
+                // Display profile image
                 const profileImageEl = document.getElementById('displayProfileImage');
-                const idPreviewPhotoDiv = document.querySelector('#idPreview .rounded-circle');
 
                 console.log('Profile Image Value:', profileImage); // Debug
 
                 if (profileImage && profileImage !== 'null' && profileImage !== '' && profileImage !== undefined) {
                     profileImageEl.src = profileImage;
                     console.log('Setting image to:', profileImage); // Debug
-
-                    if (idPreviewPhotoDiv) {
-                        idPreviewPhotoDiv.innerHTML = `<img src="${profileImage}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                    }
                 } else {
                     // No image - show placeholder
                     profileImageEl.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23e9ecef"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="14" fill="%23999"%3ENo Photo%3C/text%3E%3C/svg%3E';
-
-                    if (idPreviewPhotoDiv) {
-                        idPreviewPhotoDiv.innerHTML = `<div class="h-100 d-flex align-items-center justify-content-center text-muted">2x2 Photo</div>`;
-                    }
                 }
+
+                // Render unified ID preview using member data
+                const memberData = {
+                    MemberID: memberId,
+                    FName: firstName,
+                    LName: lastName,
+                    Role: document.querySelector(`[data-member-id="${memberId}"]`)?.dataset.memberRole || 'Member',
+                    JoinDate: new Date().toISOString(),
+                    ProfileImage: profileImage
+                };
+                renderIDPreview(memberData, 'idPreview');
 
                 // Switch to profile tab
                 const profileSection = document.getElementById('profile');

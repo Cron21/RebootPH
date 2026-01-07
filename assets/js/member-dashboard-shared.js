@@ -38,6 +38,114 @@ function generateOrganizerQRCode(eventId) {
     return qrData;
 }
 
+// ===== UNIFIED ID PREVIEW RENDERING =====
+
+/**
+ * Generates and renders a complete ID preview card
+ * @param {Object} memberData - Member data object with MemberID, FName, LName, Role, JoinDate, ProfileImage
+ * @param {string} containerId - ID of the container element where preview will be rendered
+ */
+function renderIDPreview(memberData, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with ID "${containerId}" not found`);
+        return;
+    }
+
+    if (!memberData || !memberData.MemberID) {
+        container.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #dc3545; font-size: 14px; text-align: center; padding: 20px;">Invalid member data</div>`;
+        return;
+    }
+
+    const memberName = memberData.FName && memberData.LName 
+        ? `${memberData.FName} ${memberData.LName}` 
+        : memberData.Name || 'Member';
+    const memberRole = memberData.Role || 'Member';
+    const memberId = memberData.MemberID.toString().padStart(7, '0');
+    const joinDate = new Date(memberData.JoinDate);
+    const formattedJoinDate = joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+
+    // Generate photo HTML with fallback to initials
+    let photoHtml = '';
+    if (memberData.ProfileImage && memberData.ProfileImage !== 'null' && memberData.ProfileImage !== '' && memberData.ProfileImage !== undefined) {
+        photoHtml = `<img src="${memberData.ProfileImage}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #035996;" onerror="this.parentElement.innerHTML='<div style=\\"width: 100%; height: 100%; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; border: 2px solid #035996;\\"><span style=\\"font-size: clamp(10px, 40%, 14px);\\\">${memberName.charAt(0).toUpperCase()}</span></div>';">`;
+    } else {
+        const initial = memberName ? memberName.charAt(0).toUpperCase() : 'M';
+        photoHtml = `<div style="width: 100%; height: 100%; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; border: 2px solid #035996;"><span style="font-size: clamp(10px, 40%, 14px);">${initial}</span></div>`;
+    }
+
+    // Build the complete ID preview HTML
+    container.innerHTML = `
+        <!-- Header Section: Blue background with logo and organization info -->
+        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(6px, 3%, 12px) clamp(10px, 3%, 16px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important;">
+            <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(35px, 12%, 50px); height: clamp(35px, 12%, 50px); padding: clamp(3px, 2%, 4px);">
+                <img src="assets/image/reboot2-logo.png" style="width: 80%; height: auto;" alt="Reboot PH Logo">
+            </div>
+            <div style="text-align: right !important; color: white !important; flex: 1; padding-left: clamp(8px, 3%, 12px);">
+                <h4 style="margin: 0; font-weight: bold; font-size: clamp(10px, 2.5vw, 14px); color: white !important; line-height: 1.1;">Reboot Philippines</h4>
+                <p style="margin: clamp(1px, 0.5%, 3px) 0 0 0; font-size: clamp(6px, 1.2vw, 8px); opacity: 0.9; color: white !important; line-height: 1;">2804, Discovery Centre, Pasig City</p>
+            </div>
+        </div>
+
+        <!-- Content Section: Member info with photo, name, role, ID -->
+        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; flex: 1 !important; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); width: 100% !important; min-height: 120px !important;">
+            <!-- Photo Container -->
+            <div style="flex: 0 0 auto; display: flex !important; justify-content: center !important; align-items: center !important; width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px);">
+                ${photoHtml}
+            </div>
+
+            <!-- Member Info Container -->
+            <div style="flex: 1 !important; text-align: left !important; overflow: visible !important; min-width: 0;">
+                <div style="margin-bottom: clamp(2px, 1%, 4px);">
+                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Name:</small>
+                    <span style="font-weight: bold; font-size: clamp(10px, 2.2vw, 12px); color: #333 !important; display: block; line-height: 1;">${memberName}</span>
+                </div>
+                <div style="margin-bottom: clamp(2px, 1%, 4px);">
+                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Role:</small>
+                    <span style="font-weight: bold; font-size: clamp(8px, 1.8vw, 10px); color: #035996 !important; display: block; line-height: 1;">${memberRole}</span>
+                </div>
+                <div style="margin-bottom: 0;">
+                    <span style="font-weight: 800; color: #035996 !important; font-size: clamp(8px, 1.8vw, 10px); display: block; line-height: 1;">ID: RPH-${memberId}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Section: Member since date and QR code -->
+        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important; border-top: 1px solid #f0f0f0;">
+            <div style="font-size: clamp(7px, 1.4vw, 9px); color: #035996 !important; text-align: left !important;">
+                <p style="margin: 0 !important; line-height: 1.2 !important;">
+                    <strong style="display: block; font-size: clamp(6px, 1.2vw, 8px); margin: 0;">Member Since:</strong>
+                    <span style="font-weight: bold; font-size: clamp(7px, 1.3vw, 9px);">${formattedJoinDate}</span>
+                </p>
+            </div>
+            <!-- QR Code Container -->
+            <div style="background: white !important; padding: clamp(2px, 1%, 4px); border-radius: clamp(2px, 1%, 3px); border: 1px solid #eee; flex-shrink: 0;">
+                <img id="idPreviewQRCode_${memberId}" style="width: clamp(50px, 18%, 70px); height: auto; display: block !important;" alt="Member QR Code">
+            </div>
+        </div>
+    `;
+
+    // Generate and set QR code after DOM is updated
+    setTimeout(() => {
+        const qrImg = document.getElementById(`idPreviewQRCode_${memberId}`);
+        if (qrImg) {
+            const memberIdForQR = 'RPH-' + memberId;
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberIdForQR);
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=' + encodeURIComponent(memberDetailsUrl);
+            
+            qrImg.src = qrUrl;
+            
+            // Handle QR load errors with a placeholder
+            qrImg.onerror = function() {
+                console.warn('QR code failed to load, using placeholder');
+                qrImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23e9ecef" width="100" height="100"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999"%3EQR%3C/text%3E%3C/svg%3E';
+            };
+        }
+    }, 100);
+}
+
 // ===== MEMBER PROFILE MANAGEMENT =====
 
 async function loadMemberProfile() {
@@ -99,89 +207,11 @@ async function loadMemberProfile() {
                     }
                 }
 
-                // Update ID preview logic
-                const idPreview = document.getElementById('idPreview');
-                if (idPreview) {
-                    // Clear only the loading content, keep responsive CSS classes
-                    idPreview.innerHTML = '';
+                // Use unified ID preview rendering function
+                renderIDPreview(currentMember, 'idPreview');
 
-                    let photoHtml = '';
-                    // Check if member has a valid profile image
-                    if (currentMember.ProfileImage && currentMember.ProfileImage !== 'null' && currentMember.ProfileImage !== '') {
-                        photoHtml = `<img src="${currentMember.ProfileImage}" alt="Profile" style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; object-fit: cover; border: 2px solid #035996; display: block; flex-shrink: 0;" onerror="this.style.background='#f0f0f0'">`;
-                    } else {
-                        // Fallback to neutral placeholder with initials or generic avatar
-                        photoHtml = `<div style="width: clamp(35px, 18%, 50px); height: clamp(35px, 18%, 50px); border-radius: 50%; background: #f0f0f0; border: 2px solid #035996; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: bold; color: #666;"><span style="font-size: clamp(10px, 40%, 14px);">${window.currentMemberName ? window.currentMemberName.charAt(0).toUpperCase() : 'M'}</span></div>`;
-                    }
-
-                    idPreview.innerHTML = `
-                        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(6px, 3%, 12px) clamp(10px, 3%, 16px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important;">
-                            <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(35px, 12%, 50px); height: clamp(35px, 12%, 50px); padding: clamp(3px, 2%, 4px);">
-                                <img src="assets/image/reboot2-logo.png" style="width: 80%; height: auto;" alt="Logo">
-                            </div>
-                            <div style="text-align: right !important; color: white !important; flex: 1; padding-left: clamp(8px, 3%, 12px);">
-                                <h4 style="margin: 0; font-weight: bold; font-size: clamp(10px, 2.5vw, 14px); color: white !important; line-height: 1.1;">Reboot Philippines</h4>
-                                <p style="margin: clamp(1px, 0.5%, 3px) 0 0 0; font-size: clamp(6px, 1.2vw, 8px); opacity: 0.9; color: white !important; line-height: 1;">2804, Discovery Centre, Pasig City</p>
-                            </div>
-                        </div>
-
-                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; flex: 1 !important; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); width: 100% !important; min-height: 120px !important;">
-                            <div style="flex: 0 0 auto; display: flex !important; justify-content: center !important; align-items: center !important;">
-                                ${photoHtml}
-                            </div>
-
-                            <div style="flex: 1 !important; text-align: left !important; overflow: visible !important; min-width: 0;">
-                                <div style="margin-bottom: clamp(2px, 1%, 4px);">
-                                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Name:</small>
-                                    <span style="font-weight: bold; font-size: clamp(10px, 2.2vw, 12px); color: #333 !important; display: block; line-height: 1;">${window.currentMemberName}</span>
-                                </div>
-                                <div style="margin-bottom: clamp(2px, 1%, 4px);">
-                                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Role:</small>
-                                    <span style="font-weight: bold; font-size: clamp(8px, 1.8vw, 10px); color: #035996 !important; display: block; line-height: 1;">${currentMember.Role || 'Member'}</span>
-                                </div>
-                                <div style="margin-bottom: 0;">
-                                    <span style="font-weight: 800; color: #035996 !important; font-size: clamp(8px, 1.8vw, 10px); display: block; line-height: 1;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; box-sizing: border-box !important; flex: 0 0 auto !important; width: 100% !important; border-top: 1px solid #f0f0f0;">
-                            <div style="font-size: clamp(7px, 1.4vw, 9px); color: #035996 !important; text-align: left !important;">
-                                <p style="margin: 0 !important; line-height: 1.2 !important;">
-                                    <strong style="display: block; font-size: clamp(6px, 1.2vw, 8px); margin: 0;">Member Since:</strong>
-                                    <span style="font-weight: bold; font-size: clamp(7px, 1.3vw, 9px);">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
-                                </p>
-                            </div>
-                            <div id="idPreviewQR" style="background: white !important; padding: clamp(2px, 1%, 4px); border-radius: clamp(2px, 1%, 3px); border: 1px solid #eee; flex-shrink: 0;">
-                                <img id="memberQRCode" 
-                                    style="width: clamp(50px, 18%, 70px); height: auto; display: block !important;">
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Generate QR code URL after DOM is updated
-                    setTimeout(() => {
-                        const qrImg = document.getElementById('memberQRCode');
-                        if (qrImg && currentMember.MemberID) {
-                            const memberId = 'RPH-' + currentMember.MemberID.toString().padStart(7, '0');
-                            const protocol = window.location.protocol;
-                            const host = window.location.host;
-                            const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberId);
-                            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=' + encodeURIComponent(memberDetailsUrl);
-                            
-                            qrImg.src = qrUrl;
-                            
-                            // Handle QR load errors with a placeholder
-                            qrImg.onerror = function() {
-                                console.warn('QR code failed to load, using placeholder');
-                                qrImg.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23e9ecef" width="100" height="100"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" font-size="12" fill="%23999"%3EQR%3C/text%3E%3C/svg%3E';
-                            };
-                        }
-                    }, 100);
-                }
             } else {
                 console.warn('Current member not found in response');
-                // Replace spinner with error message
                 const idPreview = document.getElementById('idPreview');
                 if (idPreview) {
                     idPreview.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #dc3545; font-size: 14px;">Member data not found</div>`;
@@ -189,7 +219,6 @@ async function loadMemberProfile() {
             }
         } else {
             console.warn('API response unsuccessful or missing current member ID');
-            // Replace spinner with placeholder
             const idPreview = document.getElementById('idPreview');
             if (idPreview) {
                 idPreview.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 14px;">Unable to load member profile</div>`;
@@ -204,9 +233,8 @@ async function loadMemberProfile() {
 
     } catch (error) {
         console.error('Error loading member profile:', error);
-        // Always try to replace the spinner with an error or loading state
         const idPreview = document.getElementById('idPreview');
-        if (idPreview && idPreview.querySelector('.spinner-border')) {
+        if (idPreview) {
             idPreview.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 12px; text-align: center; padding: 20px;">Failed to load profile data</div>`;
         }
         try {

@@ -165,8 +165,8 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
             align-items: stretch;
             justify-content: flex-start;
             font-size: clamp(8px, 2vw, 16px);
-            padding: 0 !important;
-            box-sizing: border-box !important;
+            padding: 0;
+            box-sizing: border-box;
             overflow: hidden;
             height: auto;
             min-height: 300px;
@@ -212,13 +212,6 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $memberRoles)) {
         }
 
         #profile label {
-            color: #555;
-        }
-
-        #profile p {
-            color: #333;
-        }
-    </style>        #profile label {
             color: #555;
         }
 
