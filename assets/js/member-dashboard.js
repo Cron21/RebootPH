@@ -190,8 +190,7 @@ async function loadMemberProfile() {
                                     display: flex;
                                     align-items: center;
                                 ">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=RPH-${currentMember.MemberID.toString().padStart(7, '0')}" 
-                                         alt="Member QR Code" 
+                                    <img id="memberDetailsQRCode" src="" alt="Member QR Code" 
                                          style="
                                             width: 22%;
                                             aspect-ratio: 1;
@@ -221,6 +220,19 @@ async function loadMemberProfile() {
 
                         </div>
                     `;
+                    
+                    // Generate QR code after DOM is updated
+                    setTimeout(() => {
+                        const qrImg = document.getElementById('memberDetailsQRCode');
+                        if (qrImg && currentMember.MemberID) {
+                            const memberId = 'RPH-' + currentMember.MemberID.toString().padStart(7, '0');
+                            const protocol = window.location.protocol;
+                            const host = window.location.host;
+                            const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberId);
+                            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(memberDetailsUrl);
+                            qrImg.src = qrUrl;
+                        }
+                    }, 100);
                 }
             }
         }

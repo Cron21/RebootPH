@@ -10402,7 +10402,12 @@ if ($_SESSION['role'] === 'Member Staff') {
 
                             // Generate QR code for ID preview
                             if (qrContainerEl) {
-                                qrContainerEl.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=RPH-${member.MemberID.toString().padStart(7, '0')}" alt="Member QR Code" class="img-fluid" style="width: 100px;">`;
+                                const memberId = 'RPH-' + member.MemberID.toString().padStart(7, '0');
+                                const protocol = window.location.protocol;
+                                const host = window.location.host;
+                                const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberId);
+                                const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(memberDetailsUrl);
+                                qrContainerEl.innerHTML = `<img src="${qrUrl}" alt="Member QR Code" class="img-fluid" style="width: 100px;">`;
                             }
 
                             return true;
