@@ -229,10 +229,13 @@ async function loadMemberProfile() {
                             const protocol = window.location.protocol;
                             const host = window.location.host;
                             const memberDetailsUrl = protocol + '//' + host + '/view-member.html?id=' + encodeURIComponent(memberId);
-                            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(memberDetailsUrl);
+                            const timestamp = new Date().getTime();
+                            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(memberDetailsUrl) + '&t=' + timestamp;
                             qrImg.src = qrUrl;
+                            console.log('QR Code generated for member:', memberId);
+                            console.log('Target URL:', memberDetailsUrl);
                         }
-                    }, 100);
+                    }, 200);
                 }
             }
         }
