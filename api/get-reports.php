@@ -4,8 +4,6 @@ header('Access-Control-Allow-Origin: *');
 
 require_once 'config.php';
 
-session_start();
-
 // Check if user is authenticated
 if (!isset($_SESSION['memberID'])) {
     http_response_code(401);
@@ -13,31 +11,49 @@ if (!isset($_SESSION['memberID'])) {
     exit;
 }
 
+// Verify connection is established
+if (!isset($conn)) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Database connection not established']);
+    exit;
+}
+
 $reportType = $_GET['type'] ?? 'summary';
 $startDate = $_GET['startDate'] ?? date('Y-m-d', strtotime('-30 days'));
 $endDate = $_GET['endDate'] ?? date('Y-m-d');
 
+// Start output buffering to catch any stray output
+ob_start();
+
 try {
     switch ($reportType) {
         case 'summary':
-            echo json_encode(getSummaryReport($conn, $startDate, $endDate));
+            $response = getSummaryReport($conn, $startDate, $endDate);
             break;
         case 'events':
-            echo json_encode(getEventsReport($conn, $startDate, $endDate));
+            $response = getEventsReport($conn, $startDate, $endDate);
             break;
         case 'members':
-            echo json_encode(getMembersReport($conn, $startDate, $endDate));
+            $response = getMembersReport($conn, $startDate, $endDate);
             break;
         case 'trends':
-            echo json_encode(getTrendsReport($conn, $startDate, $endDate));
+            $response = getTrendsReport($conn, $startDate, $endDate);
             break;
         case 'initiatives':
-            echo json_encode(getInitiativesReport($conn, $startDate, $endDate));
+            $response = getInitiativesReport($conn, $startDate, $endDate);
             break;
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid report type']);
+            $response = ['success' => false, 'message' => 'Invalid report type'];
     }
+    
+    // Clear any buffered output
+    ob_end_clean();
+    
+    echo json_encode($response);
 } catch (Exception $e) {
+    // Clear any buffered output
+    ob_end_clean();
+    
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
@@ -314,8 +330,8 @@ function getTrendsReport($conn, $startDate, $endDate) {
                 COUNT(DISTINCT e.EventID) as events,
                 COUNT(DISTINCT r.RegistrationID) as registrations,
                 COUNT(DISTINCT ea.AttendanceID) as attendees,
-                SUM(CASE WHEN r.MemberID IS NOT NULL THEN 1 ELSE 0 END) as memberAttendees,
-                SUM(CASE WHEN r.non_MemberID IS NOT NULL THEN 1 ELSE 0 END) as nonMemberAttendees,
+                COUNT(DISTINCT CASE WHEN r.MemberID IS NOT NULL THEN ea.AttendanceID END) as memberAttendees,
+                COUNT(DISTINCT CASE WHEN r.non_MemberID IS NOT NULL THEN ea.AttendanceID END) as nonMemberAttendees,
                 CASE 
                     WHEN COUNT(DISTINCT r.RegistrationID) > 0 
                     THEN ROUND(COUNT(DISTINCT ea.AttendanceID) / COUNT(DISTINCT r.RegistrationID) * 100, 1)
@@ -329,7 +345,7 @@ function getTrendsReport($conn, $startDate, $endDate) {
             LEFT JOIN feedback f ON ea.AttendanceID = f.AttendanceID
             WHERE DATE(p.ProposedDate) BETWEEN ? AND ?
                 AND e.status = 'Completed'
-            GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m')
+            GROUP BY DATE_FORMAT(p.ProposedDate, '%Y-%m'), p.ProposedDate
             ORDER BY month ASC
         ");
         $trendStmt->execute([$startDate, $endDate]);
