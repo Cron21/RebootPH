@@ -112,46 +112,46 @@ async function loadMemberProfile() {
                     }
 
                     idPreview.innerHTML = `
-                        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(8px, 4%, 16px) clamp(12px, 4%, 20px) !important; box-sizing: border-box !important;">
-                            <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(40px, 15%, 60px); height: clamp(40px, 15%, 60px); padding: clamp(3px, 2%, 5px);">
+                        <div style="background-color: #035996 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; padding: clamp(6px, 3%, 12px) clamp(10px, 3%, 16px) !important; box-sizing: border-box !important; flex: 0 0 auto;">
+                            <div style="background: white !important; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; width: clamp(35px, 12%, 50px); height: clamp(35px, 12%, 50px); padding: clamp(3px, 2%, 4px);">
                                 <img src="assets/image/reboot2-logo.png" style="width: 80%; height: auto;" alt="Logo">
                             </div>
                             <div style="text-align: right !important; color: white !important; flex: 1; padding-left: clamp(8px, 3%, 12px);">
-                                <h4 style="margin: 0; font-weight: bold; font-size: clamp(12px, 3vw, 16px); color: white !important; line-height: 1.2;">Reboot Philippines</h4>
-                                <p style="margin: clamp(2px, 1%, 4px) 0 0 0; font-size: clamp(7px, 1.5vw, 10px); opacity: 0.9; color: white !important; line-height: 1.1;">2804, Discovery Centre, Pasig City</p>
+                                <h4 style="margin: 0; font-weight: bold; font-size: clamp(10px, 2.5vw, 14px); color: white !important; line-height: 1.1;">Reboot Philippines</h4>
+                                <p style="margin: clamp(1px, 0.5%, 3px) 0 0 0; font-size: clamp(6px, 1.2vw, 8px); opacity: 0.9; color: white !important; line-height: 1;">2804, Discovery Centre, Pasig City</p>
                             </div>
                         </div>
 
-                        <div style="display: flex !important; flex-direction: row !important; align-items: center !important; padding: clamp(12px, 3%, 20px) !important; flex: 1; box-sizing: border-box !important; gap: clamp(8px, 3%, 15px);">
-                            <div style="flex: 0 0 auto; display: flex !important; justify-content: flex-start !important;">
+                        <div style="display: flex !important; flex-direction: row !important; align-items: flex-start !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; flex: 1; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); min-height: 0;">
+                            <div style="flex: 0 0 auto; display: flex !important; justify-content: center !important; align-items: center !important;">
                                 ${photoHtml}
                             </div>
 
-                            <div style="flex: 1 !important; text-align: left !important;">
-                                <div style="margin-bottom: clamp(4px, 2%, 8px);">
-                                    <small style="color: #666; font-size: clamp(7px, 1.5vw, 9px); display: block;">Name:</small>
-                                    <span style="font-weight: bold; font-size: clamp(11px, 2.5vw, 14px); color: #333 !important; display: block; line-height: 1.1;">${window.currentMemberName}</span>
+                            <div style="flex: 1 !important; text-align: left !important; overflow: hidden;">
+                                <div style="margin-bottom: clamp(2px, 1%, 4px);">
+                                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Name:</small>
+                                    <span style="font-weight: bold; font-size: clamp(10px, 2.2vw, 12px); color: #333 !important; display: block; line-height: 1;">${window.currentMemberName}</span>
                                 </div>
-                                <div style="margin-bottom: clamp(4px, 2%, 8px);">
-                                    <small style="color: #666; font-size: clamp(7px, 1.5vw, 9px); display: block;">Role:</small>
-                                    <span style="font-weight: bold; font-size: clamp(9px, 2vw, 11px); color: #035996 !important; display: block; line-height: 1.1;">${currentMember.Role || 'Member'}</span>
+                                <div style="margin-bottom: clamp(2px, 1%, 4px);">
+                                    <small style="color: #666; font-size: clamp(6px, 1.3vw, 8px); display: block; margin: 0;">Role:</small>
+                                    <span style="font-weight: bold; font-size: clamp(8px, 1.8vw, 10px); color: #035996 !important; display: block; line-height: 1;">${currentMember.Role || 'Member'}</span>
                                 </div>
-                                <div>
-                                    <span style="font-weight: 800; color: #035996 !important; font-size: clamp(9px, 2vw, 11px); display: block;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span>
+                                <div style="margin-bottom: 0;">
+                                    <span style="font-weight: 800; color: #035996 !important; font-size: clamp(8px, 1.8vw, 10px); display: block; line-height: 1;">ID: RPH-${currentMember.MemberID.toString().padStart(7, '0')}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div style="display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; padding: clamp(12px, 3%, 20px) !important; box-sizing: border-box !important; gap: clamp(8px, 2%, 12px); border-top: 1px solid #f0f0f0;">
-                            <div style="font-size: clamp(8px, 1.5vw, 10px); color: #035996 !important; text-align: left !important; flex: 1;">
-                                <p style="margin: 0 !important; line-height: 1.3 !important;">
-                                    <strong style="display: block; font-size: clamp(7px, 1.5vw, 9px);">Member Since:</strong>
-                                    <span style="font-weight: bold; font-size: clamp(8px, 1.5vw, 10px);">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
+                        <div style="display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important; padding: clamp(8px, 2.5%, 12px) clamp(8px, 2.5%, 12px) !important; box-sizing: border-box !important; gap: clamp(6px, 2%, 10px); flex: 0 0 auto; border-top: 1px solid #f0f0f0;">
+                            <div style="font-size: clamp(7px, 1.4vw, 9px); color: #035996 !important; text-align: left !important;">
+                                <p style="margin: 0 !important; line-height: 1.2 !important;">
+                                    <strong style="display: block; font-size: clamp(6px, 1.2vw, 8px); margin: 0;">Member Since:</strong>
+                                    <span style="font-weight: bold; font-size: clamp(7px, 1.3vw, 9px);">${joinDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}</span>
                                 </p>
                             </div>
-                            <div id="idPreviewQR" style="background: white !important; padding: clamp(3px, 2%, 5px); border-radius: clamp(3px, 2%, 5px); border: 1px solid #eee; flex-shrink: 0;">
+                            <div id="idPreviewQR" style="background: white !important; padding: clamp(2px, 1%, 4px); border-radius: clamp(2px, 1%, 3px); border: 1px solid #eee; flex-shrink: 0;">
                                 <img id="memberQRCode" 
-                                    style="width: clamp(60px, 20%, 80px); height: auto; display: block !important;">
+                                    style="width: clamp(50px, 18%, 70px); height: auto; display: block !important;">
                             </div>
                         </div>
                     `;
